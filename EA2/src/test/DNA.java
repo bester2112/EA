@@ -1,0 +1,125 @@
+package test;
+
+import java.util.Random;
+import java.util.Scanner;
+
+public class DNA {
+	
+	private Signal signal;
+	private int input;
+	private double fitness;
+	
+	public DNA(Signal signal) {
+		this.signal = signal;
+	}
+	
+	// die Fitness Funktion wird von dem Probanden evaluieren lassen.
+	public void fitness() {
+		// Aufrufen der Benutzer Eingabe 
+		userInput();
+		calculateFitness();
+	}
+	
+	public void userInput() {
+		String stype = " UNINIZIALISIERT ";
+		switch (signal.getType()){
+			case KURZ:
+				stype = "Kurz";
+			break;
+			case MITTEL:
+				stype = "Mittel";
+			break;
+			case LANG:
+				stype = "Lang";
+			break;
+		}
+
+		System.out.println("-------------------- " );
+		System.out.println("Das Signal ist : " );
+		signal.printString();		
+		System.out.println("Das folgende Signal ist " + stype + ".");
+		System.out.println("Bewerten Sie bitte mit den Zahlen \n\t1 zu kurz \n\t2 passend \n\t3 zu lang");
+		Scanner reader = new Scanner(System.in); 
+		System.out.print("Ihre Eingabe : ");
+		int n = reader.nextInt();
+		
+		input = n;
+	}
+	
+	public void calculateFitness() {
+		switch (input) {
+		case 1: 	// Eingabe war zu kurz
+			fitness = 1;
+		break;
+		case 2: // Eingabe war passend
+			fitness = 3;
+		break;
+		case 3: // Eingabe war zu lang
+			fitness = 1;
+		break;
+		default:
+		break;
+		}
+	}
+	
+	// TODO durchgehen, was passiert bei ungeraden zahlen, also 151 oder 154 ms
+	// crossover erzeugt ein neues Kind aus den beiden Eltern
+	public DNA crosover(DNA partner) {
+		Signal pSignal = partner.getSignal();
+		int time = -1;
+		
+		int temp = Math.abs(signal.getEins() - pSignal.getEins());
+		int res = temp / 2;
+		if (signal.getEins() > pSignal.getEins()) {
+			time = pSignal.getTime() + (res * 5);
+		} else {
+			time = signal.getTime() + (res * 5);
+		}
+		
+		Signal childSignal = new Signal(signal.getType(), time);
+		DNA child = new DNA(childSignal);
+		
+		return child;
+	}
+	
+	// 
+	public void mutate(int mutationRate) {
+		int min = 0; // das ist fest, es beginn immer bei 0
+		int max = 99;
+		
+		Random r = new Random();
+		int resEins = r.nextInt((max - min) + 1) + min;
+		int resNull = r.nextInt((max - min) + 1) + min;
+		System.out.print("RANDOM 0 : " + resNull);
+		System.out.print(" RANDOM 1 : " + resEins);
+		System.out.println();
+		
+		if ((resNull < mutationRate) && (resEins < mutationRate)) {
+			// die Stelle 0 und die Stelle 1 war zufall, das beide geändert werden sollten
+			//  tt
+			// 1100 => 1010 X geht nicht, erweitere dann einfach eine 0 zur 1 
+			signal.setEins(signal.getEins() + 1);
+			signal.setNull(signal.getNull() - 1);
+			signal.printString();
+		} else {
+			// nur eine stelle wollte gewechselt werden
+			if (resNull < mutationRate) { //  1100  => 1110
+				signal.setEins(signal.getEins() + 1);
+				signal.setNull(signal.getNull() - 1);
+			}
+			if (resEins < mutationRate) { //  1100  => 1000
+				signal.setEins(signal.getEins() - 1);
+				signal.setNull(signal.getNull() + 1);
+			}
+			signal.printString();
+		}
+	}
+	
+	public Signal getSignal() {
+		return signal;
+	}
+	
+	public double getFitness() {
+		return fitness;
+	}
+}
