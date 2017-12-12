@@ -38,7 +38,7 @@ public class DNA {
 		System.out.println("Das Signal ist : " );
 		signal.printString();		
 		System.out.println("Das folgende Signal ist " + stype + ".");
-		System.out.println("Bewerten Sie bitte mit den Zahlen \n\t1 zu kurz \n\t2 passend \n\t3 zu lang");
+		System.out.println("Bewerten Sie bitte mit den Zahlen \n\t1 gar nicht \n\t2 schlecht \n\t3 ok / geht so \n\t4 gut \n\t5 sehr gut");
 		Scanner reader = new Scanner(System.in); 
 		System.out.print("Ihre Eingabe : ");
 		int n = reader.nextInt();
@@ -48,19 +48,26 @@ public class DNA {
 	
 	public void calculateFitness() {
 		switch (input) {
-		case 1: 	// Eingabe war zu kurz
+		case 1: 	// Eingabe wurde 'gar nicht' erkannt
 			fitness = 1;
 		break;
-		case 2: // Eingabe war passend
+		case 2: // Eingabe wurde 'schlecht' erkannt
 			fitness = 3;
 		break;
-		case 3: // Eingabe war zu lang
+		case 3: // Eingabe wurde 'ok / geht so' erkannt
+			fitness = 1;
+		break;
+		case 4: // Eingabe wurde 'gut' erkannt
+			fitness = 1;
+		break;
+		case 5: // Eingabe wurde 'sehr gut' erkannt
 			fitness = 1;
 		break;
 		default:
 		break;
 		}
 	}
+	
 	
 	// TODO durchgehen, was passiert bei ungeraden zahlen, also 151 oder 154 ms
 	// crossover erzeugt ein neues Kind aus den beiden Eltern
