@@ -7,10 +7,47 @@ public class DNA {
 	
 	private Signal signal;
 	private int input;
+	private int inputType;
 	private double fitness;
 	
 	public DNA(Signal signal) {
 		this.signal = signal;
+	}
+	
+	public void calculateSignalType() {
+		// benutzer erfragen
+		chooseType();
+		validateType();
+	}
+	
+	public void chooseType() {
+		System.out.println("-------------------------------------------");
+		System.out.println("Das Signal ist : " );
+		signal.printString();
+		System.out.println("Bitte bewerten Sie das Signal \n\t 1 für kurz \n\t 2 für mittel \n\t 3 für lang");
+		
+		Scanner reader = new Scanner(System.in); 
+		System.out.print("Ihre Eingabe : ");
+		int n = reader.nextInt();
+		
+		inputType = n;
+	}
+	
+	public void validateType() {
+		switch (inputType) {
+		case 1: // kurz
+			signal.setType(SignalTyp.KURZ);
+		break;
+		case 2: // mittel
+			signal.setType(SignalTyp.MITTEL);
+		break;
+		case 3:	// lang
+			signal.setType(SignalTyp.LANG);
+		break;
+		default:
+			System.out.println("ERROR in der validateType Funktion");
+		break;
+		}
 	}
 	
 	// die Fitness Funktion wird von dem Probanden evaluieren lassen.
@@ -31,6 +68,10 @@ public class DNA {
 			break;
 			case LANG:
 				stype = "Lang";
+			break;
+
+			default:
+				System.out.println("ERROR in der userInput Funktion");
 			break;
 		}
 
@@ -64,6 +105,7 @@ public class DNA {
 			fitness = 1;
 		break;
 		default:
+			System.out.println("ERROR in der calculateFitness Funktion");
 		break;
 		}
 	}

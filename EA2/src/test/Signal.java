@@ -9,7 +9,8 @@ package test;
 enum SignalTyp {
 	KURZ,
 	MITTEL,
-	LANG
+	LANG,
+	NODATA
 }
 
 public class Signal {
@@ -23,6 +24,15 @@ public class Signal {
 	private int begin;	  	 	// MinimalZeit für den Typ von Signal
 	private int end;			  	// MaximalZeit für den Typ von Signal
 	
+	/**
+	 * erzeugt ein Signal, dass mit der genannten Zeit
+	 * @param sTime Zeit
+	 */
+	public Signal(int sTime) {
+		type = SignalTyp.NODATA;
+		time = sTime;
+		init();
+	}
 	
 	/**
 	 * Konstruktor des Signals
@@ -32,7 +42,7 @@ public class Signal {
 	public Signal(SignalTyp sType, int sTime) {
 		type = sType; 
 		time = sTime;
-		cSignalCode = new char [(end/5)];
+		//cSignalCode = new char [(end/5)];
 		init();
 	}
 	
@@ -43,7 +53,6 @@ public class Signal {
 		rightTime();
 		calculate();
 		createString(); 	// erzeuge den Code
-		
 	}
 	
 	/**
@@ -62,6 +71,9 @@ public class Signal {
 			case LANG:
 				begin = Main.MINLANGTIME;
 				end   = Main.MAXLANGTIME;
+			case NODATA:
+				begin = Main.MINTIME;
+				end   = Main.MAXTIME; 
 			break;
 		}
 	}
@@ -113,6 +125,14 @@ public class Signal {
 	 */
 	public void setNull(int n) {
 		iNull = n;
+	}
+	
+	/**
+	 * setzt den Typen des Signals 
+	 * @param sType ist der Typ der gesetzt werden soll
+	 */
+	public void setType(SignalTyp sType) {
+		type = sType;
 	}
 	
 	/**

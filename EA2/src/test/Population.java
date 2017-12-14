@@ -8,9 +8,45 @@ public class Population {
 	private DNA[] population;	
 	private int numOfPopulation;
 	
-	private ArrayList<DNA> poolK;									// Starte mit einem leeren pool
-	private ArrayList<DNA> poolM;
+	private ArrayList<DNA> poolK;								// Starte mit einem leeren pool
+	private ArrayList<DNA> poolM;								// 
 	private ArrayList<DNA> poolL;
+	
+	private ArrayList<DNA> pool;
+	
+	/**
+	 * Erstellt eine Population, bei dem die Elemente gleich verteilt sind
+	 * @param n anzahl der Elemente
+	 * @param b 
+	 */
+	public Population(int n, boolean b) {
+		
+		numOfPopulation = n;
+		population = new DNA[numOfPopulation];
+		pool = new ArrayList<DNA>();
+		Signal s = null;
+		
+		int iX = Main.MAXTIME / numOfPopulation;
+		for (int i = 1; i <= numOfPopulation; i++) {
+			System.out.println(" ----  i = " + i);
+			s = new Signal(iX * i);
+			population[i - 1] = new DNA(s);
+		}
+
+		ArrayList array = new ArrayList();
+		int index = 0;
+		do {
+			// gehe das Array zufällig durch und frage nach (daher die grenzen 0 bis n-1)
+			int i = getRandom(0, (numOfPopulation - 1));
+			if (!array.contains(i)) {
+				array.add(i);
+				population[i].calculateSignalType();
+				index++;
+			}
+		} while (index != numOfPopulation);
+
+		
+	}
 	
 	/**
 	 * erstelle eine Population mit n Signalen für jeden Signaltypen

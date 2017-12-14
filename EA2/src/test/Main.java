@@ -4,7 +4,9 @@ public class Main {
 	
 	final static int MUTATIONRATE = 5; // angabe in Prozent 5 ist das zwischen 0 und 4 also 5 % die wahrscheinlichkeit liegt, dass eine Zufällige Zahl bestimmt wird
 	
-	//final static int ; 
+	//final static int ;
+	final static int MINTIME = 0;
+	final static int MAXTIME = 1000;
 	
 	final static int MINKURZTIME = 100;
 	final static int MAXKURZTIME = 300;
@@ -56,6 +58,8 @@ public class Main {
 		for (int i = 0; i < 100; i++) {
 			dk2.mutate(MUTATIONRATE);
 		}*/
+		
+		Population startPop = new Population(20, true);
 		
 		Population p = new Population(10);
 		
