@@ -89,6 +89,42 @@ public class Population {
 		calculate();
 	}
 	
+	/**
+	 * berechnet die Grenzen der Signaltypen
+	 */
+	public void calculateZone() {
+		int minK = 0;
+		int maxK = 0;
+		int minM = 0;
+		int maxM = 0;
+		int minL = 0;
+		int maxL = 0;
+		
+		for (int i = 0; i < numOfPopulation; i++) {
+			Signal s = population[i].getSignal();
+			int time = s.getTime();
+			switch (s.getType()) {
+			case KURZ: // kurz
+				if (minK == 0) {
+					minK = time;
+				}
+				if (maxK < time) {
+					maxK = time;
+				}
+			break;
+			case MITTEL: // mittel
+				// TODO
+			break;
+			case LANG:	// lang
+				// TODO
+			break;
+			default:
+				System.out.println("ERROR in der calculateZone Funktion");
+			break;
+			}
+		}
+	}
+	
 	public void calculate() {
 		calculateFitness();
 		selection();

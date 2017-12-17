@@ -171,4 +171,8 @@ public class DNA {
 	public double getFitness() {
 		return fitness;
 	}
+	
+	/*public int getInputType() {
+		return inputType;
+	}*/
 }

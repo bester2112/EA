@@ -26,7 +26,7 @@ public class Signal {
 	
 	/**
 	 * erzeugt ein Signal, dass mit der genannten Zeit
-	 * @param sTime Zeit
+	 * @param sTime Zeit in ms
 	 */
 	public Signal(int sTime) {
 		type = SignalTyp.NODATA;
@@ -37,7 +37,7 @@ public class Signal {
 	/**
 	 * Konstruktor des Signals
 	 * @param sType Signaltyp 
-	 * @param sTime Zeit, die sich in dem Intervall des Signaltyps befinden soll
+	 * @param sTime Zeit in ms, die sich in dem Intervall des Signaltyps befinden soll
 	 */
 	public Signal(SignalTyp sType, int sTime) {
 		type = sType; 
