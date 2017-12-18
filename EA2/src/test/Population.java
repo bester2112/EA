@@ -14,6 +14,9 @@ public class Population {
 	
 	private ArrayList<DNA> pool;
 	
+	private int[] arithmetikMedian;								// beinhaltet das arithmetische mittel von allen Kurzen (index 0), allen mittleren (index 1) und allen langen (index 2)
+	private int[] zones;											// beinhaltet die intervall grenzen in der folgenden Reihenfolge [minK, maxK, minM, macM, minL, maxL]	
+	
 	/**
 	 * Erstellt eine Population, bei dem die Elemente gleich verteilt sind
 	 * @param n anzahl der Elemente
@@ -45,7 +48,46 @@ public class Population {
 			}
 		} while (index != numOfPopulation);
 
+		if (!calculateZone()) {
+			// erneut benutzer abfragen
+		}
+	}
+	
+	public Population(int n, int[] x) {
+		arithmetikMedian = new int[3]; 
+		zones = new int[6]; 
 		
+		numOfPopulation = n;
+		population = new DNA[numOfPopulation];
+		pool = new ArrayList<DNA>();
+		Signal s = null;
+		
+		int iX = Main.MAXTIME / numOfPopulation;
+		for (int i = 1; i <= numOfPopulation; i++) {
+			System.out.println(" ----  i = " + i);
+			s = new Signal(iX * i);
+			population[i - 1] = new DNA(s);
+		}
+
+		ArrayList array = new ArrayList();
+		int index = 0;
+		do {
+			// gehe das Array zufällig durch und frage nach (daher die grenzen 0 bis n-1)
+			int i = getRandom(0, (numOfPopulation - 1));
+			if (!array.contains(i)) {
+				array.add(i);
+				//population[i].calculateSignalType();
+				population[i].setInputType(x[i]);
+				population[i].validateType();
+				index++;
+			}
+		} while (index != numOfPopulation);
+
+		if (!calculateZone()) {
+			// erneut benutzer abfragen
+		}
+		calculateArithmeticMedian();
+		calculateNewZones();
 	}
 	
 	/**
@@ -92,13 +134,15 @@ public class Population {
 	/**
 	 * berechnet die Grenzen der Signaltypen
 	 */
-	public void calculateZone() {
+	public boolean calculateZone() {
+		boolean res = false;
 		int minK = 0;
 		int maxK = 0;
 		int minM = 0;
 		int maxM = 0;
 		int minL = 0;
 		int maxL = 0;
+		
 		
 		for (int i = 0; i < numOfPopulation; i++) {
 			Signal s = population[i].getSignal();
@@ -113,15 +157,153 @@ public class Population {
 				}
 			break;
 			case MITTEL: // mittel
-				// TODO
+				if (maxM < time) {
+					maxM = time;
+				}
+				if (minM < maxK) {
+					minM = maxM;
+				}
 			break;
 			case LANG:	// lang
-				// TODO
-			break;
+				if (maxL < time) {
+					maxL = time;
+				}
+				if (minL < maxM) {
+					minL = time;
+				}
+ 			break;
 			default:
 				System.out.println("ERROR in der calculateZone Funktion");
 			break;
 			}
+		}
+		if ((minK < maxK) && (maxK < minM) && (minM < maxM) && (maxM < minL) && (minL < maxL)) {
+			res = true;
+			System.out.println(minK);
+			System.out.println(maxK);
+			System.out.println(minM);
+			System.out.println(maxM);
+			System.out.println(minL);
+			System.out.println(maxL);
+			zones[0] = minK;
+			zones[1] = maxK;
+			zones[2] = minM;
+			zones[3] = maxM;
+			zones[4] = minL;
+			zones[5] = maxL;
+		}
+		
+		return res;
+	}
+	
+	public void calculateArithmeticMedian() {
+		int midK = 0;
+		int indexK = 0;
+		int midM = 0;
+		int indexM = 0;
+		int midL = 0;
+		int indexL = 0;
+		
+		for (int i = 0; i < numOfPopulation; i++) {
+			Signal s = population[i].getSignal();
+			switch (s.getType()) {
+			case KURZ:
+				midK = midK + s.getTime();
+				indexK++;
+			break;
+			case MITTEL:
+				midM = midM + s.getTime();
+				indexM++;
+			break;
+			case LANG:
+				midL = midL + s.getTime();
+				indexL++;
+			break;
+			default:
+				System.out.println("ERROR in der calculateArithmeticMedian Funktion");
+				break;
+			}
+		}
+		
+		arithmetikMedian[0] = midK / indexK;
+		arithmetikMedian[1] = midM / indexM;
+		arithmetikMedian[2] = midL / indexL;
+	}
+	
+	public void calculateNewZones() {
+		// die minimale und maximale grenze von einem Signal kann nur 50 / 1000 sein, daher dürfen diese nicht weiter angepasst werden
+		// daher wird zuerst das kurzen und danach das Lange Signal so angepasst, dass der median ungefähr passt
+		int minK = zones[0];
+		int maxK = zones[1];
+		int minM = zones[2];
+		int maxM = zones[3];
+		int minL = zones[4];
+		int maxL = zones[5];
+		int newMaxK = -1; 
+		int newMinL = -1;
+		
+		int medK = (minK + maxK) / 2;
+		int medM = -1;
+		int medL = (minL + maxL) / 2;
+		
+		if (medK > arithmetikMedian[0]) {
+			// berechne eine neue obere grenze für K
+			newMaxK = (arithmetikMedian[0] * 2) - minK;
+		}
+		
+		if (medL > arithmetikMedian[2]) {
+			// bereche eine neue untere grenze für L 
+			newMinL = (arithmetikMedian[2] * 2) - maxL;
+		}
+		
+		if (maxK > newMaxK) {
+			maxK = newMaxK;
+			minM = newMaxK + 50; // plus mindestabstand
+		}
+		
+		if (minL > newMinL) {
+			minL = newMinL;
+			maxM = newMinL - 50; // minus mindestandtand
+		}		
+		
+		int indexLeft = minM;
+		int indexRight = maxM;
+		int diff = 0;
+		
+		int minDiff = 1000;
+		ArrayList bestLeft = new ArrayList();
+		ArrayList bestRight = new ArrayList();
+		ArrayList bestMid = new ArrayList();
+		int arrayIndex = 0;
+		
+		medM = (indexLeft + indexRight) / 2;
+		do {
+			do {
+				if (medM > arithmetikMedian[1]) {
+					// TODO berechne besten Median
+					// berechne kleinsten abstand zum median
+					diff = medM - arithmetikMedian[1];
+					if (diff < minDiff) {
+						minDiff = diff;
+						bestLeft.add(indexLeft);
+						bestRight.add(indexRight);
+						bestMid.add(minDiff);
+						arrayIndex++;
+					}
+				}
+				indexLeft++;
+				medM = (indexLeft + indexRight) / 2;
+			} while (indexLeft <= arithmetikMedian[1]);
+			indexRight--;
+			if (indexLeft >= arithmetikMedian[1]) {
+				indexLeft = minM;
+			}
+		} while (indexRight >= arithmetikMedian[1]);
+		
+		for (int i = 0; i < bestLeft.size(); i++) {
+			System.out.print(i + ". Best Left  => " + bestLeft.get(i));
+			System.out.print("\t Best Right  => " + bestRight.get(i));
+			System.out.println("\t Best Mid  => " + bestMid.get(i));
 		}
 	}
 	

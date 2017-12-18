@@ -15,6 +15,11 @@ enum SignalTyp {
 
 public class Signal {
 	
+	/*if (minM < maxK) {
+	minM = maxK;
+	maxM = maxK;
+}*/
+	
 	private SignalTyp type;
 	private int time;		  	// Zeit in ms
 	private String signalCode;	// 

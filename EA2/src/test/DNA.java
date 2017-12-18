@@ -164,6 +164,10 @@ public class DNA {
 		}
 	}
 	
+	public void setInputType(int iType) {
+		inputType = iType;
+	}
+	
 	public Signal getSignal() {
 		return signal;
 	}

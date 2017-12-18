@@ -58,8 +58,8 @@ public class Main {
 		for (int i = 0; i < 100; i++) {
 			dk2.mutate(MUTATIONRATE);
 		}*/
-		
-		Population startPop = new Population(20, true);
+		int[] x = {1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 2, 2, 3, 2, 2, 3, 3, 3, 3, 3};
+		Population startPop = new Population(20, x);
 		
 		Population p = new Population(10);
 		
