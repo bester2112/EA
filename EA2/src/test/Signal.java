@@ -76,6 +76,7 @@ public class Signal {
 			case LANG:
 				begin = Main.MINLANGTIME;
 				end   = Main.MAXLANGTIME;
+			break;
 			case NODATA:
 				begin = Main.MINTIME;
 				end   = Main.MAXTIME; 
