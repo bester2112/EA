@@ -247,14 +247,29 @@ namespace EA3
                         if (maxK < time)
                         {
                             maxK = time;
+                            if ((minM < time) && (maxM < time))
+                            {
+                                minM = time;
+                                maxM = time;
+                                if ((minL < time) && (maxL < time))
+                                {
+                                    minL = time;
+                                    maxL = time;
+                                }
+                            }
                         }
                         break;
                     case SignalTyp.MITTEL: // mittel
                         if (maxM < time)
                         {
                             maxM = time;
+                            if ((minL < time) && (maxL < time))
+                            {
+                                minL = time;
+                                maxL = time;
+                            }
                         }
-                        if (minM < maxK)
+                        if (minM <= maxK)
                         {
                             minM = maxM;
                         }
@@ -264,7 +279,7 @@ namespace EA3
                         {
                             maxL = time;
                         }
-                        if (minL < maxM)
+                        if (minL <= maxM)
                         {
                             minL = time;
                         }

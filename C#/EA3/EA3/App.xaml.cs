@@ -39,6 +39,14 @@ namespace EA3
         /// <param name="e">Details über Startanforderung und -prozess.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
+            // TODO (entfernen wenn nicht mehr benoetigt wird)
+#if DEBUG 
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                this.DebugSettings.EnableFrameRateCounter = true;
+            }
+# endif
+            // END TODO 
             Frame rootFrame = Window.Current.Content as Frame;
 
             // App-Initialisierung nicht wiederholen, wenn das Fenster bereits Inhalte enthält.

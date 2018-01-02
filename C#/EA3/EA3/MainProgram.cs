@@ -125,16 +125,24 @@ namespace EA3
         }
 
         // Diese Methode berechnet fuer die Startpopulation die Bereiche der Zonen.
-        public void calculateStartZones()
+        // return true, wenn es richtig berechnet wurde
+        // false, wenn die Daten nicht zu gebrauchen Sind, der Benutzer muss die Daten dann erneut eingeben
+        public bool calculateStartZones()
         {
+            bool res = false;
             if (!p.calculateZone())
             {
                 // erneut benutzer abfragen
+                p = new Population(startSize, true);
+
+                res = false;
+            } else {
+                p.calculateArithmeticMedian();
+                p.calculateNewZones();
+
+                res = true;
             }
-            p.calculateArithmeticMedian();
-            p.calculateNewZones();
-            // Es kann zu Negativen Zahlen kommen in den Methoden, daher muss ich mir das noch mal angucken!
-            // TODO
+            return res;
         }
 
         public int getValue()
