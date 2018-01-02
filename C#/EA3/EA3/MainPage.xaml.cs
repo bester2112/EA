@@ -20,6 +20,8 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Core;
 using static EA3.BLE;
+using Windows.UI.ViewManagement;
+using Windows.ApplicationModel.Core;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x407 dokumentiert.
 
@@ -78,9 +80,43 @@ namespace EA3
         public MainPage()
         {
             this.InitializeComponent();
+
+            Loaded += (s, e) =>
+            {
+                var coreTitleBar1 = CoreApplication.GetCurrentView().TitleBar;
+                coreTitleBar1.ExtendViewIntoTitleBar = true;
+            };
+
+
+            var appView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
+            appView.FullScreenSystemOverlayMode = FullScreenSystemOverlayMode.Minimal;
+
             initCode();
             setup = new MainProgram();
 
+            //CoreApplicationViewTitleBar coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
+            //coreTitleBar.IsVisibleChanged += OnIsVisibleChanged;
+
+            /*var coreTitleBar1 = CoreApplication.GetCurrentView().TitleBar;
+            coreTitleBar1.ExtendViewIntoTitleBar = true;*/
+
+            //CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+           // Window.Current.SetTitleBar(null);
+
+
+            // Setzt die Farbe der Leiste auf Weiß
+           /* ApplicationViewTitleBar titleBar = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().TitleBar;
+            titleBar.ButtonBackgroundColor = Windows.UI.Colors.White;
+            titleBar.ButtonForegroundColor = Windows.UI.Colors.White;
+            titleBar.ButtonHoverBackgroundColor = Windows.UI.Colors.White;
+            titleBar.ButtonHoverForegroundColor = Windows.UI.Colors.White;
+            titleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.White;
+            titleBar.ButtonInactiveForegroundColor = Windows.UI.Colors.White;
+            titleBar.ButtonPressedBackgroundColor = Windows.UI.Colors.White;
+            titleBar.ButtonPressedForegroundColor = Windows.UI.Colors.White;
+            titleBar.InactiveBackgroundColor = Windows.UI.Colors.White;
+            titleBar.InactiveForegroundColor = Windows.UI.Colors.White;
+            */
             //textBlock.Text = setup.playSignalStart();
 
 
@@ -99,9 +135,40 @@ namespace EA3
 
 
 
+
         private void initCode()
         {
             untypedSignal = SignalTyp.NODATA;
+        }
+
+        /**
+        *** entfernt alle StartElemente und plaziert die neuen Elemente für den Algorithmus.
+        **/
+        private void removeStartElements()
+        {
+            relativePanelStart.Children.Clear();
+            playSignalButton.Visibility = Visibility.Collapsed;
+            /*
+            relativePanelStart.Children.Remove((UIElement)this.FindName("NextSignalButtonStart"));
+            relativePanelStart.Children.Remove((UIElement)this.FindName("radioButtonKurz"));
+            relativePanelStart.Children.Remove((UIElement)this.FindName("radioButtonMittel"));
+            relativePanelStart.Children.Remove((UIElement)this.FindName("radioButtonLang"));
+            relativePanelStart.Children.Remove((UIElement)this.FindName("playSignalButtonStart"));
+            */
+        }
+
+        private void moveElements()
+        {
+            borderAlgo.Margin = new Thickness(0,0,0,0);
+            textBlockAlgo.Margin = new Thickness(54, 40, 0, 0);
+            radioButtonVeryBad.Margin = new Thickness(27, 267, 0, 0);
+            radioButtonBad.Margin = new Thickness(152, 267, 0, 0);
+            radioButtonOK.Margin = new Thickness(272, 267, 0, 0);
+            radioButtonGood.Margin = new Thickness(361, 267, 0, 0);
+            radioButtonVeryGood.Margin = new Thickness(426, 267, 0, 0);
+            replaySignalButtonAlgo.Margin = new Thickness(387, 141, -1324, -141);
+            nextButtonAlgo.Margin = new Thickness(387, 89, -1324, -89);
+            playSignalButtonAlgo.Margin = new Thickness(387, 41, -1324, -41);
         }
 
         private async void NextSignalButton_Click_1(object sender, RoutedEventArgs e)
@@ -114,26 +181,29 @@ namespace EA3
             mediaElement.Play();*/
 
             // Falls nicht auf Next gedrückt worden ist, dann soll eine Fehler meldung erscheinen.
-            if (untypedSignal == SignalTyp.NODATA) {
+            if (untypedSignal == SignalTyp.NODATA)
+            {
                 var dialog = new MessageDialog("Sie haben Keine Eingabe getätigt \n" +
                     "Bitte waehlen Sie Ihre Auswahl und bestaetigen Sie Ihre Eingabe.");
                 await dialog.ShowAsync();
-            } else {
+            }
+            else
+            {
                 setup.nextSignal(untypedSignal);
                 switch (untypedSignal)
                 {
                     case SignalTyp.KURZ:
-                        radioButtonKurz.IsChecked = false; 
-                    break;
+                        radioButtonKurz.IsChecked = false;
+                        break;
                     case SignalTyp.MITTEL:
                         radioButtonMittel.IsChecked = false;
-                    break;
+                        break;
                     case SignalTyp.LANG:
                         radioButtonLang.IsChecked = false;
-                    break;
+                        break;
                     default:
-                        Debug.WriteLine("ERROR in der  NextSignalButton_Click_1 Methode");
-                    break;
+                        Debug.WriteLine("ERROR in der  NextSignalButtonStart_Click_1 Methode");
+                        break;
                 }
 
                 NextSignalButton.IsEnabled = false;
@@ -142,7 +212,7 @@ namespace EA3
             }
         }
 
-        private void playSignalButton_Click(object sender, RoutedEventArgs e)
+        private async void playSignalButton_Click(object sender, RoutedEventArgs e)
         {
             if (setup.isStartElementAvailable())
             {
@@ -150,12 +220,48 @@ namespace EA3
                 textBlock.Text = s;
                 NextSignalButton.IsEnabled = true;
                 playSignalButton.IsEnabled = false;
-            } else {
-                NextSignalButton.IsEnabled = true;
-                // Eingabe des Benutzers ist fertig für die validierung der gleichverteilten Population. 
-                // Es kann jetzt die Berechnung der Grenzen für Kurz, Mittel und Lang erfolgen.
-                setup.calculateStartZones();
             }
+            else
+            {
+                if (setup.calculateStartZones())
+                {
+                    NextSignalButton.IsEnabled = false;
+                    playSignalButton.IsEnabled = false;
+
+                    removeStartElements();
+                    // Eingabe des Benutzers ist fertig für die validierung der gleichverteilten Population. 
+                    // Es kann jetzt die Berechnung der Grenzen für Kurz, Mittel und Lang erfolgen.
+                    // Der Benutzer hat alle Daten korrekt eingegeben und die Berechnung ist erfolgt und nun kann der Algorithmus Starten
+                    var dialog = new MessageDialog("Ihre Eingabe wurde erfolgreich evaluiert\n" +
+                                                 "Bitte drücken Sie auf den Knopf 'Schritt 2' um mit den Programm fortzufahren.");
+                    await dialog.ShowAsync();
+                }
+                else
+                {
+                    NextSignalButton.IsEnabled = false;
+                    playSignalButton.IsEnabled = true;
+                    // Der Benutzer hat Eingabe Falsch Evaluiert und es sind keine validen Daten herausgekommen, mit
+                    // dem das Programm weiter rechnen kann.
+                    var dialog = new MessageDialog("Ihre Daten die Sie eingegeben haben sind leider zu sehr verfälscht.\n" +
+                                                 "Sie müssen die Daten erneut eingeben ");
+                    await dialog.ShowAsync();
+                }
+            }
+        }
+
+        private void replaySignalButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void removeElementsButton_Click(object sender, RoutedEventArgs e)
+        {
+            removeStartElements();
+        }
+
+        private void moveElementsButton_Click(object sender, RoutedEventArgs e)
+        {
+            moveElements();
         }
 
         private void radioButtonKurz_Checked(object sender, RoutedEventArgs e)
@@ -172,6 +278,47 @@ namespace EA3
         {
             untypedSignal = SignalTyp.LANG;
         }
+
+        private void radioButtonVeryBad_Checked(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void radioButtonBad_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void radioButtonOK_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void radioButtonGood_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void radioButtonVeryGood_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void replaySignalButtonAlgo_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void nextButtonAlgo_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void playSignalButtonAlgo_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
 
         private void connectButton_Click(object sender, RoutedEventArgs e)
         {
@@ -490,7 +637,5 @@ namespace EA3
             ANIMATION,
             PAUSE,       // not used yet
         }
-
-        
     }
 }
