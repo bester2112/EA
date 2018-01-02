@@ -154,13 +154,25 @@ public class Population {
 				}
 				if (maxK < time) {
 					maxK = time;
+					if ((minM < time) && (maxM < time)) {
+						minM = time;
+						maxM = time;
+						if ((minL < time) && (maxL < time)) {
+							minL = time;
+							maxL = time;
+						}
+					}
 				}
 			break;
 			case MITTEL: // mittel
 				if (maxM < time) {
 					maxM = time;
+					if ((minL < time) && (maxL < time)) {
+						minL = time;
+						maxL = time;
+					}
 				}
-				if (minM < maxK) {
+				if (minM <= maxK) {
 					minM = maxM;
 				}
 			break;
@@ -168,7 +180,7 @@ public class Population {
 				if (maxL < time) {
 					maxL = time;
 				}
-				if (minL < maxM) {
+				if (minL <= maxM) {
 					minL = time;
 				}
  			break;
@@ -266,7 +278,7 @@ public class Population {
 			maxM = newMinL - 50; // minus mindestandtand
 		}		
 		
-		int indexLeft = minM;
+		/*int indexLeft = minM;
 		int indexRight = maxM;
 		int diff = 0;
 		
@@ -304,7 +316,7 @@ public class Population {
 			System.out.print(i + ". Best Left  => " + bestLeft.get(i));
 			System.out.print("\t Best Right  => " + bestRight.get(i));
 			System.out.println("\t Best Mid  => " + bestMid.get(i));
-		}
+		}*/
 	}
 	
 	public void calculate() {
