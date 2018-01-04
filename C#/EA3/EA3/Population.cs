@@ -88,6 +88,11 @@ namespace EA3
             population[randomIndex].setSignalType(signal);
         }
 
+        public void saveSignalRating(SignalRating rating)
+        {
+            population[randomIndex].setSignalRating(rating);
+        }
+
         /**
          * Erstellt eine Population, bei dem die Elemente gleich verteilt sind
          * @param n anzahl der Elemente
@@ -178,14 +183,27 @@ namespace EA3
          */
         public Population(int n)
         {
-            numOfPopulation = n * 3;
-            population = new DNA[numOfPopulation];
+            // initialisierung der Pools
             poolK = new List<DNA>();
             poolM = new List<DNA>();
             poolL = new List<DNA>();
 
+            // erzeuge eine Population die 3 mal so Groß ist wie n und die Grenzen in den Populationen vorhanden 
+            numOfPopulation = (n * 3) /*+ (2 * 3)*/; 
+            population = new DNA[numOfPopulation];
+
+            // erzeuge zufällige Kurze, Mittlere und Lange Elemente
+            // DONE  es muss auf jeden fall die Grenzen noch Herein in das Array
+            // es ist so eingeteilt, dass die ersten n / 3 teile Kurz sind
+            // dann die danachfolgenden n/ 3 Teile Mittel und 
+            // die letzten n/3 Teile Lang sind. 
+            // Das Heißt, das erste und letzte Kurze Element muss somit Die Grenze Sein.
+            // am besten wenn man es nach der Generierung einfach ueberschreiben wuerde!
+
+            // TODO es sollen keine Doppelten Random Zahlen in der Ersten Population existieren.
+            List<int> tempArray = new List<int>();
             int signalIndex = -1;
-            for (int i = 0; i < numOfPopulation; i++)
+            for (int i = 0; i < numOfPopulation /*- (2 * 3)*/; i++)
             {
                 Signal s = null;
                 Debug.WriteLine("i = " + i + "signalIndex = " + signalIndex);
@@ -197,27 +215,63 @@ namespace EA3
                 switch (signalIndex)
                 {
                     case 0:
-                        s = new Signal(SignalTyp.KURZ, getRandom(MainProgram.MINKURZTIME, MainProgram.MAXKURZTIME));
+                        
+                        s = new Signal(SignalTyp.KURZ, getUniqueRandomNumber(ref tempArray, MainProgram.MINKURZTIME, MainProgram.MAXKURZTIME));
                         break;
                     case 1:
-                        s = new Signal(SignalTyp.MITTEL, getRandom(MainProgram.MINMITTELTIME, MainProgram.MAXMITTELTIME));
+                        s = new Signal(SignalTyp.MITTEL, getUniqueRandomNumber(ref tempArray, MainProgram.MINMITTELTIME, MainProgram.MAXMITTELTIME));
                         break;
                     case 2:
-                        s = new Signal(SignalTyp.LANG, getRandom(MainProgram.MINLANGTIME, MainProgram.MAXLANGTIME));
+                        s = new Signal(SignalTyp.LANG, getUniqueRandomNumber(ref tempArray, MainProgram.MINLANGTIME, MainProgram.MAXLANGTIME));
                         break;
                     default:
                         Debug.WriteLine("ERROR in Population Konstruktor");
                         break;
                 }
 
-
                 population[i] = new DNA(s);
             }
 
-            calculate();
+            // fuege die Grenzen noch in die Population hinzu.
+            int j = numOfPopulation /*- (2 * 3)*/;
+            population[0] = new DNA(new Signal(SignalTyp.KURZ, MainProgram.MINKURZTIME));
+            j = (numOfPopulation / 3) - 1;
+            population[j] = new DNA(new Signal(SignalTyp.KURZ, MainProgram.MAXKURZTIME));
+            j = (numOfPopulation / 3); // oder nach der vorherigen Operation einfach j++;
+            population[j] = new DNA(new Signal(SignalTyp.MITTEL, MainProgram.MINMITTELTIME));
+            j = (2 * (numOfPopulation / 3)) - 1;
+            population[j] = new DNA(new Signal(SignalTyp.MITTEL, MainProgram.MAXMITTELTIME));
+            j = (2 * (numOfPopulation / 3)); // oder nach der vorherigen Operation einfach j++;
+            population[j] = new DNA(new Signal(SignalTyp.LANG, MainProgram.MINLANGTIME));
+            population[numOfPopulation - 1] = new DNA(new Signal(SignalTyp.LANG, MainProgram.MAXLANGTIME));
+
+            // Als nächstes Erfolgt die Benutzer Abfrage.
+            startArray = new List<int>();
+            startIndex = 0;
+            randomIndex = -1;
+
+            //calculate();
         }
 
-       
+        public int getUniqueRandomNumber(ref List<int> array, int min, int max)
+        {
+            bool res = false;
+            int value = -1;
+            do
+            {
+                // gehe das Array zufaellig durch und frage nach (daher die grenzen min bis max)
+                value = getRandom(min + 1, max - 1);
+                if (!array.Contains(value))
+                {
+                    array.Add(value);
+                    res = true;
+                }
+            } while (!res);
+            // TODO testen und gucken, dass es auch wirklich das macht was es soll.
+            return value; 
+        }
+
+
 
         /**
          * berechnet die Grenzen der Signaltypen
@@ -364,31 +418,47 @@ namespace EA3
             int medK = (minK + maxK) / 2;
             int medM = -1;
             int medL = (minL + maxL) / 2;
+            bool resK = false;
+            bool resL = false;
 
             if (medK > arithmetikMedian[0])
             {
                 // berechne eine neue obere grenze fuer K
                 newMaxK = (arithmetikMedian[0] * 2) - minK;
+            } else {
+                resK = true;
             }
 
             if (medL > arithmetikMedian[2])
             {
                 // bereche eine neue untere grenze fuer L 
                 newMinL = (arithmetikMedian[2] * 2) - maxL;
+            } else {
+                resL = true;
             }
 
-            if (maxK > newMaxK)
+            if (maxK > newMaxK && !resK && !resL)
             {
                 maxK = newMaxK;
                 minM = newMaxK + 50; // plus mindestabstand
             }
 
-            if (minL > newMinL)
+            if (minL > newMinL && !resK && !resL)
             {
                 minL = newMinL;
                 maxM = newMinL - 50; // minus mindestandtand
             }
 
+            if (!resK && !resL)
+            {
+                zones[0] = minK;
+                zones[1] = maxK;
+                zones[2] = minM;
+                zones[3] = maxM;
+                zones[4] = minL;
+                zones[5] = maxL;
+            }
+            /*
             int indexLeft = minM;
             int indexRight = maxM;
             int diff = 0;
@@ -433,7 +503,7 @@ namespace EA3
                 Debug.Write(i + ". Best Left  => " + bestLeft[i]);
                 Debug.Write("\t Best Right  => " + bestRight[i]);
                 Debug.WriteLine("\t Best Mid  => " + bestMid[i]);
-            }
+            }*/
         }
 
         public void calculate()
@@ -450,7 +520,7 @@ namespace EA3
         {
             for (int i = 0; i < numOfPopulation; i++)
             {
-                population[i].calcFitness();
+                population[i].calculateFitnessValue();
             }
         }
 
@@ -608,6 +678,11 @@ namespace EA3
             Random r = new Random();
             int res = r.Next((max - min) + 1) + min;
             return res;
+        }
+
+        public int[] getZones()
+        {
+            return zones;
         }
     }
 }

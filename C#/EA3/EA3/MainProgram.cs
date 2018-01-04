@@ -15,17 +15,19 @@ namespace EA3
         public static readonly int MINTIME = 0;
         public static readonly int MAXTIME = 1000;
 
-        public static readonly int MINKURZTIME = 100;
-        public static readonly int MAXKURZTIME = 300;
+        public static int MINKURZTIME = 100;
+        public static int MAXKURZTIME = 300;
 
-        public static readonly int MINMITTELTIME = 400;
-        public static readonly int MAXMITTELTIME = 500;
+        public static int MINMITTELTIME = 400;
+        public static int MAXMITTELTIME = 500;
 
-        public static readonly int MINLANGTIME = 600;
-        public static readonly int MAXLANGTIME = 700;
+        public static int MINLANGTIME = 600;
+        public static int MAXLANGTIME = 700;
 
         private int startSize;
         Population p;
+        Population pAlgo;
+        int firstTime = 0;
 
         public MainProgram()
         {
@@ -104,14 +106,6 @@ namespace EA3
             }*/
         }
 
-        /**
-        *** Diese Methode fragt ab ob vorhandene Elemente noch existieren, 
-        *** falls ja, dann kann playSignalStart() aufgerufen werden.
-        **/
-        public bool isStartElementAvailable()
-        {
-            return p.isElementAvailable();
-        }
 
         public string playStartSignal()
         {
@@ -137,13 +131,125 @@ namespace EA3
 
                 res = false;
             } else {
-                p.calculateArithmeticMedian();
+                p.calculateArithmeticMedian(); // TODO muss noch ordentlich geprüft werden.
                 p.calculateNewZones();
 
                 res = true;
             }
             return res;
         }
+
+        /**
+        *** Diese Methode fragt ab ob vorhandene Elemente noch existieren, 
+        *** falls ja, dann kann playSignalStart() aufgerufen werden.
+        **/
+        public bool isElementAvailable()
+        {
+            return p.isElementAvailable();
+        }
+
+        public string playSignal()
+        {
+            ////////////////////////////////////////TEST
+            List<int> arr = new List<int>();
+            for (int i = 1; i <= 100; i ++)
+            {
+                p.getUniqueRandomNumber(ref arr, 0, 101);
+            }
+            //arr.Sort();
+            foreach (int x in arr)
+            {
+                Debug.WriteLine(x);
+            }
+            ////////////////////////////////////////END TEST
+
+            if (firstTime == 0)
+            {
+                setMinMaxTime();
+                pAlgo = new Population(startSize);
+                firstTime++;
+            }
+            // Signal abspielen.
+            if (pAlgo.isElementAvailable())
+            {
+                Signal s = pAlgo.getNextSignal().getSignal();
+                String temp = "";
+                String signalText = s.printString();
+                switch (s.getType()) {
+                    case SignalTyp.KURZ:
+                        temp = "Das Folgende Signal ist ein KURZES Signal. \n" +
+                            "Bitte bewerten Sie, wie gut Sie dieses KURZE Signal erkennen?";
+                    break;
+                    case SignalTyp.MITTEL:
+                        temp = "Das Folgende Signal ist ein MITTLERES Signal. \n" +
+                            "Bitte bewerten Sie, wie gut Sie dieses MITTLERE Signal erkennen?";
+                    break;
+                    case SignalTyp.LANG:
+                        temp = "Das Folgende Signal ist ein LANGES Signal. \n" +
+                            "Bitte bewerten Sie, wie gut Sie dieses LANGE Signal erkennen?";
+                    break;
+                    default:
+                        temp = "ES ist leider ein Fehler in der playSignal() Methode unterlaufen. Bitte Rufen Sie Ihren Superviser zu Rate";
+                    break;
+                }
+                return temp + "\n" + signalText;
+            }
+            return "NO ELEMENT AVALABLE IN playSignal() Methode!, Bitte frage vorher mit isElementAvailable() ab";
+        }
+
+        
+
+        public bool calculateFitness()
+        {
+            pAlgo.calculate();
+
+            return true; // TODO
+        }
+
+        public bool isNextElementAvailable()
+        {
+            if (firstTime == 0)
+            {
+                return true;
+            }
+
+            return pAlgo.isElementAvailable();
+        }
+
+
+
+        private void setMinMaxTime()
+        {
+            int[] zones = p.getZones();
+            MINKURZTIME = zones[0];
+            MAXKURZTIME = zones[1];
+            MINMITTELTIME = zones[2];
+            MAXMITTELTIME = zones[3];
+            MINLANGTIME = zones[4];
+            MAXLANGTIME = zones[5];
+
+            bool res = false;
+            
+            for (int i = 0; i < zones.Length; i++)
+            {
+                if (zones[i] <= 0)
+                {
+                    res = true;
+                } 
+            }
+
+            if (res)
+            { 
+                MINKURZTIME = 50;
+                MAXKURZTIME = 350;
+
+                MINMITTELTIME = 400;
+                MAXMITTELTIME = 650;
+
+                MINLANGTIME = 700;
+                MAXLANGTIME = 1000;
+        }
+    }
 
         public int getValue()
         {
@@ -154,6 +260,11 @@ namespace EA3
         public void nextSignal(SignalTyp signalTyp)
         {
             p.saveSignalType(signalTyp);
+        }
+
+        public void nextSignalRating(SignalRating signalRating)
+        {
+            pAlgo.saveSignalRating(signalRating);
         }
     }
 }

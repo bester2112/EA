@@ -65,14 +65,14 @@ namespace EA3
         }
 
         // die Fitness Funktion wird von dem Probanden evaluieren lassen.
-        public void calcFitness()
+        /*public void calcFitness()
         {
             // Aufrufen der Benutzer Eingabe 
             userInput();
             calculateFitness();
-        }
+        }*/
 
-        public void userInput()
+        /*public void userInput()
         {
             string stype = " UNINIZIALISIERT ";
             switch (signal.getType())
@@ -103,9 +103,9 @@ namespace EA3
             //int.TryParse(Debug.ReadLine(), out n);
             // TODO 
             input = 0;//n;
-        }
+        }*/
 
-        public void calculateFitness()
+        /*public void calculateFitness()
         {
             switch (input)
             {
@@ -126,6 +126,32 @@ namespace EA3
                     break;
                 default:
                     Debug.WriteLine("ERROR in der calculateFitness Funktion");
+                    break;
+            }
+        }*/
+
+        public void calculateFitnessValue()
+        {
+            SignalRating rating = signal.getRating();
+            switch (rating)
+            {
+                case SignalRating.VERYBAD:     // Eingabe wurde 'gar nicht' erkannt
+                    fitness = (int)rating;
+                    break;
+                case SignalRating.BAD: // Eingabe wurde 'schlecht' erkannt
+                    fitness = (int)rating;
+                    break;
+                case SignalRating.OK: // Eingabe wurde 'ok / geht so' erkannt
+                    fitness = (int)rating;
+                    break;
+                case SignalRating.GOOD: // Eingabe wurde 'gut' erkannt
+                    fitness = (int)rating;
+                    break;
+                case SignalRating.VERYGOOD: // Eingabe wurde 'sehr gut' erkannt
+                    fitness = (int)rating;
+                    break;
+                default:
+                    Debug.WriteLine("ERROR in der calculateFitnessValue Funktion");
                     break;
             }
         }
@@ -216,6 +242,11 @@ namespace EA3
         public void setSignalType(SignalTyp signalTyp)
         {
             signal.setType(signalTyp);
+        }
+
+        public void setSignalRating(SignalRating rating)
+        {
+            signal.setRating(rating);
         }
     }
 }

@@ -21,10 +21,21 @@ namespace EA3
         NODATA
     }
 
+    public enum SignalRating
+    {
+        VERYBAD = 1,
+        BAD = 2,
+        OK = 3,
+        GOOD = 4,
+        VERYGOOD = 5,
+        NODATA = -1
+    }
+
     public class Signal
     {
 
         private SignalTyp type;
+        private SignalRating rating;
         private int time;           // Zeit in ms
         private string signalCode;  // 
         private char[] cSignalCode; // 
@@ -161,6 +172,15 @@ namespace EA3
         }
 
         /**
+         * setzt die Bewertung des Signals 
+         * @param sRating ist der Rating-Wert vom Benutzer
+         */
+        public void setRating(SignalRating sRating)
+        {
+            rating = sRating;
+        }
+
+        /**
          * gibt die Anzahl der Einsen an
          * @return
          */
@@ -185,6 +205,15 @@ namespace EA3
         public SignalTyp getType()
         {
             return type;
+        }
+
+        /**
+         * gibt den Rating-Wert des Signals zurueck
+         * @return
+         */
+        public SignalRating getRating()
+        {
+            return rating;
         }
 
         /**

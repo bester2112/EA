@@ -22,6 +22,7 @@ using Windows.UI.Core;
 using static EA3.BLE;
 using Windows.UI.ViewManagement;
 using Windows.ApplicationModel.Core;
+using System.Threading.Tasks;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x407 dokumentiert.
 
@@ -34,6 +35,7 @@ namespace EA3
     {
 
         SignalTyp untypedSignal;
+        SignalRating signalRating;
         MainProgram setup;
 
         // BLE VARS
@@ -214,7 +216,7 @@ namespace EA3
 
         private async void playSignalButton_Click(object sender, RoutedEventArgs e)
         {
-            if (setup.isStartElementAvailable())
+            if (setup.isElementAvailable())
             {
                 String s = setup.playStartSignal();
                 textBlock.Text = s;
@@ -248,10 +250,24 @@ namespace EA3
                 }
             }
         }
-
-        private void replaySignalButton_Click(object sender, RoutedEventArgs e)
+        
+        private async void replaySignalButton_Click(object sender, RoutedEventArgs e)
         {
-
+            // TODO Signal muss hier noch abgespielt werden
+            replaySignalButton.IsEnabled = false;
+            var temp = replaySignalButton.Content;
+            replaySignalButton.Content = "Warten 5s";
+            await Task.Delay(1000);
+            replaySignalButton.Content = "Warten 4s";
+            await Task.Delay(1000);
+            replaySignalButton.Content = "Warten 3s";
+            await Task.Delay(1000);
+            replaySignalButton.Content = "Warten 2s";
+            await Task.Delay(1000);
+            replaySignalButton.Content = "Warten 1s";
+            await Task.Delay(1000);
+            replaySignalButton.Content = temp;
+            replaySignalButton.IsEnabled = true;
         }
 
         private void removeElementsButton_Click(object sender, RoutedEventArgs e)
@@ -281,42 +297,130 @@ namespace EA3
 
         private void radioButtonVeryBad_Checked(object sender, RoutedEventArgs e)
         {
-            
+            signalRating = SignalRating.VERYBAD;
         }
 
         private void radioButtonBad_Checked(object sender, RoutedEventArgs e)
         {
-
+            signalRating = SignalRating.BAD;
         }
 
         private void radioButtonOK_Checked(object sender, RoutedEventArgs e)
         {
-
+            signalRating = SignalRating.OK;
         }
 
         private void radioButtonGood_Checked(object sender, RoutedEventArgs e)
         {
-
+            signalRating = SignalRating.GOOD;
         }
 
         private void radioButtonVeryGood_Checked(object sender, RoutedEventArgs e)
         {
-
+            signalRating = SignalRating.VERYGOOD;
         }
 
-        private void replaySignalButtonAlgo_Click(object sender, RoutedEventArgs e)
+        private async void nextButtonAlgo_Click(object sender, RoutedEventArgs e)
         {
+            /*MediaElement mediaElement = new MediaElement();
+            var synth = new Windows.Media.SpeechSynthesis.SpeechSynthesizer();
+            Windows.Media.SpeechSynthesis.SpeechSynthesisStream stream =
+                await synth.SynthesizeTextToStreamAsync("Hello, World!");
+            mediaElement.SetSource(stream, stream.ContentType);
+            mediaElement.Play();*/
 
+            // Falls nicht auf Next gedrückt worden ist, dann soll eine Fehler meldung erscheinen.
+            if (signalRating == SignalRating.NODATA)
+            {
+                var dialog = new MessageDialog("Sie haben Keine Eingabe getätigt \n" +
+                    "Bitte waehlen Sie Ihre Auswahl und bestaetigen Sie Ihre Eingabe.");
+                await dialog.ShowAsync();
+            }
+            else
+            {
+                setup.nextSignalRating(signalRating);
+                switch (signalRating)
+                {
+                    case SignalRating.VERYBAD:
+                        radioButtonVeryBad.IsChecked = false;
+                        break;
+                    case SignalRating.BAD:
+                        radioButtonBad.IsChecked = false;
+                        break;
+                    case SignalRating.OK:
+                        radioButtonOK.IsChecked = false;
+                        break;
+                    case SignalRating.GOOD:
+                        radioButtonGood.IsChecked = false;
+                        break;
+                    case SignalRating.VERYGOOD:
+                        radioButtonVeryGood.IsChecked = false;
+                        break;
+                    default:
+                        Debug.WriteLine("ERROR in der  NextSignalButton_Click_1 Methode");
+                        break;
+                }
+
+                nextButtonAlgo.IsEnabled = false;
+                playSignalButtonAlgo.IsEnabled = true;
+                signalRating = SignalRating.NODATA;
+            }
         }
 
-        private void nextButtonAlgo_Click(object sender, RoutedEventArgs e)
+        private async void playSignalButtonAlgo_Click(object sender, RoutedEventArgs e)
         {
+            if (setup.isNextElementAvailable())
+            {
+                String s = setup.playSignal();
+                textBlockAlgo.Text = s;
+                nextButtonAlgo.IsEnabled = true;
+                playSignalButtonAlgo.IsEnabled = false;
+            }
+            else
+            {
+                if (setup.calculateFitness())
+                {
+                    nextButtonAlgo.IsEnabled = false;
+                    playSignalButtonAlgo.IsEnabled = false;
 
+                    //removeStartElements();
+                    // Eingabe des Benutzers ist fertig für die validierung der gleichverteilten Population. 
+                    // Es kann jetzt die Berechnung der Grenzen für Kurz, Mittel und Lang erfolgen.
+                    // Der Benutzer hat alle Daten korrekt eingegeben und die Berechnung ist erfolgt und nun kann der Algorithmus Starten
+                    var dialog = new MessageDialog("Ihre Eingabe wurde erfolgreich evaluiert\n" +
+                                                 "Bitte drücken Sie auf den Knopf 'Schritt 2' um mit den Programm fortzufahren.");
+                    await dialog.ShowAsync();
+                }
+                else
+                {
+                    nextButtonAlgo.IsEnabled = false;
+                    playSignalButtonAlgo.IsEnabled = true;
+                    // Der Benutzer hat Eingabe Falsch Evaluiert und es sind keine validen Daten herausgekommen, mit
+                    // dem das Programm weiter rechnen kann.
+                    var dialog = new MessageDialog("Ihre Daten die Sie eingegeben haben sind leider zu sehr verfälscht.\n" +
+                                                 "Sie müssen die Daten erneut eingeben ");
+                    await dialog.ShowAsync();
+                }
+            }
         }
 
-        private void playSignalButtonAlgo_Click(object sender, RoutedEventArgs e)
+        private async void replaySignalButtonAlgo_Click(object sender, RoutedEventArgs e)
         {
-
+            // TODO Signal muss hier noch abgespielt werden
+            replaySignalButton.IsEnabled = false;
+            var temp = replaySignalButton.Content;
+            replaySignalButton.Content = "Warten 5s";
+            await Task.Delay(1000);
+            replaySignalButton.Content = "Warten 4s";
+            await Task.Delay(1000);
+            replaySignalButton.Content = "Warten 3s";
+            await Task.Delay(1000);
+            replaySignalButton.Content = "Warten 2s";
+            await Task.Delay(1000);
+            replaySignalButton.Content = "Warten 1s";
+            await Task.Delay(1000);
+            replaySignalButton.Content = temp;
+            replaySignalButton.IsEnabled = true;
         }
 
 
