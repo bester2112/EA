@@ -151,7 +151,7 @@ namespace EA3
         public string playSignal()
         {
             ////////////////////////////////////////TEST
-            List<int> arr = new List<int>();
+            /*List<int> arr = new List<int>();
             for (int i = 1; i <= 100; i ++)
             {
                 p.getUniqueRandomNumber(ref arr, 0, 101);
@@ -160,7 +160,7 @@ namespace EA3
             foreach (int x in arr)
             {
                 Debug.WriteLine(x);
-            }
+            }*/
             ////////////////////////////////////////END TEST
 
             if (firstTime == 0)
@@ -199,11 +199,9 @@ namespace EA3
 
         
 
-        public bool calculateFitness()
+        public void calculateFitness()
         {
             pAlgo.calculate();
-
-            return true; // TODO
         }
 
         public bool isNextElementAvailable()
@@ -214,6 +212,11 @@ namespace EA3
             }
 
             return pAlgo.isElementAvailable();
+        }
+
+        public void prepareForNextGeneration()
+        {
+            pAlgo.resetForNextGeneration();
         }
 
 

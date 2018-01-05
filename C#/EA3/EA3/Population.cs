@@ -200,7 +200,7 @@ namespace EA3
             // Das Heißt, das erste und letzte Kurze Element muss somit Die Grenze Sein.
             // am besten wenn man es nach der Generierung einfach ueberschreiben wuerde!
 
-            // TODO es sollen keine Doppelten Random Zahlen in der Ersten Population existieren.
+            // DONE es sollen keine Doppelten Random Zahlen in der Ersten Population existieren.
             List<int> tempArray = new List<int>();
             int signalIndex = -1;
             for (int i = 0; i < numOfPopulation /*- (2 * 3)*/; i++)
@@ -683,6 +683,13 @@ namespace EA3
         public int[] getZones()
         {
             return zones;
+        }
+
+        public void resetForNextGeneration()
+        {
+            startArray = new List<int>();
+            startIndex = 0;
+            randomIndex = -1;
         }
     }
 }

@@ -37,6 +37,8 @@ namespace EA3
         SignalTyp untypedSignal;
         SignalRating signalRating;
         MainProgram setup;
+        int generation = 0;
+        bool newGeneration = false;
 
         // BLE VARS
         private ObservableCollection<DeviceInformation> BTDevices = new ObservableCollection<DeviceInformation>();
@@ -371,56 +373,63 @@ namespace EA3
         {
             if (setup.isNextElementAvailable())
             {
+                if (newGeneration)
+                {
+                    playSignalButtonAlgo.Content = "Signal abspielen";
+                    newGeneration = false;
+                }
                 String s = setup.playSignal();
                 textBlockAlgo.Text = s;
                 nextButtonAlgo.IsEnabled = true;
                 playSignalButtonAlgo.IsEnabled = false;
+                replaySignalButtonAlgo.IsEnabled = true;
             }
             else
             {
-                if (setup.calculateFitness())
-                {
-                    nextButtonAlgo.IsEnabled = false;
-                    playSignalButtonAlgo.IsEnabled = false;
+                // Alle Daten wurden evalutiert, jetzt wird der Algorithmus ausgefuehrt.
+                // die Daten werden im gleichen Datensatz überschrieben, d.h. auf Daten von vorherigen Generationen kann man nicht mehr zurueckgreifen
+                // TODO Daten muessen gespeichert werden.
+                var dialog = new MessageDialog("Es wird Anhand Ihrer Eingaben die nächsten Signale erstellt. \n" +
+                                               "Bitte warten Sie einen Augenblick.");
 
-                    //removeStartElements();
-                    // Eingabe des Benutzers ist fertig für die validierung der gleichverteilten Population. 
-                    // Es kann jetzt die Berechnung der Grenzen für Kurz, Mittel und Lang erfolgen.
-                    // Der Benutzer hat alle Daten korrekt eingegeben und die Berechnung ist erfolgt und nun kann der Algorithmus Starten
-                    var dialog = new MessageDialog("Ihre Eingabe wurde erfolgreich evaluiert\n" +
-                                                 "Bitte drücken Sie auf den Knopf 'Schritt 2' um mit den Programm fortzufahren.");
-                    await dialog.ShowAsync();
-                }
-                else
-                {
-                    nextButtonAlgo.IsEnabled = false;
-                    playSignalButtonAlgo.IsEnabled = true;
-                    // Der Benutzer hat Eingabe Falsch Evaluiert und es sind keine validen Daten herausgekommen, mit
-                    // dem das Programm weiter rechnen kann.
-                    var dialog = new MessageDialog("Ihre Daten die Sie eingegeben haben sind leider zu sehr verfälscht.\n" +
-                                                 "Sie müssen die Daten erneut eingeben ");
-                    await dialog.ShowAsync();
-                }
+                playSignalButtonAlgo.IsEnabled = false;
+                replaySignalButtonAlgo.IsEnabled = false;
+                nextButtonAlgo.IsEnabled = false;
+                playSignalButtonAlgo.Content = "Warten";
+
+                setup.calculateFitness();
+
+                await dialog.ShowAsync();
+                await Task.Delay(1000);
+
+                textBlockAlgo.Text = "Zum Beginn der naechsten Session bitte auf Beginnen druecken.";
+                playSignalButtonAlgo.Content = "Beginnen";
+
+                playSignalButtonAlgo.IsEnabled = true;
+                newGeneration = true;
+                generation += 1;
+
+                setup.prepareForNextGeneration();
             }
         }
 
         private async void replaySignalButtonAlgo_Click(object sender, RoutedEventArgs e)
         {
             // TODO Signal muss hier noch abgespielt werden
-            replaySignalButton.IsEnabled = false;
-            var temp = replaySignalButton.Content;
-            replaySignalButton.Content = "Warten 5s";
+            replaySignalButtonAlgo.IsEnabled = false;
+            var temp = replaySignalButtonAlgo.Content;
+            replaySignalButtonAlgo.Content = "Warten 5s";
             await Task.Delay(1000);
-            replaySignalButton.Content = "Warten 4s";
+            replaySignalButtonAlgo.Content = "Warten 4s";
             await Task.Delay(1000);
-            replaySignalButton.Content = "Warten 3s";
+            replaySignalButtonAlgo.Content = "Warten 3s";
             await Task.Delay(1000);
-            replaySignalButton.Content = "Warten 2s";
+            replaySignalButtonAlgo.Content = "Warten 2s";
             await Task.Delay(1000);
-            replaySignalButton.Content = "Warten 1s";
+            replaySignalButtonAlgo.Content = "Warten 1s";
             await Task.Delay(1000);
-            replaySignalButton.Content = temp;
-            replaySignalButton.IsEnabled = true;
+            replaySignalButtonAlgo.Content = temp;
+            replaySignalButtonAlgo.IsEnabled = true;
         }
 
 
