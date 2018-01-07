@@ -57,8 +57,16 @@ uint8_t tx_value[TXRX_BUF_LEN] = {0};
 uint8_t rx_value[TXRX_BUF_LEN] = {0};
 
 
+// Variablen
+// vibration mode:
+//    0 - STAND BY
+//    1 - Beats per second
+//    2 - ~ Pauses per second (README in development..)
 byte mode;
 
+boolean motorUp;      // true: top-actor; false: bot-actor
+byte    currentBPS;
+byte    nextBPS;
 byte    currentSignal[TXRX_BUF_LEN];
 byte    nextSignal[TXRX_BUF_LEN];
 
@@ -274,7 +282,7 @@ void initBLE() {
   }
 }
 
-void startVib() {
+void startVibration() {
   for (int index = 0; index < NUM_TLC59711; index++) {
     uint8_t channel = actor[index];
     
@@ -285,10 +293,22 @@ void startVib() {
   tlc.write(); // WICHTIG: Zum Bus schreiben!
 }
 
+void stopVibration() {
+  for (int index = 0; index < NUM_TLC59711; index++) {
+    uint8_t channel = actor[index];
+    uint16_t noVibrationStrengh = 0;
+    
+    tlc.setPWM(channel, noVibrationStrengh);
+    tlc.setPWM(channel + 1, noVibrationStrengh);
+    tlc.setPWM(channel + 2, noVibrationStrengh);
+  }
+  tlc.write(); // WICHTIG: Zum Bus schreiben!
+}
+
 void playSignal() { // TODO
-  startVib();
+  startVibration();
   delay(VIB_LENGTH);
-  stopVib();
+  stopVibration();
 }
 
 void run() {
