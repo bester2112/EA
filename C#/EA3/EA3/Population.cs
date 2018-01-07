@@ -550,7 +550,7 @@ namespace EA3
             }
 
             // Basierend auf der Fitness, jedes Element der Population wird eine bestimmte Anzahl an malen in den pool hinzugefuegt
-            // eine hohe fitness = mehr eintraege im pool = grÃ¶ÃŸere Wahrscheinlichkeit als Eltern ausgewaehlt zu werden
+            // eine hohe fitness = mehr eintraege im pool = groessere Wahrscheinlichkeit als Eltern ausgewaehlt zu werden
             // eine kleine Fitness = weniger Eintraege in pool = kleinere Wahrscheinlichkeit, als Eltern ausgewaehlt zu werden
 
             index = -1;
