@@ -47,24 +47,17 @@ namespace EA3
         private BluetoothLEDevice CurrentBTDevice { get; set; }
         private DeviceInformation CurrentBTDeviceInfo { get; set; }
 
-        // TODO: Firmware -> get FREQ/w and MODE/w into one control service
         private BLEAttributeDisplayContainer CurrentFreqService { get; set; }
         private BLEAttributeDisplayContainer CurrentFreqCharacteristic { get; set; }
         private BLEAttributeDisplayContainer CurrentModeService { get; set; }
         private BLEAttributeDisplayContainer CurrentModeCharacteristic { get; set; }
         private Byte Mode { get; set; }
-        private ObservableCollection<BLEAttributeDisplayContainer> currentServiceCollection
-          = new ObservableCollection<BLEAttributeDisplayContainer>();
+        private ObservableCollection<BLEAttributeDisplayContainer> currentServiceCollection = new ObservableCollection<BLEAttributeDisplayContainer>();
 
         private readonly Guid FREQ_SERVICE_UUID = new Guid("713D0000-503E-4C75-BA94-3148F18D941E");
         private readonly Guid MODE_SERVICE_UUID = new Guid("813D0000-503E-4C75-BA94-3148F18D941E");
         private readonly Guid FREQ_CHARACTERISTIC_UUID = new Guid("713D0003-503E-4C75-BA94-3148F18D941E");
         private readonly Guid MODE_CHARACTERISTIC_UUID = new Guid("813D0003-503E-4C75-BA94-3148F18D941E");
-
-        private readonly double[] defPoints = {  2,  5,  -2,  7, -2,
-                                                -1, -1,  3, -2, -3,
-                                                 6,  7,  0, -3, -7,
-                                                 0,  5, -4,  2, 10 };
 
         private const Byte MAX_POINTS = 20; // ~ BLE-Buffersize
 
@@ -125,7 +118,8 @@ namespace EA3
 
 
 
-            UpdateUI(SystemStatus.NOCONNECT);
+            connectButton.IsEnabled = true;
+            connectButton.Content = "Connect";
 
             // BLE watcher init.
             listViewDevices.ItemsSource = BTDevices;
@@ -438,21 +432,30 @@ namespace EA3
             if (CurrentBTDeviceInfo != null) // already connected -> disconnect
             {
                 DisposeCurrentDevice();
-                UpdateUI(SystemStatus.NOCONNECT);
+                connectButton.IsEnabled = true;
+                connectButton.Content = "Connect";
                 return;
             }
 
-            if (listViewDevices.SelectedItem != null &&
-                listViewDevices.SelectedItem is DeviceInformation)
+            if (listViewDevices.SelectedItem != null && listViewDevices.SelectedItem is DeviceInformation)
             {
-                var devInfo = listViewDevices.SelectedItem as DeviceInformation;
-                Connect(devInfo);
+                CurrentBTDeviceInfo = listViewDevices.SelectedItem as DeviceInformation;
+                //var devInfo = listViewDevices.SelectedItem as DeviceInformation;
+                //Connect(devInfo);
             }
-            else /* do nothing and */ return;
+            else {
+                return; /* do nothing */ 
+            }
+
+            Connect(CurrentBTDeviceInfo);
         }
 
+        #region BLE Device discovery
+        // DONE
         /// <summary>
         /// Starts a device watcher that looks for all nearby BT devices (paired or unpaired).
+        /// Attaches event handlers to populate the device collection.
+        /// Folder BluethoothLE in File Scenario1_Discovery.xaml.cs
         /// </summary>
         private void StartBleDeviceWatcher()
         {
@@ -460,9 +463,11 @@ namespace EA3
             string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
 
             // BT_Code: Currently Bluetooth APIs don't provide a selector to get ALL devices that are both paired and non-paired.
+            string aqsAllBluetoothLEDevices = "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
+
             deviceWatcher =
                     DeviceInformation.CreateWatcher(
-                        "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")",
+                        aqsAllBluetoothLEDevices,
                         requestedProperties,
                         DeviceInformationKind.AssociationEndpoint);
 
@@ -470,6 +475,10 @@ namespace EA3
             deviceWatcher.Added += DeviceWatcher_Added;
             deviceWatcher.Updated += DeviceWatcher_Updated;
             deviceWatcher.Removed += DeviceWatcher_Removed;
+            // falls ich diese noch mal benoetigen sollte
+            // TODO falls noch zeit vorhanden ist, kann man die weiteren methoden noch ergaenzen
+            //deviceWatcher.EnumerationCompleted += DeviceWatcher_EnumerationCompleted;
+            //deviceWatcher.Stopped += DeviceWatcher_Stopped;
 
             // Start over with an empty collection.
             BTDevices.Clear();
@@ -478,6 +487,8 @@ namespace EA3
             deviceWatcher.Start();
         }
 
+        /// Folder BluethoothLE in File Scenario1_Discovery.xaml.cs
+        //DONE
         private async void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation deviceInfo)
         {
 
@@ -486,13 +497,21 @@ namespace EA3
             {
                 lock (this)
                 {
-                    if (sender == deviceWatcher)
-                        if (deviceInfo.Name != String.Empty && !BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfo.Id))
+                    Debug.WriteLine(String.Format("Added {0}{1}", deviceInfo.Id, deviceInfo.Name));
+
+                    // Protect against race condition if the task runs after the app stopped the deviceWatcher.
+                    if (sender == deviceWatcher) {
+                        if (deviceInfo.Name != String.Empty && !BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfo.Id)) {
+                            // If device has a friendly name display it immediately.
                             BTDevices.Add(deviceInfo);
+                        }
+                    }
                 }
             });
         }
 
+        /// Folder BluethoothLE in File Scenario1_Discovery.xaml.cs
+        //DONE
         private async void DeviceWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
         {
             // We must update the collection on the UI thread because the collection is databound to a UI element.
@@ -500,13 +519,20 @@ namespace EA3
             {
                 lock (this)
                 {
-                    if (sender == deviceWatcher)
-                        if (BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id))
+                    Debug.WriteLine(String.Format("Updated {0}{1}", deviceInfoUpdate.Id, ""));
+
+                    // Protect against race condition if the task runs after the app stopped the deviceWatcher.
+                    if (sender == deviceWatcher) {
+                        if (BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id)) {
                             BTDevices.First<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id).Update(deviceInfoUpdate);
+                        }
+                    }
                 }
             });
         }
 
+        /// Folder BluethoothLE in File Scenario1_Discovery.xaml.cs
+        //DONE
         private async void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
         {
             // We must update the collection on the UI thread because the collection is databound to a UI element.
@@ -514,22 +540,28 @@ namespace EA3
             {
                 lock (this)
                 {
-                    if (sender == deviceWatcher)
-                        if (BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id))
+                    Debug.WriteLine(String.Format("Removed {0}{1}", deviceInfoUpdate.Id,""));
+
+                    // Protect against race condition if the task runs after the app stopped the deviceWatcher.
+                    if (sender == deviceWatcher) {
+                        if (BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id)) {
                             BTDevices.Remove(BTDevices.First<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id));
+                        }
+                    }
                 }
             });
         }
+        #endregion
 
         /// <summary>
-        ///    Disposes of everything associated with the currently connected device. </summary>
-        ///    
+        ///    Disposes of everything associated with the currently connected device. 
+        /// </summary>
         private void DisposeCurrentDevice()
         {
-            try
-            { /* CurrentBTDevice.ConnectionStatusChanged -= CurrentBTDevice_ConnectionStatusChanged; <- make */ }
-            catch
-            { }
+            CurrentBTDevice?.Dispose();
+            CurrentBTDevice = null;
+            CurrentBTDeviceInfo = null;
+            currentServiceCollection = new ObservableCollection<BLEAttributeDisplayContainer>();
 
             try
             {
@@ -539,216 +571,133 @@ namespace EA3
                 CurrentModeCharacteristic = null;
             }
             catch { }
-
-            CurrentBTDevice?.Dispose();
-            CurrentBTDevice = null;
-            CurrentBTDeviceInfo = null;
-            currentServiceCollection = new ObservableCollection<BLEAttributeDisplayContainer>();
         }
 
         /// <summary>
-        ///    Connect to a device. </summary>
-        ///    
+        ///    Connect to a device. 
+        /// </summary>
         /// <param name = "dev">
-        ///    The device information instance. </param>
-        ///    
+        ///    The device information instance. 
+        /// </param>
         private async void Connect(DeviceInformation dev)
         {
             connectButton.IsEnabled = false;
 
-            if (CurrentBTDevice != null) // disconnect pressed
-            {
-                DisposeCurrentDevice();
-                UpdateUI(SystemStatus.NOCONNECT);
-                return;
-            }
-
             DisposeCurrentDevice();
-
             try { CurrentBTDevice = await BluetoothLEDevice.FromIdAsync(dev.Id); }
             catch { CurrentBTDeviceInfo = null; }
 
             if (CurrentBTDevice != null)
             {
                 #pragma warning disable 0618
-                foreach (var service in CurrentBTDevice.GattServices)
+                foreach (var service in CurrentBTDevice.GattServices) {
                     currentServiceCollection.Add(new BLEAttributeDisplayContainer(service));
-
-                // TODO: adding this made the device slower
-                // or was it just the battery? :/
-                if (GetServices() && GetCharacteristics())
-                    UpdateUI(SystemStatus.READY);
-                else
-                    UpdateUI(SystemStatus.NOCONNECT);
-
-                // TODO: Error prompt
+                }
             }
             else
             {
-                UpdateUI(SystemStatus.NOCONNECT);
                 DisposeCurrentDevice();
+                CurrentBTDeviceInfo = null;
+            }
+
+            connectButton.Connect = "Disconnect";
+            connectButton.IsEnabled = true;
+
+            GetServices();
+            GetCharacteristics();
+        }
+   
+        private async void GetServices()
+        {
+            if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.service.Uuid == FREQ_SERVICE_UUID)) {
+                currentServiceCollection = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.service.Uuid == FREQUENCY_SERVICE_UUID);
+            } else {
+                // TODO: better exception handling pls
+                CurrentFreqService = null;
+                return;
+            }
+            
+            if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.service.Uuid == MODE_SERVICE_UUID)) {
+                currentModeService = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.service.Uuid == MODE_SERVICE_UUID);
+            } else {
+                // TODO: better exception handling pls
+                currentModeService = null;
+                return;
             }
         }
 
-        /// <summary>
-        ///    Collects the wanted GATT services from the device. </summary>
-        /// <returns>
-        ///    True on success, false on fail. </returns>
-        ///    
-        private bool GetServices()
+        private async void GetCharacteristics()
         {
+            // TODO: LIST -> ELEMENT ONLY
+            IReadOnlyList<GattCharacteristic> freq_characteristics = null;
+            IReadOnlyList<GattCharacteristic> mode_characteristics = null;
 
-            //CurrentFreqService = 
-            //    currentServiceCollection.FirstOrDefault<BLEAttributeDisplayContainer>(x => x.service.Uuid.CompareTo(FREQ_SERVICE_UUID) == 0);
-            //CurrentModeService = 
-            //    currentServiceCollection.FirstOrDefault<BLEAttributeDisplayContainer>(x => x.service.Uuid.CompareTo(MODE_SERVICE_UUID) == 0);
-            CurrentFreqService = GetSingleService(FREQ_SERVICE_UUID);
-            CurrentModeService = GetSingleService(MODE_SERVICE_UUID);
-
-            return (CurrentFreqService != null) &&
-                   (CurrentModeService != null);
-        }
-
-        /// <summary>
-        ///    Gets the service with the given UUID if possible. </summary>
-        ///    
-        /// <param name = "serviceUUID">
-        ///    GUID/UUID of the wanted service. </param>
-        /// 
-        /// <returns>
-        ///    The service. </returns>
-        ///    
-        private BLEAttributeDisplayContainer GetSingleService(Guid serviceUUID)
-        {
-            var service = currentServiceCollection.FirstOrDefault<BLEAttributeDisplayContainer>
-                (x => x.service.Uuid.CompareTo(serviceUUID) == 0);
-
-            return service;
-        }
-
-        /// <summary>
-        ///    Collects the wanted GATT characteristics from the device. </summary>
-        /// 
-        /// <returns>
-        ///    True on success, false on fail. </returns>
-        ///     
-        private bool GetCharacteristics()
-        {
-            //if (GetServices())
-            //{
-            //    IReadOnlyList<GattCharacteristic> freqCharacteristics = null;
-            //    IReadOnlyList<GattCharacteristic> modeCharacteristics = null;
-
-            //    try
-            //    {
-            //        freqCharacteristics = CurrentFreqService.service.GetAllCharacteristics();
-            //        modeCharacteristics = CurrentModeService.service.GetAllCharacteristics();
-            //    }
-            //    catch
-            //    {
-            //        freqCharacteristics = null;
-            //        modeCharacteristics = null;
-            //        return false;
-            //    }
-
-            //    List<BLEAttributeDisplayContainer> freqCharCollection = new List<BLEAttributeDisplayContainer>();
-            //    List<BLEAttributeDisplayContainer> modeCharCollection = new List<BLEAttributeDisplayContainer>();
-
-            //    foreach (GattCharacteristic c in freqCharacteristics)
-            //        freqCharCollection.Add(new BLEAttributeDisplayContainer(c));
-            //    foreach (GattCharacteristic c in modeCharacteristics)
-            //        modeCharCollection.Add(new BLEAttributeDisplayContainer(c));
-
-            //    // now actually getting chars for later use
-            //    CurrentFreqCharacteristic = 
-            //        freqCharCollection.FirstOrDefault<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid.CompareTo(FREQ_CHARACTERISTIC_UUID) == 0);
-            //    CurrentModeCharacteristic = 
-            //        modeCharCollection.FirstOrDefault<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid.CompareTo(MODE_CHARACTERISTIC_UUID) == 0);
-            //}
-            //else
-            //    return false;
-
-            //return true;
-
-            if (GetServices())
+            // get frequency characteristics
+            try { freq_characteristics = CurrentFreqService.service.GetAllCharacteristics(); }
+            catch
             {
-                CurrentFreqCharacteristic = GetSingleCharacteristic(FREQ_CHARACTERISTIC_UUID, CurrentFreqService);
-                CurrentModeCharacteristic = GetSingleCharacteristic(MODE_CHARACTERISTIC_UUID, CurrentModeService);
+                // Restricted service. Can't read characteristics
+                // On error, act as if there are no characteristics.
+                freq_characteristics = new List<GattCharacteristic>();
+                mode_characteristics = new List<GattCharacteristic>();
+                return;
             }
 
-            return (CurrentFreqCharacteristic != null) &&
-                   (CurrentModeCharacteristic != null);
-        }
-
-        /// <summary>
-        ///    Gets the characteristic with the given UUID from the
-        ///    given service if possible. </summary>
-        ///    
-        /// <param name = "charUUID">
-        ///    GUID/UUID of the wanted characteristic. </param>
-        /// 
-        /// <param name = "service">
-        ///    The service to get the characteristic from. </param>
-        /// 
-        /// <returns>
-        ///    The characteristic. </returns>
-        /// 
-        private BLEAttributeDisplayContainer GetSingleCharacteristic(Guid charUUID, BLEAttributeDisplayContainer service)
-        {
-            IReadOnlyList<GattCharacteristic> ServiceChars = null;
-            try { ServiceChars = service.service.GetAllCharacteristics(); }
-            catch { return null; }
-
-            List<BLEAttributeDisplayContainer> CharCollection = new List<BLEAttributeDisplayContainer>();
-            foreach (GattCharacteristic gattchar in ServiceChars)
-                CharCollection.Add(new BLEAttributeDisplayContainer(gattchar));
-
-            var characteristic = CharCollection.FirstOrDefault<BLEAttributeDisplayContainer>
-                (x => x.characteristic.Uuid.CompareTo(charUUID) == 0);
-
-            return characteristic;
-        }
-
-        /// <summary>
-        ///    Updates the user interface based on given system state. </summary>
-        ///    
-        /// <param name = "status">
-        ///    New system state. </param>
-        /// 
-        private void UpdateUI(SystemStatus status)
-        {
-            switch (status)
+            // get mode characteristics
+            try { mode_characteristics = currentModeService.service.GetAllCharacteristics(); }
+            catch
             {
-                case SystemStatus.NOCONNECT:
-                    connectButton.IsEnabled = true;
-                    connectButton.Content = "Connect";
-                    break;
-                case SystemStatus.CONNECTING:
-                    connectButton.IsEnabled = false;
-                    connectButton.Content = "Connecting...";
-                    break;
-                case SystemStatus.READY:
-                    connectButton.IsEnabled = true;
-                    connectButton.Content = "Disconnect";
-                    break;
-                case SystemStatus.ANIMATION:
-                    connectButton.IsEnabled = false;
-                    break;
-                case SystemStatus.PAUSE:
-                    // TODO: implement
-                    break;
+                // Restricted service. Can't read characteristics
+                // On error, act as if there are no characteristics.
+                freq_characteristics = new List<GattCharacteristic>();
+                mode_characteristics = new List<GattCharacteristic>();
+                return;
             }
+
+
+            List<BLEAttributeDisplayContainer> FreqCharacteristicCollection = new List<BLEAttributeDisplayContainer>();
+            List<BLEAttributeDisplayContainer> ModeCharacteristicCollection = new List<BLEAttributeDisplayContainer>();
+
+            // set CurrentFreqCharacteristic variable
+            foreach (GattCharacteristic c in freq_characteristics)
+                FreqCharacteristicCollection.Add(new BLEAttributeDisplayContainer(c));
+
+            if (FreqCharacteristicCollection.Any<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == FREQUENCY_CHARACTERISTIC_UUID))
+                CurrentFreqCharacteristic = FreqCharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == FREQUENCY_CHARACTERISTIC_UUID);
+            else return;
+
+            // set currentModeCharacteristic variable
+            foreach (GattCharacteristic c in mode_characteristics)
+                ModeCharacteristicCollection.Add(new BLEAttributeDisplayContainer(c));
+
+            if (ModeCharacteristicCollection.Any<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == MODE_CHARACTERISTIC_UUID))
+                currentModeCharacteristic = ModeCharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == MODE_CHARACTERISTIC_UUID);
+            else return;
         }
 
-        /// Indicates the state of the program. Used
-        /// to update the user interface.
-        enum SystemStatus
+        private async void playSignalNow() 
         {
-            NOCONNECT,
-            CONNECTING,
-            READY,
-            ANIMATION,
-            PAUSE,       // not used yet
+            #region BLE
+            var writerFrequencies = new DataWriter();
+            var writerMode = new DataWriter();
+
+            foreach (var f in frequencies) {
+                writerFrequencies.WriteInt16(f);
+            }
+
+            // add end-value to avoid "garbage"-byte to be read
+            if (frequencies.Count() < 20) {
+                writerFrequencies.WriteInt16(0xFF);
+            }
+
+            writerMode.WriteInt16(mode);
+
+            // send values to tactile device
+            try {
+                await CurrentFreqCharacteristic.characteristic.WriteValueAsync(writerFrequencies.DetachBuffer());
+                await CurrentModeCharacteristic.characteristic.WriteValueAsync(writerMode.DetachBuffer());
+            }
+            #endregion
         }
     }
 }
