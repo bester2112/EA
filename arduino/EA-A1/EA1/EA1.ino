@@ -307,14 +307,14 @@ void stopVibration() {
 
 void playSignal() { // TODO
   startVibration();
-  delay(VIB_LENGTH);
+  delay(VIBRATION_LENGTH);
   stopVibration();
 }
 
 void run() {
   // mache erst was, wenn sich das Gerät nicht mehr im Standby befindet
   if (mode != MODE_STANDBY) {
-    memcpy(currentSignal, nexSignal, TXRX_BUF_LEN * sizeof(byte));
+    memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
 
     if (MODE_DEBUG) {
       Serial.print("RUN: ");
@@ -330,10 +330,6 @@ void run() {
 
       playSignal();
       // TODO
-      
-      if (MODE_DEBUG) {
-        Serial.print(buf[index]);
-      }
     }
     if (MODE_DEBUG) {
       Serial.println("RUN: TEST OUTPUT ");

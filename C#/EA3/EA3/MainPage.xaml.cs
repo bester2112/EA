@@ -23,6 +23,7 @@ using static EA3.BLE;
 using Windows.UI.ViewManagement;
 using Windows.ApplicationModel.Core;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x407 dokumentiert.
 
@@ -600,17 +601,17 @@ namespace EA3
                 CurrentBTDeviceInfo = null;
             }
 
-            connectButton.Connect = "Disconnect";
+            connectButton.Content = "Disconnect";
             connectButton.IsEnabled = true;
 
             GetServices();
             GetCharacteristics();
         }
    
-        private async void GetServices()
+        private void GetServices()
         {
             if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.service.Uuid == FREQ_SERVICE_UUID)) {
-                currentServiceCollection = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.service.Uuid == FREQUENCY_SERVICE_UUID);
+                CurrentFreqService = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.service.Uuid == FREQ_SERVICE_UUID);
             } else {
                 // TODO: better exception handling pls
                 CurrentFreqService = null;
@@ -618,15 +619,15 @@ namespace EA3
             }
             
             if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.service.Uuid == MODE_SERVICE_UUID)) {
-                currentModeService = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.service.Uuid == MODE_SERVICE_UUID);
+                CurrentModeService = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.service.Uuid == MODE_SERVICE_UUID);
             } else {
                 // TODO: better exception handling pls
-                currentModeService = null;
+                CurrentModeService = null;
                 return;
             }
         }
 
-        private async void GetCharacteristics()
+        private void GetCharacteristics()
         {
             // TODO: LIST -> ELEMENT ONLY
             IReadOnlyList<GattCharacteristic> freq_characteristics = null;
@@ -644,7 +645,7 @@ namespace EA3
             }
 
             // get mode characteristics
-            try { mode_characteristics = currentModeService.service.GetAllCharacteristics(); }
+            try { mode_characteristics = CurrentModeService.service.GetAllCharacteristics(); }
             catch
             {
                 // Restricted service. Can't read characteristics
@@ -662,8 +663,8 @@ namespace EA3
             foreach (GattCharacteristic c in freq_characteristics)
                 FreqCharacteristicCollection.Add(new BLEAttributeDisplayContainer(c));
 
-            if (FreqCharacteristicCollection.Any<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == FREQUENCY_CHARACTERISTIC_UUID))
-                CurrentFreqCharacteristic = FreqCharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == FREQUENCY_CHARACTERISTIC_UUID);
+            if (FreqCharacteristicCollection.Any<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == FREQ_CHARACTERISTIC_UUID))
+                CurrentFreqCharacteristic = FreqCharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == FREQ_CHARACTERISTIC_UUID);
             else return;
 
             // set currentModeCharacteristic variable
@@ -671,7 +672,7 @@ namespace EA3
                 ModeCharacteristicCollection.Add(new BLEAttributeDisplayContainer(c));
 
             if (ModeCharacteristicCollection.Any<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == MODE_CHARACTERISTIC_UUID))
-                currentModeCharacteristic = ModeCharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == MODE_CHARACTERISTIC_UUID);
+                CurrentModeCharacteristic = ModeCharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == MODE_CHARACTERISTIC_UUID);
             else return;
         }
 
@@ -690,13 +691,13 @@ namespace EA3
                 writerFrequencies.WriteInt16(0xFF);
             }
 
-            writerMode.WriteInt16(mode);
+            writerMode.WriteInt16(Mode);
 
             // send values to tactile device
             try {
                 await CurrentFreqCharacteristic.characteristic.WriteValueAsync(writerFrequencies.DetachBuffer());
                 await CurrentModeCharacteristic.characteristic.WriteValueAsync(writerMode.DetachBuffer());
-            }
+            } catch { }
             #endregion
         }
     }
