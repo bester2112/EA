@@ -7,7 +7,6 @@
 #define DEVICE_NAME           "EA 3"    // Name des Gerätes
 #define TXRX_BUF_LEN          20        // die maximale Länge sind 20 bytes die man über BLE senden kann
 
-
 #define VIBRATION_LENGTH      100       // Vibration lengs (ms) - mode0 only
 #define VIBRATION_STRENGTH    65535     // Vibrationsstärke für die Benutzung des TLC's
 #define PAUSE_LENGTH          50        // Pausen Länge
@@ -30,7 +29,7 @@
 
 // Anlegen des Vibrationsmotors
 Adafruit_TLC59711 tlc = Adafruit_TLC59711(NUM_TLC59711, LED_PIN, DATA_PIN);
-const uint8_t actor[2] = {0, 12};
+const uint8_t actor[2] = {0, 12};       // actor channels 
 
 // BLE Definition
 BLE ble;
@@ -58,11 +57,14 @@ uint8_t tx_value[TXRX_BUF_LEN] = {0};
 uint8_t rx_value[TXRX_BUF_LEN] = {0};
 
 
-// vibration mode:
-//    0 - STAND BY
-//    1 - Beats per second
-//    2 - ~ Pauses per second (README in development..)
 byte mode;
+
+byte    currentSignal[TXRX_BUF_LEN];
+byte    nextSignal[TXRX_BUF_LEN];
+
+int intervalLength;   // length of current interval
+int   curVibLength;   // length of vib-signal (based on mode)
+
 
 // service and characteristics
 // Eine Characteristic namen "myCharacteristic"  erstellt 
@@ -158,7 +160,6 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
   uint8_t buf[TXRX_BUF_LEN];
   uint16_t bytesRead, index;
 
-
   // retrieving graph:
   //
   //    > byte array with values from [0x00,0x15]
@@ -178,7 +179,7 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
 
     if (MODE_DEBUG) {
       Serial.print("Gelesene Butes im ARRAY {");
-      for(int index=0; index<bytesRead; index++)
+      for(int index = 0; index < bytesRead; index++)
       {
         Serial.print(buf[index]);
         if (index != TXRX_BUF_LEN -1) {
@@ -187,8 +188,7 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
       }
       Serial.println("}");
 
-    // TODO
-    //     memcpy(nextGraph, buf, TXRX_BUF_LEN * sizeof(byte));
+      memcpy(nextSignal, buf, TXRX_BUF_LEN * sizeof(byte));
     }
     
     // get mode // TODO
@@ -274,6 +274,71 @@ void initBLE() {
   }
 }
 
+void startVib() {
+  for (int index = 0; index < NUM_TLC59711; index++) {
+    uint8_t channel = actor[index];
+    
+    tlc.setPWM(channel, VIBRATION_STRENGTH);
+    tlc.setPWM(channel + 1, VIBRATION_STRENGTH);
+    tlc.setPWM(channel + 2, VIBRATION_STRENGTH);
+  }
+  tlc.write(); // WICHTIG: Zum Bus schreiben!
+}
+
+void playSignal() { // TODO
+  startVib();
+  delay(VIB_LENGTH);
+  stopVib();
+}
+
+void run() {
+  // mache erst was, wenn sich das Gerät nicht mehr im Standby befindet
+  if (mode != MODE_STANDBY) {
+    memcpy(currentSignal, nexSignal, TXRX_BUF_LEN * sizeof(byte));
+
+    if (MODE_DEBUG) {
+      Serial.print("RUN: ");
+    }
+    for(int index = 0; index < TXRX_BUF_LEN; index++)
+    {
+      if (currentSignal[index] == MODE_END_SIGNAL) {
+        break;
+      }
+      if (mode == MODE_STANDBY) {
+        break;
+      }
+
+      playSignal();
+      // TODO
+      
+      if (MODE_DEBUG) {
+        Serial.print(buf[index]);
+      }
+    }
+    if (MODE_DEBUG) {
+      Serial.println("RUN: TEST OUTPUT ");
+      Serial.print("MODE_STANDBY = ");
+      Serial.print(MODE_STANDBY);
+      Serial.print("MODE_DEBUG = ");
+      Serial.print(MODE_DEBUG);
+      Serial.print("MODE_DEF = ");
+      Serial.print(MODE_DEF);
+      Serial.print("MODE_ALT = ");
+      Serial.print(MODE_ALT);
+      Serial.print("MODE_END_SIGNAL = ");
+      Serial.print(MODE_END_SIGNAL);
+      Serial.println("");
+      
+      //MODE_STANDBY          0x00
+      //MODE_DEBUG            0x01
+      //MODE_DEF              0x02
+      //MODE_ALT              0x02
+      //MODE_END_SIGNAL       0xFF
+    }
+    
+    mode = MODE_STANDBY;
+  }
+}
 
 void setup() {
   // put your setup code here, to run once:
@@ -299,6 +364,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  run();
   ble.waitForEvent();
 }
 
