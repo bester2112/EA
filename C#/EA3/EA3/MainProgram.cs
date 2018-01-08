@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Windows.Storage.Pickers;
+using System.IO;
 
 namespace EA3
 {
@@ -25,9 +27,10 @@ namespace EA3
         public static int MAXLANGTIME = 700;
 
         private int startSize;
-        Population p;
-        Population pAlgo;
-        int firstTime = 0;
+        private Population p;
+        private Population pAlgo;
+        private int firstTime = 0;
+        private Signal tempSignal;
 
         public MainProgram()
         {
@@ -112,7 +115,8 @@ namespace EA3
             // Signal abspielen.
             if (p.isElementAvailable())
             {
-                String signalText = p.getNextSignal().getSignal().printString();
+                tempSignal = p.getNextSignal().getSignal();
+                String signalText = tempSignal.printString();
                 return signalText;
             }
             return "NO ELEMENT AVALABLE IN playSignalStart() Methode!, Bitte frage vorher mit isStartElementAvailable() ab";
@@ -172,10 +176,10 @@ namespace EA3
             // Signal abspielen.
             if (pAlgo.isElementAvailable())
             {
-                Signal s = pAlgo.getNextSignal().getSignal();
+                tempSignal = pAlgo.getNextSignal().getSignal();
                 String temp = "";
-                String signalText = s.printString();
-                switch (s.getType()) {
+                String signalText = tempSignal.printString();
+                switch (tempSignal.getType()) {
                     case SignalTyp.KURZ:
                         temp = "Das Folgende Signal ist ein KURZES Signal. \n" +
                             "Bitte bewerten Sie, wie gut Sie dieses KURZE Signal erkennen?";
@@ -268,6 +272,67 @@ namespace EA3
         public void nextSignalRating(SignalRating signalRating)
         {
             pAlgo.saveSignalRating(signalRating);
+        }
+
+        public Signal getLastSignal()
+        {
+            return tempSignal;
+        }
+
+        // save the Data of the last Population with UserInput in a text File
+        public void SaveInFileAlgo()
+        {
+            string filePath = @"Test_Algo.txt";
+
+            List<string> output = new List<string>();
+            List<DNA> population = new List<DNA>();
+
+            List<string> lines = File.ReadAllLines(filePath).ToList();
+
+            /*foreach (var line in lines)
+            {
+                string[] entries = line.Split(',');
+                
+                DNA newDNA = new DNA(new Signal(11));
+
+                newDNA.setInputType(entries[0]);
+                newDNA.setInputType(entries[1]);
+                // ...
+
+                population.Add(newDNA);
+            }
+
+            // Ausgabe der bisherigen Datei in der Konsole
+            Debug.WriteLine("Read from the file");
+            foreach (var newDNA in population)
+            {
+                Debug.WriteLine($"{ newDNA.getFitness() } { newDNA.GetHashCode() } : { newDNA.getSignal() } ");
+            }*/
+
+            DNA[] dna = pAlgo.getPopulation();
+            for (int i = 0; i < dna.Length; i++)
+            {
+                Signal s = dna[i].getSignal();
+                output.Add($"{ s.getType() },{ s.getTime() },{ s.getRating() },{ dna[i].getFitness() },{ s.getEins() },{ s.getNull() }");
+            }
+            File.WriteAllLines(filePath, output);
+           
+        }
+
+        // save the Data of the last Population with UserInput in a text File
+        public void SaveInFileStart()
+        {
+            string filePath = @"Test_Start.txt";
+            List<string> output = new List<string>();
+            DNA[] dna = p.getPopulation();
+            for (int i = 0; i < dna.Length; i++)
+            {
+                Signal s = dna[i].getSignal();
+                output.Add($"{ s.getType() },{ s.getTime() },{ s.getEins() },{ s.getNull() }");
+            }
+            /*
+            File.SetAttributes(filePath, FileAttributes.Normal);// TODO cant write in File
+            File.WriteAllLines(filePath, output);*/
         }
     }
 }

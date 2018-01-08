@@ -219,6 +219,7 @@ namespace EA3
                 textBlock.Text = s;
                 NextSignalButton.IsEnabled = true;
                 playSignalButton.IsEnabled = false;
+                Signal signal = setup.getLastSignal();
             }
             else
             {
@@ -245,6 +246,7 @@ namespace EA3
                                                  "Sie müssen die Daten erneut eingeben ");
                     await dialog.ShowAsync();
                 }
+                setup.SaveInFileStart();
             }
         }
         
@@ -399,6 +401,8 @@ namespace EA3
 
                 textBlockAlgo.Text = "Zum Beginn der naechsten Session bitte auf Beginnen druecken.";
                 playSignalButtonAlgo.Content = "Beginnen";
+
+                setup.SaveInFileAlgo();
 
                 playSignalButtonAlgo.IsEnabled = true;
                 newGeneration = true;

@@ -12,7 +12,7 @@ namespace EA3
     {
 
         private Signal signal;
-        private int input;
+//        private int input;
         private int inputType;
         private double fitness;
 

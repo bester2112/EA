@@ -416,7 +416,7 @@ namespace EA3
             int newMinL = -1;
 
             int medK = (minK + maxK) / 2;
-            int medM = -1;
+            //int medM = -1;
             int medL = (minL + maxL) / 2;
             bool resK = false;
             bool resL = false;
@@ -678,6 +678,11 @@ namespace EA3
             Random r = new Random();
             int res = r.Next((max - min) + 1) + min;
             return res;
+        }
+
+        public DNA[] getPopulation()
+        {
+            return population;
         }
 
         public int[] getZones()
