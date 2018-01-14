@@ -48,22 +48,22 @@ namespace EA3
         private BluetoothLEDevice CurrentBTDevice { get; set; }
         private DeviceInformation CurrentBTDeviceInfo { get; set; }
 
-        private BLEAttributeDisplayContainer CurrentFreqService { get; set; }
-        private BLEAttributeDisplayContainer CurrentFreqCharacteristic { get; set; }
+        private BLEAttributeDisplayContainer CurrentLengthService { get; set; }
+        private BLEAttributeDisplayContainer CurrentLengthCharacteristic { get; set; }
         private BLEAttributeDisplayContainer CurrentModeService { get; set; }
         private BLEAttributeDisplayContainer CurrentModeCharacteristic { get; set; }
         private Byte Mode { get; set; }
         private ObservableCollection<BLEAttributeDisplayContainer> currentServiceCollection = new ObservableCollection<BLEAttributeDisplayContainer>();
 
-        private readonly Guid FREQ_SERVICE_UUID = new Guid("713D0000-503E-4C75-BA94-3148F18D941E");
+        private readonly Guid LENGTH_SERVICE_UUID = new Guid("713D0000-503E-4C75-BA94-3148F18D941E");
         private readonly Guid MODE_SERVICE_UUID = new Guid("813D0000-503E-4C75-BA94-3148F18D941E");
-        private readonly Guid FREQ_CHARACTERISTIC_UUID = new Guid("713D0003-503E-4C75-BA94-3148F18D941E");
+        private readonly Guid LENGTH_CHARACTERISTIC_UUID = new Guid("713D0003-503E-4C75-BA94-3148F18D941E");
         private readonly Guid MODE_CHARACTERISTIC_UUID = new Guid("813D0003-503E-4C75-BA94-3148F18D941E");
 
         private const Byte MAX_POINTS = 20; // ~ BLE-Buffersize
 
-        private const Byte IA_TACTILE_MAXFREQ = 10;
-        private const Byte IA_TACTILE_NULFREQ = 0x0A;
+        private const Byte IA_TACTILE_MAXLENGTH = 10;
+        private const Byte IA_TACTILE_NULLENGTH = 0x0A;
         private const Byte IA_TACTILE_EOD = 0xFF; // end of data
 
         private const Byte IA_TACTILE_MODE_STOP = 0x00;
@@ -73,7 +73,7 @@ namespace EA3
         private const Int16 IA_TACTILE_DELAY = 265;
         private const Int16 IA_TACTILE_TIMESTEP = 2000;
 
-        private Int16[] frequencies = new Int16[MAX_POINTS - 1];
+        private Int16[] lengthSignal = new Int16[MAX_POINTS - 1];
 
         public MainPage()
         {
@@ -368,6 +368,8 @@ namespace EA3
 
         private async void playSignalButtonAlgo_Click(object sender, RoutedEventArgs e)
         {
+            calculateSignalsForTactile();
+
             if (setup.isNextElementAvailable())
             {
                 if (newGeneration)
@@ -570,9 +572,9 @@ namespace EA3
 
             try
             {
-                CurrentFreqService = null;
+                CurrentLengthService = null;
                 CurrentModeService = null;
-                CurrentFreqCharacteristic = null;
+                CurrentLengthCharacteristic = null;
                 CurrentModeCharacteristic = null;
             }
             catch { }
@@ -614,11 +616,11 @@ namespace EA3
    
         private void GetServices()
         {
-            if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.service.Uuid == FREQ_SERVICE_UUID)) {
-                CurrentFreqService = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.service.Uuid == FREQ_SERVICE_UUID);
+            if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.service.Uuid == LENGTH_SERVICE_UUID)) {
+                CurrentLengthService = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.service.Uuid == LENGTH_SERVICE_UUID);
             } else {
                 // TODO: better exception handling pls
-                CurrentFreqService = null;
+                CurrentLengthService = null;
                 return;
             }
             
@@ -634,16 +636,16 @@ namespace EA3
         private void GetCharacteristics()
         {
             // TODO: LIST -> ELEMENT ONLY
-            IReadOnlyList<GattCharacteristic> freq_characteristics = null;
+            IReadOnlyList<GattCharacteristic> length_characteristics = null;
             IReadOnlyList<GattCharacteristic> mode_characteristics = null;
 
-            // get frequency characteristics
-            try { freq_characteristics = CurrentFreqService.service.GetAllCharacteristics(); }
+            // get length characteristics
+            try { length_characteristics = CurrentLengthService.service.GetAllCharacteristics(); }
             catch
             {
                 // Restricted service. Can't read characteristics
                 // On error, act as if there are no characteristics.
-                freq_characteristics = new List<GattCharacteristic>();
+                length_characteristics = new List<GattCharacteristic>();
                 mode_characteristics = new List<GattCharacteristic>();
                 return;
             }
@@ -654,21 +656,21 @@ namespace EA3
             {
                 // Restricted service. Can't read characteristics
                 // On error, act as if there are no characteristics.
-                freq_characteristics = new List<GattCharacteristic>();
+                length_characteristics = new List<GattCharacteristic>();
                 mode_characteristics = new List<GattCharacteristic>();
                 return;
             }
 
 
-            List<BLEAttributeDisplayContainer> FreqCharacteristicCollection = new List<BLEAttributeDisplayContainer>();
+            List<BLEAttributeDisplayContainer> LengthCharacteristicCollection = new List<BLEAttributeDisplayContainer>();
             List<BLEAttributeDisplayContainer> ModeCharacteristicCollection = new List<BLEAttributeDisplayContainer>();
 
-            // set CurrentFreqCharacteristic variable
-            foreach (GattCharacteristic c in freq_characteristics)
-                FreqCharacteristicCollection.Add(new BLEAttributeDisplayContainer(c));
+            // set CurrentLengthCharacteristic variable
+            foreach (GattCharacteristic c in length_characteristics)
+                LengthCharacteristicCollection.Add(new BLEAttributeDisplayContainer(c));
 
-            if (FreqCharacteristicCollection.Any<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == FREQ_CHARACTERISTIC_UUID))
-                CurrentFreqCharacteristic = FreqCharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == FREQ_CHARACTERISTIC_UUID);
+            if (LengthCharacteristicCollection.Any<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == LENGTH_CHARACTERISTIC_UUID))
+                CurrentLengthCharacteristic = LengthCharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == LENGTH_CHARACTERISTIC_UUID);
             else return;
 
             // set currentModeCharacteristic variable
@@ -680,26 +682,53 @@ namespace EA3
             else return;
         }
 
+        // berechnet die Werte der Signale fuer das tactile geraet.
+        private void calculateSignalsForTactile() {
+            int intZahl = 500; // zahl zwischen min und max tignal laenge
+            String hexString = "LEER";
+            hexString = intZahl.ToString("X");
+            Debug.WriteLine("Test ausgabe HEX STRING " + hexString);
+            byte[] myByteTest = StringToByteArray();
+            int tempZahl = int.Parse(hexValue, System.Globalization.NumberStyles.HexNumber);
+            int tempZahl2 = Convert.ToInt32(hexString, 16);
+
+            String newHex = BitConverter.ToString(myByteTest);
+            Debug.WriteLine(" newHEX = " + newHEX);
+            newHex.Replace("-", "");
+            Debug.WriteLine(" newHEX 2 = " + newHEX);
+            newHex = newHex.Replace("-", "");
+            Debug.WriteLine(" newHEX 3 = " + newHEX);
+        }
+
+        public static byte[] StringToByteArray(String hex)
+        {
+          int NumberChars = hex.Length;
+          byte[] bytes = new byte[NumberChars / 2];
+          for (int i = 0; i < NumberChars; i += 2)
+            bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+          return bytes;
+        }
+
         private async void playSignalNow() 
         {
             #region BLE
-            var writerFrequencies = new DataWriter();
+            var writerLength = new DataWriter();
             var writerMode = new DataWriter();
 
-            foreach (var f in frequencies) {
-                writerFrequencies.WriteInt16(f);
+            foreach (var l in lengthSignal) {
+                writerLength.WriteInt16(l);
             }
 
             // add end-value to avoid "garbage"-byte to be read
-            if (frequencies.Count() < 20) {
-                writerFrequencies.WriteInt16(0xFF);
+            if (lengthSignal.Count() < 20) {
+                writerLength.WriteInt16(0xFF);
             }
 
             writerMode.WriteInt16(Mode);
 
             // send values to tactile device
             try {
-                await CurrentFreqCharacteristic.characteristic.WriteValueAsync(writerFrequencies.DetachBuffer());
+                await CurrentLengthCharacteristic.characteristic.WriteValueAsync(writerLength.DetachBuffer());
                 await CurrentModeCharacteristic.characteristic.WriteValueAsync(writerMode.DetachBuffer());
             } catch { }
             #endregion
