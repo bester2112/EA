@@ -16,7 +16,7 @@
 // Definiere Zustände
 #define MODE_STANDBY          0x00      // standby
 #define MODE_DEF              0x02      // Mode 0
-#define MODE_ALT              0x03      // Mode 1
+#define MODE_ALT              0x02      // Mode 1
 #define MODE_END_SIGNAL       0xFF      // Ende des Signals
 
 #define DEBUG                 1         // DEBUG Mode
@@ -63,7 +63,6 @@ uint8_t rx_value[TXRX_BUF_LEN] = {0};
 //    1 - Beats per second
 //    2 - ~ Pauses per second (README in development..)
 byte mode;
-boolean startSignal;
 
 boolean motorUp;      // true: top-actor; false: bot-actor
 byte    currentBPS;
@@ -191,15 +190,13 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
       for(int index = 0; index < bytesRead; index++)
       {
         Serial.print(buf[index]);
-        if (index != TXRX_BUF_LEN - 1) {
+        if (index != TXRX_BUF_LEN -1) {
           Serial.print(", ");
         }
       }
       Serial.println("}");
 
       memcpy(nextSignal, buf, TXRX_BUF_LEN * sizeof(byte));
-
-      startSignal = true;
     }
     
     // get mode // TODO
@@ -314,29 +311,20 @@ void playSignal() { // TODO
   stopVibration();
 }
 
-void calculateLength() {
-  if (DEBUG) {
-    Serial.println("calculateLength() IN");
-  }
-
-  for(int index = 0; index < TXRX_BUF_LEN; index++) {
-    
-  }
-  
-  if (DEBUG) {
-    Serial.println("calculateLength() OUT");
-  }
-}
-
 void run() {
   // mache erst was, wenn sich das Gerät nicht mehr im Standby befindet
   if (mode != MODE_STANDBY) {
+<<<<<<< HEAD
   //if (startSignal == true) {
     
     memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
 
     calculateLength();
     
+=======
+    memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
+
+>>>>>>> parent of 89cd655... Arduino: first try to debug
     if (DEBUG) {
       Serial.print("RUN: ");
     }
@@ -353,7 +341,7 @@ void run() {
       // TODO
     }
     if (DEBUG) {
-      Serial.println("TEST OUTPUT ");
+      Serial.println("RUN: TEST OUTPUT ");
       Serial.print("MODE_STANDBY = ");
       Serial.print(MODE_STANDBY);
       Serial.print("DEBUG = ");
@@ -367,15 +355,20 @@ void run() {
       Serial.println("");
       
       //MODE_STANDBY          0x00
-      //DEBUG                 0x01
+      //DEBUG            0x01
       //MODE_DEF              0x02
       //MODE_ALT              0x02
       //MODE_END_SIGNAL       0xFF
     }
+<<<<<<< HEAD
 
 
     //startSignal = false;
      mode = MODE_STANDBY;
+=======
+    
+    mode = MODE_STANDBY;
+>>>>>>> parent of 89cd655... Arduino: first try to debug
   }
 }
 
@@ -389,7 +382,6 @@ void setup() {
 
   // initialisierung der Variablen
   // ...
-  startSignal = false;
 
   // TLC 
   tlc.begin();
