@@ -15,11 +15,11 @@
 
 // Definiere Zustände
 #define MODE_STANDBY          0x00      // standby
-#define MODE_DEBUG            0x01      // DEBUG Mode
 #define MODE_DEF              0x02      // Mode 0
 #define MODE_ALT              0x02      // Mode 1
 #define MODE_END_SIGNAL       0xFF      // Ende des Signals
 
+#define DEBUG                 1         // DEBUG Mode
 #define NUM_TLC59711          2         // Anzahl der TLC's
 
 // PINS 
@@ -43,7 +43,7 @@ BLE ble;
 //static const uint8_t  gatt_write_mode_uuid[]  = {0x81, 0x3D, 0, 3, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
 
 // SELBST ERSTELLTE Charakteristics
-static const uint8_t myService_uuid[]     = {0x71, 0x3D, 0, 0, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
+static const uint8_t lengthService_uuid[]     = {0x71, 0x3D, 0, 0, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
 static const uint8_t service_tx_uuid[] = {0x71, 0x3D, 0, 3, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
 
 static const uint8_t modeService_uuid[] = {0x81, 0x3D, 0, 0, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
@@ -75,19 +75,19 @@ int   curVibLength;   // length of vib-signal (based on mode)
 
 
 // service and characteristics
-// Eine Characteristic namen "myCharacteristic"  erstellt 
-GattCharacteristic  myCharacteristic(
+// Eine Characteristic namen "lengthCharacteristic"  erstellt 
+GattCharacteristic  lengthCharacteristic(
                         service_tx_uuid, 
                         tx_value,
                         1,
                         TXRX_BUF_LEN,
                         GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE |
                         GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE );
-// erstellen einer Liste von Characteristic mit dem "myCharacteristic"
-GattCharacteristic *uartChars[] = {&myCharacteristic};
+// erstellen einer Liste von Characteristic mit dem "lengthCharacteristic"
+GattCharacteristic *uartChars[] = {&lengthCharacteristic};
 // erstellen eines Services 
-GattService         myService(
-                        myService_uuid,
+GattService         lengthService(
+                        lengthService_uuid,
                         uartChars,
                         sizeof(uartChars) / sizeof(GattCharacteristic *));
 
@@ -125,7 +125,7 @@ GattService         modeService(
  *                       params->connectionParams->connectionSupervisionTimeout
  */
 void connectionCallBack( const Gap::ConnectionCallbackParams_t *params ) {
-  if (MODE_DEBUG) {
+  if (DEBUG) {
     Serial.println("BLE DEVICE is CONNECTED");
   }
 }
@@ -141,7 +141,7 @@ void connectionCallBack( const Gap::ConnectionCallbackParams_t *params ) {
  *                                        CONN_INTERVAL_UNACCEPTABLE                  = 0x3B,
  */
 void disconnectionCallBack(const Gap::DisconnectionCallbackParams_t *params) {
-  if (MODE_DEBUG) {
+  if (DEBUG) {
     Serial.println("BLE is Disconnected");
     Serial.println("BLE Restart advertising");
   }
@@ -176,16 +176,16 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
   //
   //    > either 20 (TXRX_BUF_LEN) elements OR n elements + 0xFF <- EndOfGraph-code
   //
-  if (MODE_DEBUG) {
+  if (DEBUG) {
     Serial.println("BLE onDataWritten : ");
   }
 
   // DONE EIGENE CHARACTERISTIK benutzen |
   //                                     v
-  if (Handler->handle == myCharacteristic.getValueAttribute().getHandle()) {
-    ble.readCharacteristicValue(myCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
+  if (Handler->handle == lengthCharacteristic.getValueAttribute().getHandle()) {
+    ble.readCharacteristicValue(lengthCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
 
-    if (MODE_DEBUG) {
+    if (DEBUG) {
       Serial.print("Gelesene Butes im ARRAY {");
       for(int index = 0; index < bytesRead; index++)
       {
@@ -206,7 +206,7 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
       ble.readCharacteristicValue(modeCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
     
       mode = buf[0];
-      if (MODE_DEBUG) {
+      if (DEBUG) {
         Serial.print("mode = buf[0] (CONTENT) = ");
         Serial.println(mode);
       }
@@ -262,7 +262,7 @@ void initBLE() {
   ble.setAdvertisingType(GapAdvertisingParams::ADV_CONNECTABLE_UNDIRECTED);
 
   // add service 
-  ble.addService(myService);
+  ble.addService(lengthService);
   ble.addService(modeService);
 
   // set device name 
@@ -277,7 +277,7 @@ void initBLE() {
   // start advertising
   ble.startAdvertising();
 
-  if (MODE_DEBUG) {
+  if (DEBUG) {
     Serial.println("Start advertising");
   }
 }
@@ -316,7 +316,7 @@ void run() {
   if (mode != MODE_STANDBY) {
     memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
 
-    if (MODE_DEBUG) {
+    if (DEBUG) {
       Serial.print("RUN: ");
     }
     for(int index = 0; index < TXRX_BUF_LEN; index++)
@@ -331,12 +331,12 @@ void run() {
       playSignal();
       // TODO
     }
-    if (MODE_DEBUG) {
+    if (DEBUG) {
       Serial.println("RUN: TEST OUTPUT ");
       Serial.print("MODE_STANDBY = ");
       Serial.print(MODE_STANDBY);
-      Serial.print("MODE_DEBUG = ");
-      Serial.print(MODE_DEBUG);
+      Serial.print("DEBUG = ");
+      Serial.print(DEBUG);
       Serial.print("MODE_DEF = ");
       Serial.print(MODE_DEF);
       Serial.print("MODE_ALT = ");
@@ -346,7 +346,7 @@ void run() {
       Serial.println("");
       
       //MODE_STANDBY          0x00
-      //MODE_DEBUG            0x01
+      //DEBUG            0x01
       //MODE_DEF              0x02
       //MODE_ALT              0x02
       //MODE_END_SIGNAL       0xFF
@@ -358,7 +358,7 @@ void run() {
 
 void setup() {
   // put your setup code here, to run once:
-  if (MODE_DEBUG) {
+  if (DEBUG) {
     Serial.begin(9600);
   }
   pinMode(VCC_ON, OUTPUT);    // activating
@@ -373,7 +373,7 @@ void setup() {
 
   // BLE
   initBLE();
-  if (MODE_DEBUG) {
+  if (DEBUG) {
     Serial.print("BLE is ON");
   }
 }
@@ -381,7 +381,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   run();
-  ble.waitForEvent();
+  //ble.waitForEvent();
 }
 
 
