@@ -220,6 +220,7 @@ namespace EA3
                 NextSignalButton.IsEnabled = true;
                 playSignalButton.IsEnabled = false;
                 Signal signal = setup.getLastSignal();
+                playSignalNow(signal); // spielt das aktullle Signal ab.
             }
             else
             {
@@ -253,6 +254,9 @@ namespace EA3
         private async void replaySignalButton_Click(object sender, RoutedEventArgs e)
         {
             // TODO Signal muss hier noch abgespielt werden
+            Signal signal = setup.getLastSignal();
+            playSignalNow(signal); // spielt das aktullle Signal ab.
+
             replaySignalButton.IsEnabled = false;
             var temp = replaySignalButton.Content;
             replaySignalButton.Content = "Warten 5s";
@@ -368,8 +372,6 @@ namespace EA3
 
         private async void playSignalButtonAlgo_Click(object sender, RoutedEventArgs e)
         {
-            calculateSignalsForTactile();
-
             if (setup.isNextElementAvailable())
             {
                 if (newGeneration)
@@ -378,6 +380,10 @@ namespace EA3
                     newGeneration = false;
                 }
                 String s = setup.playSignal();
+
+                Signal signal = setup.getLastSignal();
+                playSignalNow(signal); // spielt das aktullle Signal ab.
+
                 textBlockAlgo.Text = s;
                 nextButtonAlgo.IsEnabled = true;
                 playSignalButtonAlgo.IsEnabled = false;
@@ -416,6 +422,10 @@ namespace EA3
 
         private async void replaySignalButtonAlgo_Click(object sender, RoutedEventArgs e)
         {
+            // TODO
+            Signal signal = setup.getLastSignal(); // noch abfragen, ob das Signal vorhanden ist und ich nicht NULL zurueck erhalte 
+            playSignalNow(signal); // spielt das aktullle Signal ab.
+
             // TODO Signal muss hier noch abgespielt werden
             replaySignalButtonAlgo.IsEnabled = false;
             var temp = replaySignalButtonAlgo.Content;
@@ -683,21 +693,33 @@ namespace EA3
         }
 
         // berechnet die Werte der Signale fuer das tactile geraet.
-        private void calculateSignalsForTactile() {
-            int intZahl = 500; // zahl zwischen min und max tignal laenge
+        private void calculateSignalsForTactile(int time) {
             String hexString = "LEER";
-            hexString = intZahl.ToString("X");
+            hexString = time.ToString("X");
             Debug.WriteLine("Test ausgabe HEX STRING " + hexString);
-            byte[] myByteTest = StringToByteArray();
-            int tempZahl = int.Parse(hexValue, System.Globalization.NumberStyles.HexNumber);
+            if (hexString.Length % 2 != 0) {
+                hexString = "0" + hexString;
+            }
+            byte[] myByteTest = StringToByteArray(hexString);
+
+            lengthSignal = StringToByteArrayInt16(hexString);
+            int tempZahl = int.Parse(hexString, System.Globalization.NumberStyles.HexNumber);
             int tempZahl2 = Convert.ToInt32(hexString, 16);
 
             String newHex = BitConverter.ToString(myByteTest);
-            Debug.WriteLine(" newHEX = " + newHEX);
+            Debug.WriteLine(" newHex = " + newHex);
             newHex.Replace("-", "");
-            Debug.WriteLine(" newHEX 2 = " + newHEX);
+            Debug.WriteLine(" newHex 2 = " + newHex);
             newHex = newHex.Replace("-", "");
-            Debug.WriteLine(" newHEX 3 = " + newHEX);
+            Debug.WriteLine(" newHex 3 = " + newHex);
+        }
+        public static Int16[] StringToByteArrayInt16(String hex)
+        {
+            int NumberChars = hex.Length;
+            Int16[] array = new Int16[NumberChars / 2];
+            for (int i = 0; i < NumberChars; i += 2)
+                array[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            return array;
         }
 
         public static byte[] StringToByteArray(String hex)
@@ -709,11 +731,12 @@ namespace EA3
           return bytes;
         }
 
-        private async void playSignalNow() 
+        private async void playSignalNow(Signal signal) 
         {
+            calculateSignalsForTactile(signal.getTime());
             #region BLE
             var writerLength = new DataWriter();
-            var writerMode = new DataWriter();
+            //var writerMode = new DataWriter();
 
             foreach (var l in lengthSignal) {
                 writerLength.WriteInt16(l);
@@ -724,13 +747,15 @@ namespace EA3
                 writerLength.WriteInt16(0xFF);
             }
 
-            writerMode.WriteInt16(Mode);
+            //writerMode.WriteInt16(Mode);
 
             // send values to tactile device
             try {
                 await CurrentLengthCharacteristic.characteristic.WriteValueAsync(writerLength.DetachBuffer());
-                await CurrentModeCharacteristic.characteristic.WriteValueAsync(writerMode.DetachBuffer());
-            } catch { }
+                //await CurrentModeCharacteristic.characteristic.WriteValueAsync(writerMode.DetachBuffer());
+            } catch {
+                Debug.WriteLine("Something went wrong by sending BLE DATA !!!!!!!");
+            }
             #endregion
         }
     }
