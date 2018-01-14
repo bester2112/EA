@@ -330,16 +330,12 @@ void calculateLength() {
 
 void run() {
   // mache erst was, wenn sich das Gerät nicht mehr im Standby befindet
-  //if (mode != MODE_STANDBY) {
-  if (startSignal == true) {
-    Serial.println(" RUN variables  ");
-    Serial.println(" nextSignal ");
-    Serial.print(nextSignal);
-    Serial.println(" current Signal ");
-    Serial.print(currentSignal);
+  if (mode != MODE_STANDBY) {
+  //if (startSignal == true) {
+    
     memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
 
-    calculateLength(currentSignal);
+    calculateLength();
     
     if (DEBUG) {
       Serial.print("RUN: ");
@@ -378,8 +374,8 @@ void run() {
     }
 
 
-    startSignal = false;
-    // mode = MODE_STANDBY;
+    //startSignal = false;
+     mode = MODE_STANDBY;
   }
 }
 
