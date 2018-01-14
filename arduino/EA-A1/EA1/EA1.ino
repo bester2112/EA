@@ -51,7 +51,7 @@ static const uint8_t service_rx_uuid[]    = {0x81, 0x3D, 0, 3, 0x50, 0x3E, 0x4C,
 
 //uint8_t      write_value[TXRX_BUF_LEN]  = {0};
 //uint8_t write_mode_value[TXRX_BUF_LEN]  = {0};
-// BEdeutung von RX / TX 
+// Bedeutung von RX / TX 
 // https://devzone.nordicsemi.com/question/56744/rx-and-tx-characteristics-in-ble_app_uart-example/
 uint8_t tx_value[TXRX_BUF_LEN] = {0};
 uint8_t rx_value[TXRX_BUF_LEN] = {0};
@@ -313,18 +313,10 @@ void playSignal() { // TODO
 
 void run() {
   // mache erst was, wenn sich das Gerät nicht mehr im Standby befindet
+
   if (mode != MODE_STANDBY) {
-<<<<<<< HEAD
-  //if (startSignal == true) {
-    
     memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
 
-    calculateLength();
-    
-=======
-    memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
-
->>>>>>> parent of 89cd655... Arduino: first try to debug
     if (DEBUG) {
       Serial.print("RUN: ");
     }
@@ -360,15 +352,9 @@ void run() {
       //MODE_ALT              0x02
       //MODE_END_SIGNAL       0xFF
     }
-<<<<<<< HEAD
 
 
-    //startSignal = false;
-     mode = MODE_STANDBY;
-=======
-    
     mode = MODE_STANDBY;
->>>>>>> parent of 89cd655... Arduino: first try to debug
   }
 }
 
