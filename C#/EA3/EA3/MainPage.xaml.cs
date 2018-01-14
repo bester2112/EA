@@ -712,6 +712,18 @@ namespace EA3
             Debug.WriteLine(" newHex 2 = " + newHex);
             newHex = newHex.Replace("-", "");
             Debug.WriteLine(" newHex 3 = " + newHex);
+
+            int a =  (int)((myByteTest[0]) << 8 | (myByteTest[1]));
+            int b = (int)(myByteTest[0] * 256) + (myByteTest[1]);
+            int a2 = a / 4096;
+            int a3 = a / 8192;
+
+            byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00};
+            
+            for (int i = 0; i < myTestByte.Length; i++)
+            {
+                Debug.WriteLine(i + ". Element = " + myTestByte[i]);
+            }
         }
         public static Int16[] StringToByteArrayInt16(String hex)
         {
