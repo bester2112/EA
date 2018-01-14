@@ -22,8 +22,8 @@ namespace EA3
 
         public static int MINMITTELTIME = 400;
         public static int MAXMITTELTIME = 500;
-
-        public static int MINLANGTIME = 600;
+         
+        public static int MINLANGTIME = 600; 
         public static int MAXLANGTIME = 700;
 
         private int startSize;
@@ -330,9 +330,9 @@ namespace EA3
                 Signal s = dna[i].getSignal();
                 output.Add($"{ s.getType() },{ s.getTime() },{ s.getEins() },{ s.getNull() }");
             }
-            /*
+            
             File.SetAttributes(filePath, FileAttributes.Normal);// TODO cant write in File
-            File.WriteAllLines(filePath, output);*/
+            File.WriteAllLines(filePath, output);
         }
     }
 }
