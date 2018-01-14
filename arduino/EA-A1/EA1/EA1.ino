@@ -7,11 +7,12 @@
 #define DEVICE_NAME           "EA 3"    // Name des Gerätes
 #define TXRX_BUF_LEN          20        // die maximale Länge sind 20 bytes die man über BLE senden kann
 
-#define VIBRATION_LENGTH      100       // Vibration lengs (ms) - mode0 only
+#define VIBRATION_LENGTH      200       // Vibration lengs (ms) - mode0 only
 #define VIBRATION_STRENGTH    65535     // Vibrationsstärke für die Benutzung des TLC's
 #define PAUSE_LENGTH          50        // Pausen Länge
 #define MAX_BPS               10        // maximal mögliche BPS (Baud rate (bps) – Configures the UART baud rate.)
 #define TIME_LENGTH           2000      // intervall länge
+#define MAXSIGNALS_SEND       10
 
 // Definiere Zustände
 #define MODE_STANDBY          0x00      // standby
@@ -26,6 +27,9 @@
 #define DATA_PIN              A4        // PIN für die Daten
 #define LED_PIN               A3        // PIN für die LED
 #define VCC_ON                D3        // muss sofort im setup() auf HIGH gesetzt werden
+
+#define STUPID_EDGE_CASE     1
+int internalIndex;
 
 // Anlegen des Vibrationsmotors
 Adafruit_TLC59711 tlc = Adafruit_TLC59711(NUM_TLC59711, LED_PIN, DATA_PIN);
@@ -69,10 +73,23 @@ byte    currentBPS;
 byte    nextBPS;
 byte    currentSignal[TXRX_BUF_LEN];
 byte    nextSignal[TXRX_BUF_LEN];
+//                         Signal----  Pause-----  
+byte    tempOfTesting[] = {0x14, 0x00, 0x24, 0x00, 
+//                         Signal----  Pause-----
+                           0x13, 0x00, 0x23, 0x00, 
+//                         Signal----  Pause-----
+                           0x12, 0x00, 0x22, 0x00, 
+//                         Signal----  Pause-----
+                           0x11, 0x00, 0x21, 0x00, 
+//                         Signal----  Pause-----
+                           0x14, 0x00, 0x24, 0x00};
+
 
 int intervalLength;   // length of current interval
 int   curVibLength;   // length of vib-signal (based on mode)
-
+boolean newSignal;
+int lengthOfSignal[MAXSIGNALS_SEND];
+int signalType[MAXSIGNALS_SEND]; // 1 = Signal 2 = Pause
 
 // service and characteristics
 // Eine Characteristic namen "lengthCharacteristic"  erstellt 
@@ -197,6 +214,8 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
       Serial.println("}");
 
       memcpy(nextSignal, buf, TXRX_BUF_LEN * sizeof(byte));
+      newSignal = true;
+      Serial.println("the newSignal is now true");
     }
     
     // get mode // TODO
@@ -305,34 +324,163 @@ void stopVibration() {
   tlc.write(); // WICHTIG: Zum Bus schreiben!
 }
 
-void playSignal() { // TODO
+boolean calculateSignalLength() {
+  // nacheinander folgend, werden Signale gesendet die maximale Länge ist 0x0400 also 1024 
+  // um zu spezifizieren, ob es ein Signal oder eine Pause ist, 
+  // sendet man am Anfang eine 1 also 0x1400 für Signal (4096)
+  // und Am Anfang eine 2 also 0x2400 für eine Pause (8192)
+  // Es muss zuerst ein Signal gefolgt von einer Pause gesendet werden. 
+  // Es können mittels 20 Bytes somit 5 Signale hintereinander gesendet werden.
+  //int[] lengthOfSignal;
+  //int[] signalType; // 1 = Signal 2 = Pause
+  int index = 0;
+  boolean res = true;
+  
+  for (int i = 0; i < TXRX_BUF_LEN; i += 2) {
+    Serial.print("index = ");
+    Serial.println(i);
+
+    Serial.print("currentSignal[");
+    Serial.print(i);
+    Serial.print("] = ");
+    Serial.println(currentSignal[i]);
+
+    Serial.print("currentSignal[");
+    int iN = i + 1;
+    Serial.print(iN);
+    Serial.print("] = ");
+    int cS = currentSignal[iN];
+    Serial.println(currentSignal[iN]);
+
+    int temp = (currentSignal[i] * 256); 
+
+    Serial.print("currentSignal[");
+    Serial.print(i);
+    Serial.print("] * 256 = ");
+    Serial.println(temp);
+
+    int temp2 = (temp + cS);
+
+    Serial.print("currentSignal[");
+    Serial.print(i);
+    Serial.print("] * 256 + currentSignal[");
+    Serial.print(iN);
+    Serial.print("] = ");
+    Serial.print(currentSignal[i]);
+    Serial.print(" + ");
+    Serial.print(cS);
+    Serial.print(" = ");
+    Serial.println(temp2);
+
+    int res1 = temp2 % 4096;
+
+    Serial.print("temp2 % 4096 = ");
+    Serial.print(temp);
+    Serial.print(" % 4096 = ");
+    Serial.println(res1);
+    
+    lengthOfSignal[index] = res1;
+    signalType[index] = lengthOfSignal[index] / 4096; // ergebniss ist 1 fuer Signal oder 2 fuer Pause
+    index++;
+
+    Serial.print("lengthOfSignal[");
+    Serial.print(i);
+    Serial.print("] = ");
+    Serial.println(lengthOfSignal[i]);
+
+    Serial.print("signalType[");
+    Serial.print(i);
+    Serial.print("] = ");
+    Serial.println(signalType[i]);
+  }
+
+  for (int n = 0; n < TXRX_BUF_LEN; n++) {
+    if (n % 2 == 0) { // signale
+      if (signalType[n] == 2) { // falls hier eine Pause drinnen ist 
+         res = false;
+      }
+    } else if (n % 2 == 1) { // pausen 
+      if (signalType[n] == 1) { // falls hier ein Signal drinnen ist
+        res = false;
+      }
+    }
+  }
+
+  return res;
+}
+
+void playSignal() { // TODO 
+  if (DEBUG) {
+      Serial.print("Vibration Time = ");
+      Serial.println(lengthOfSignal[internalIndex]);
+  }
   startVibration();
-  delay(VIBRATION_LENGTH);
+  delay(lengthOfSignal[internalIndex]);
+  internalIndex++; // Signal wurde abgespielt, index muss jetzt hochgezaehlt werden
+  if (DEBUG) {
+      Serial.print("Pause Time = ");
+      Serial.println(lengthOfSignal[internalIndex]);
+  }
   stopVibration();
+  delay(lengthOfSignal[internalIndex]);
+  internalIndex++; // Pause wurde abgespielt index muss jetzt hochgezaehlt werden
 }
 
 void run() {
   // mache erst was, wenn sich das Gerät nicht mehr im Standby befindet
 
-  if (mode != MODE_STANDBY) {
+  if (newSignal == true) {
+  //if (mode != MODE_STANDBY) {
     memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
+
+    internalIndex = 0;
 
     if (DEBUG) {
       Serial.print("RUN: ");
     }
-    for(int index = 0; index < TXRX_BUF_LEN; index++)
+
+    if(STUPID_EDGE_CASE){
+      for (int i = 0; i < TXRX_BUF_LEN; i++) {
+        currentSignal[i] = tempOfTesting[i];
+        Serial.print("temp[");
+        Serial.print(i);
+        Serial.print("] = ");
+        Serial.println(tempOfTesting[i]);
+        
+        Serial.print("curr[");
+        Serial.print(i);
+        Serial.print("] = ");
+        Serial.println(currentSignal[i]);
+      }
+    }
+
+    boolean calculateOK = calculateSignalLength();
+    if (calculateOK) {
+      Serial.println(" berechnung war erfolgreich ");
+    } else {
+      Serial.println(" Die Reihenfolge von den Signalen war nicht einwandfrei => Fehler in Calculate Funktion ");
+    }
+
+    for(int index = 0; index < MAXSIGNALS_SEND / 2; index++)
     {
+      if (DEBUG) {
+        Serial.print("currentSignal [");
+        Serial.print(index);
+        Serial.print("] = ");
+        Serial.println(currentSignal[index]);
+      }
       if (currentSignal[index] == MODE_END_SIGNAL) {
         break;
       }
-      if (mode == MODE_STANDBY) {
+      
+      /*if (mode == MODE_STANDBY) {
         break;
-      }
-
+      }*/
+      Serial.println("after break");
       playSignal();
-      // TODO
+      Serial.println("I was in the playSignal()");
     }
-    if (DEBUG) {
+    /*if (DEBUG) {
       Serial.println("RUN: TEST OUTPUT ");
       Serial.print("MODE_STANDBY = ");
       Serial.print(MODE_STANDBY);
@@ -347,14 +495,14 @@ void run() {
       Serial.println("");
       
       //MODE_STANDBY          0x00
-      //DEBUG            0x01
+      //DEBUG                 0x01
       //MODE_DEF              0x02
       //MODE_ALT              0x02
       //MODE_END_SIGNAL       0xFF
-    }
+    }*/
 
-
-    mode = MODE_STANDBY;
+    newSignal = false;
+    //mode = MODE_STANDBY;
   }
 }
 
@@ -368,6 +516,7 @@ void setup() {
 
   // initialisierung der Variablen
   // ...
+  newSignal = false;
 
   // TLC 
   tlc.begin();
