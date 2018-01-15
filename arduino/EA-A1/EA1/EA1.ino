@@ -88,6 +88,8 @@ byte    tempOfTesting[] = {0x14, 0x00, 0x24, 0x00,
 int intervalLength;   // length of current interval
 int   curVibLength;   // length of vib-signal (based on mode)
 boolean newSignal;
+boolean replay; 
+
 int lengthOfSignal[MAXSIGNALS_SEND];
 int signalType[MAXSIGNALS_SEND]; // 1 = Signal 2 = Pause
 
@@ -217,18 +219,25 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
       newSignal = true;
       Serial.println("the newSignal is now true");
     }
+  }
+
+  // get mode // TODO
+  // DONE EIGENE CHARACTERISTIK benutzen |
+  //                                     v
+  if (Handler->handle == modeCharacteristic.getValueAttribute().getHandle()) {
+    ble.readCharacteristicValue(modeCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
     
-    // get mode // TODO
-    // DONE EIGENE CHARACTERISTIK benutzen |
-    //                                     v
-    if (Handler->handle == modeCharacteristic.getValueAttribute().getHandle()) {
-      ble.readCharacteristicValue(modeCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
-    
-      mode = buf[0];
-      if (DEBUG) {
-        Serial.print("mode = buf[0] (CONTENT) = ");
-        Serial.println(mode);
-      }
+    mode = buf[0];
+    if (DEBUG) {
+      Serial.print("mode = buf[0] (CONTENT) = ");
+      Serial.println(mode);
+    }
+
+    replay = true;
+    newSignal = true;
+  } else {
+    if (DEBUG) {
+      Serial.print("I WAS NOT IN mode = buf[0] (CONTENT) = ");
     }
   }
 }
@@ -434,7 +443,7 @@ void run() {
     memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
 
     internalIndex = 0;
-
+    
     if (DEBUG) {
       Serial.print("RUN: ");
     }
@@ -453,12 +462,15 @@ void run() {
         Serial.println(currentSignal[i]);
       }
     }
-
-    boolean calculateOK = calculateSignalLength();
-    if (calculateOK) {
-      Serial.println(" berechnung war erfolgreich ");
+    if (!replay) {
+      boolean calculateOK = calculateSignalLength();
+      if (calculateOK) {
+        Serial.println(" berechnung war erfolgreich ");
+      } else {
+        Serial.println(" Die Reihenfolge von den Signalen war nicht einwandfrei => Fehler in Calculate Funktion ");
+      }
     } else {
-      Serial.println(" Die Reihenfolge von den Signalen war nicht einwandfrei => Fehler in Calculate Funktion ");
+      replay = false; 
     }
 
     for(int index = 0; index < MAXSIGNALS_SEND / 2; index++)
@@ -517,6 +529,7 @@ void setup() {
   // initialisierung der Variablen
   // ...
   newSignal = false;
+  replay = false;
 
   // TLC 
   tlc.begin();
