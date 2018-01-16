@@ -346,61 +346,74 @@ boolean calculateSignalLength() {
   boolean res = true;
   
   for (int i = 0; i < TXRX_BUF_LEN; i += 2) {
-    Serial.print("index = ");
-    Serial.println(i);
+    if (DEBUG) {
+      Serial.print("index = ");
+      Serial.println(i);
+    
+      Serial.print("currentSignal[");
+      Serial.print(i);
+      Serial.print("] = ");
+      Serial.println(currentSignal[i]);
 
-    Serial.print("currentSignal[");
-    Serial.print(i);
-    Serial.print("] = ");
-    Serial.println(currentSignal[i]);
-
-    Serial.print("currentSignal[");
+      Serial.print("currentSignal[");
+    }
     int iN = i + 1;
-    Serial.print(iN);
-    Serial.print("] = ");
+    if (DEBUG) {
+      Serial.print(iN);
+      Serial.print("] = ");
+    }
     int cS = currentSignal[iN];
-    Serial.println(currentSignal[iN]);
+    if (DEBUG) {
+      Serial.println(currentSignal[iN]);
+    }
 
     int temp = (currentSignal[i] * 256); 
 
-    Serial.print("currentSignal[");
-    Serial.print(i);
-    Serial.print("] * 256 = ");
-    Serial.println(temp);
-
+    if (DEBUG) {
+      Serial.print("currentSignal[");
+      Serial.print(i);
+      Serial.print("] * 256 = ");
+      Serial.println(temp);
+    }
     int temp2 = (temp + cS);
 
-    Serial.print("currentSignal[");
-    Serial.print(i);
-    Serial.print("] * 256 + currentSignal[");
-    Serial.print(iN);
-    Serial.print("] = ");
-    Serial.print(currentSignal[i]);
-    Serial.print(" + ");
-    Serial.print(cS);
-    Serial.print(" = ");
-    Serial.println(temp2);
-
+    if (DEBUG) {
+      Serial.print("currentSignal[");
+      Serial.print(i);
+      Serial.print("] * 256 + currentSignal[");
+      Serial.print(iN);
+      Serial.print("] = ");
+      Serial.print(currentSignal[i]);
+      Serial.print(" + ");
+      Serial.print(cS);
+      Serial.print(" = ");
+      Serial.println(temp2);
+    }
+    
     int res1 = temp2 % 4096;
 
-    Serial.print("temp2 % 4096 = ");
-    Serial.print(temp);
-    Serial.print(" % 4096 = ");
-    Serial.println(res1);
+    if (DEBUG) {
+      Serial.print("temp2 % 4096 = ");
+      Serial.print(temp);
+      Serial.print(" % 4096 = ");
+      Serial.println(res1);
+    }
     
     lengthOfSignal[index] = res1;
     signalType[index] = lengthOfSignal[index] / 4096; // ergebniss ist 1 fuer Signal oder 2 fuer Pause
     index++;
 
-    Serial.print("lengthOfSignal[");
-    Serial.print(i);
-    Serial.print("] = ");
-    Serial.println(lengthOfSignal[i]);
+    if (DEBUG) {
+      Serial.print("lengthOfSignal[");
+      Serial.print(i);
+      Serial.print("] = ");
+      Serial.println(lengthOfSignal[i]);
 
-    Serial.print("signalType[");
-    Serial.print(i);
-    Serial.print("] = ");
-    Serial.println(signalType[i]);
+      Serial.print("signalType[");
+      Serial.print(i);
+      Serial.print("] = ");
+      Serial.println(signalType[i]);
+    }
   }
 
   for (int n = 0; n < TXRX_BUF_LEN; n++) {
@@ -451,20 +464,23 @@ void run() {
     if(STUPID_EDGE_CASE){
       for (int i = 0; i < TXRX_BUF_LEN; i++) {
         currentSignal[i] = tempOfTesting[i];
-        Serial.print("temp[");
-        Serial.print(i);
-        Serial.print("] = ");
-        Serial.println(tempOfTesting[i]);
+        if (DEBUG) {
+          Serial.print("temp[");
+          Serial.print(i);
+          Serial.print("] = ");
+          Serial.println(tempOfTesting[i]);
         
-        Serial.print("curr[");
-        Serial.print(i);
-        Serial.print("] = ");
-        Serial.println(currentSignal[i]);
+          Serial.print("curr[");
+          Serial.print(i);
+          Serial.print("] = ");
+          Serial.println(currentSignal[i]);
+        }
       }
     }
     if (!replay) {
       boolean calculateOK = calculateSignalLength();
       if (calculateOK) {
+      
         Serial.println(" berechnung war erfolgreich ");
       } else {
         Serial.println(" Die Reihenfolge von den Signalen war nicht einwandfrei => Fehler in Calculate Funktion ");
