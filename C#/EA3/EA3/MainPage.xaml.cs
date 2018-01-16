@@ -692,7 +692,7 @@ namespace EA3
             else return;
         }
 
-        // berechnet die Werte der Signale fuer das tactile geraet.
+        // berechnet die Werte der Signale fuer das tactile Geraet.
         private void calculateSignalsForTactile(int time) {
             String hexString = "LEER";
             hexString = time.ToString("X");
@@ -718,7 +718,7 @@ namespace EA3
             int a2 = a / 4096;
             int a3 = a / 8192;
 
-            byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00};
+            byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
             
             for (int i = 0; i < myTestByte.Length; i++)
             {
@@ -750,12 +750,15 @@ namespace EA3
             var writerLength = new DataWriter();
             //var writerMode = new DataWriter();
 
-            foreach (var l in lengthSignal) {
+            byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
+
+            //foreach (var l in lengthSignal) {
+            foreach (var l in myTestByte) {
                 writerLength.WriteInt16(l);
             }
 
             // add end-value to avoid "garbage"-byte to be read
-            if (lengthSignal.Count() < 20) {
+            if (myTestByte.Count() < 20) {
                 writerLength.WriteInt16(0xFF);
             }
 
