@@ -247,8 +247,11 @@ namespace EA3
                                                  "Sie müssen die Daten erneut eingeben ");
                     await dialog.ShowAsync();
                 }
-                setup.SaveInFileStart();
+
+                //setup.newSaveInFileinCSharp();
+                //setup.SaveInFileStart();
             }
+            
         }
         
         private async void replaySignalButton_Click(object sender, RoutedEventArgs e)
@@ -514,7 +517,7 @@ namespace EA3
             {
                 lock (this)
                 {
-                    Debug.WriteLine(String.Format("Added {0}{1}", deviceInfo.Id, deviceInfo.Name));
+                    Debug.WriteLine(String.Format("Added {0} {1}", deviceInfo.Id, deviceInfo.Name));
 
                     // Protect against race condition if the task runs after the app stopped the deviceWatcher.
                     if (sender == deviceWatcher) {
@@ -536,7 +539,7 @@ namespace EA3
             {
                 lock (this)
                 {
-                    Debug.WriteLine(String.Format("Updated {0}{1}", deviceInfoUpdate.Id, ""));
+                    Debug.WriteLine(String.Format("Updated {0} {1}", deviceInfoUpdate.Id, " "));
 
                     // Protect against race condition if the task runs after the app stopped the deviceWatcher.
                     if (sender == deviceWatcher) {
@@ -557,7 +560,7 @@ namespace EA3
             {
                 lock (this)
                 {
-                    Debug.WriteLine(String.Format("Removed {0}{1}", deviceInfoUpdate.Id,""));
+                    Debug.WriteLine(String.Format("Removed {0} {1}", deviceInfoUpdate.Id,""));
 
                     // Protect against race condition if the task runs after the app stopped the deviceWatcher.
                     if (sender == deviceWatcher) {
@@ -693,13 +696,42 @@ namespace EA3
         }
 
         // berechnet die Werte der Signale fuer das tactile Geraet.
-        private void calculateSignalsForTactile(int time) {
+        private void calculateSignalsForTactile(int time)
+        {
             String hexString = "LEER";
             hexString = time.ToString("X");
             Debug.WriteLine("Test ausgabe HEX STRING " + hexString);
-            if (hexString.Length % 2 != 0) {
-                hexString = "0" + hexString;
+
+            switch (hexString.Length)
+            {
+                case 0:
+                    Debug.WriteLine("FEHLER: Der HexString in der calculateSignalsForTactile()  Methode ist leer");
+                    hexString = "0000"; // es wird ein Signal mit nur nullen übertragen
+                    break;
+                case 1:
+                    Debug.WriteLine("Der Hexstring hat nur eine Länge von max 9");
+                    hexString = "000" + hexString;
+                    break;
+                case 2:
+                    Debug.WriteLine("der HexString hat eine Länge von 2 Zeichen");
+                    hexString = "00" + hexString;
+                    break;
+                case 3:
+                    Debug.WriteLine("der Hexstring hat eine Länge von 3 Zeichen");
+                    hexString = "0" + hexString;
+                    break;
+                case 4:
+                    Debug.WriteLine("der HexString hat eine länge von 4 Zeichen");
+                    hexString = "" + hexString;
+                    break;
+                default:
+                    Debug.WriteLine("FEHLER : der HexString hat eine Länge von " + hexString.Length + " Zeichen");
+                    break;
             }
+            /*
+			if (hexString.Length % 2 != 0) {
+                hexString = "0" + hexString;
+            }*/
             byte[] myByteTest = StringToByteArray(hexString);
 
             lengthSignal = StringToByteArrayInt16(hexString);
@@ -713,13 +745,13 @@ namespace EA3
             newHex = newHex.Replace("-", "");
             Debug.WriteLine(" newHex 3 = " + newHex);
 
-            int a =  (int)((myByteTest[0]) << 8 | (myByteTest[1]));
+            int a = (int)((myByteTest[0]) << 8 | (myByteTest[1]));
             int b = (int)(myByteTest[0] * 256) + (myByteTest[1]);
             int a2 = a / 4096;
             int a3 = a / 8192;
 
             byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
-            
+
             for (int i = 0; i < myTestByte.Length; i++)
             {
                 Debug.WriteLine(i + ". Element = " + myTestByte[i]);
@@ -772,6 +804,17 @@ namespace EA3
                 Debug.WriteLine("Something went wrong by sending BLE DATA !!!!!!!");
             }
             #endregion
+        }
+
+        private void testButton_Click(object sender, RoutedEventArgs e)
+        {
+            testButton.Content = "Test Button!!!!";
+
+
+            setup.testWritingFile();
+            //setup.newSaveInFileinCSharp();
+
+            testButton.Content = "TestButton DONE!";
         }
     }
 }

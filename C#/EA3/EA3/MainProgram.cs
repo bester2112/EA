@@ -1,11 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
 using System.Diagnostics;
 using Windows.Storage.Pickers;
-using System.IO;
+using Windows.UI.Popups;
+using Windows.Storage;
 
 namespace EA3
 {
@@ -322,6 +325,7 @@ namespace EA3
         // save the Data of the last Population with UserInput in a text File
         public void SaveInFileStart()
         {
+            
             string filePath = @"Test_Start.txt";
             List<string> output = new List<string>();
             DNA[] dna = p.getPopulation();
@@ -331,8 +335,68 @@ namespace EA3
                 output.Add($"{ s.getType() },{ s.getTime() },{ s.getEins() },{ s.getNull() }");
             }
             
-            File.SetAttributes(filePath, FileAttributes.Normal);// TODO cant write in File
+            //File.SetAttributes(filePath, FileAttributes.Normal);// TODO cant write in File
             File.WriteAllLines(filePath, output);
+        }
+
+        public void newSaveInFileinCSharp()
+        {
+            string FILE_NAME = "myFile.txt";
+
+            if (!File.Exists(FILE_NAME))
+            {
+                Debug.WriteLine("{0} datei existiert nicht!", FILE_NAME);
+                //return;
+            }
+
+            // Datei schreiben
+            var writer = new StreamWriter(File.OpenWrite(FILE_NAME));
+            writer.WriteLine("testing");
+
+            DNA[] dna = p.getPopulation();
+            for (int i = 0; i < dna.Length; i++)
+            {
+                Signal s = dna[i].getSignal();
+                writer.WriteLine($"{ s.getType() },{ s.getTime() },{ s.getEins() },{ s.getNull() }");
+            }
+
+            writer.Dispose();
+
+            // Datei lesen
+            var reader = new StreamReader(File.OpenRead(FILE_NAME));
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+            }
+
+            reader.Dispose();
+        }
+
+        public async void testWritingFile()
+        {
+            Uri myUri = new Uri("ms-appx:///file.txt");
+            StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(myUri);
+
+
+
+
+            StorageFolder storageFolder = await KnownFolders.GetFolderForUserAsync(null /* current user*/, KnownFolderId.PicturesLibrary);
+            const string filename = "SAMPLE.dat";
+            StorageFile sampleFile = null;
+
+            try
+            {
+                sampleFile = await storageFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
+                var dialog = new MessageDialog(String.Format("The file '{0} was created.", sampleFile.Name));
+                await dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                // I/O errors are reported as exceptions.
+                var dialog = new MessageDialog(String.Format("Error creating the file {0}: {1}", filename, ex.Message));
+                dialog.ShowAsync();
+            }
+
         }
     }
 }

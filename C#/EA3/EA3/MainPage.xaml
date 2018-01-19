@@ -38,6 +38,7 @@
             <Button x:Name="replaySignalButtonAlgo" Content="Signal wiederholen" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="159" Margin="1230,141,-1324,-141" Click="replaySignalButtonAlgo_Click"/>
             <Button x:Name="nextButtonAlgo" Content="Next" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="159" Margin="1230,89,-1324,-89" Click="nextButtonAlgo_Click"/>
             <Button x:Name="playSignalButtonAlgo" Content="Signal abspielen" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="159" Margin="1230,41,-1324,-41" Click="playSignalButtonAlgo_Click"/>
+            <Button x:Name="testButton" Content="Button" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="65" Margin="662,291,-662,-291" Click="testButton_Click" />
         </RelativePanel>
 
         <Button x:Name="removeElementsButton" Content="remove Elements" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="152" Margin="626,175,0,0" Click="removeElementsButton_Click"/>
