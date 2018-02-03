@@ -1,0 +1,29 @@
+﻿<Window x:Class="BulkGoodsTracking.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BulkGoodsTracking"
+        mc:Ignorable="d"
+        Title="BulkGoodsTracking" Height="784.5" Width="1421.5">
+    <Grid>
+        <Grid HorizontalAlignment="Left" Height="476" VerticalAlignment="Top" Width="266" Background="#FF8B8B8B"/>
+        <ListView x:Name="listViewDevices" HorizontalAlignment="Left" Height="338" Margin="10,78,0,0" VerticalAlignment="Top" Width="220" Background="#FFBDBDBD"/>
+        <TextBlock x:Name="TxBZeug" HorizontalAlignment="Left" Margin="10,727,0,0" TextWrapping="Wrap" Text="Zeug" VerticalAlignment="Top"/>
+        <Button x:Name="BtnConnect" Content="Connect" HorizontalAlignment="Left" Margin="10,421,0,0" VerticalAlignment="Top" Click="BtnConnect_Click" Height="29" Width="67"/>
+        <TextBox x:Name="txBOutput" Margin="306,558,10,10" TextWrapping="Wrap" AcceptsReturn="True" FontSize="11"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,37,0,0" TextWrapping="Wrap" Text="BLE Devices" VerticalAlignment="Top" FontSize="25" FontWeight="Thin"/>
+        <TextBlock HorizontalAlignment="Left" Margin="306,517,0,0" TextWrapping="Wrap" Text="Status Log" FontSize="25" FontWeight="Thin" Height="33" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,523,0,0" TextWrapping="Wrap" Text="Board" VerticalAlignment="Top" FontSize="25" FontWeight="Thin"/>
+        <TextBlock x:Name="TxBBatteryStatus" HorizontalAlignment="Left" Margin="10,579,0,0" TextWrapping="Wrap" Text="Battery: ?" VerticalAlignment="Top"/>
+        <Button x:Name="BtnInitialize" Content="Initialize" HorizontalAlignment="Left" Margin="454,78,0,0" VerticalAlignment="Top" Width="74" Height="32"/>
+        <Button x:Name="BtnCalibrate" Content="Calibrate" HorizontalAlignment="Left" Margin="454,115,0,0" VerticalAlignment="Top" Width="74" Height="32"/>
+        <Button x:Name="BtnStartDataAcquisition" Content="Start Data Acquisition" HorizontalAlignment="Left" Margin="453,294,0,0" VerticalAlignment="Top" Width="143" Height="32"/>
+        <Button x:Name="BtnStopDataAcquisition" Content="Stop Data Acquisition" HorizontalAlignment="Left" Margin="453,330,0,0" VerticalAlignment="Top" Width="143" Height="32"/>
+        <ProgressBar HorizontalAlignment="Left" Height="32" Margin="560,115,0,0" VerticalAlignment="Top" Width="240"/>
+        <ProgressBar HorizontalAlignment="Left" Height="32" Margin="560,78,0,0" VerticalAlignment="Top" Width="240"/>
+        <Button x:Name="BtnSaveData" Content="Save Data" HorizontalAlignment="Left" Margin="454,367,0,0" VerticalAlignment="Top" Width="142" Height="32" Click="BtnSaveData_Click"/>
+        <Button x:Name="BtnReset" Content="Reset" HorizontalAlignment="Left" Margin="453,257,0,0" VerticalAlignment="Top" Width="142" Height="32"/>
+
+    </Grid>
+</Window>

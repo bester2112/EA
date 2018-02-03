@@ -52,28 +52,22 @@ namespace EA3
         private BLEAttributeDisplayContainer CurrentLengthCharacteristic { get; set; }
         private BLEAttributeDisplayContainer CurrentModeService { get; set; }
         private BLEAttributeDisplayContainer CurrentModeCharacteristic { get; set; }
-        private Byte Mode { get; set; }
-        private ObservableCollection<BLEAttributeDisplayContainer> currentServiceCollection = new ObservableCollection<BLEAttributeDisplayContainer>();
+        private ObservableCollection<BLEAttributeDisplayContainer> currentServiceCollection 
+            = new ObservableCollection<BLEAttributeDisplayContainer>();
 
-        private readonly Guid LENGTH_SERVICE_UUID = new Guid("713D0000-503E-4C75-BA94-3148F18D941E");
-        private readonly Guid MODE_SERVICE_UUID = new Guid("813D0000-503E-4C75-BA94-3148F18D941E");
+        private readonly Guid LENGTH_SERVICE_UUID        = new Guid("713D0000-503E-4C75-BA94-3148F18D941E");
+        private readonly Guid MODE_SERVICE_UUID          = new Guid("813D0000-503E-4C75-BA94-3148F18D941E");
         private readonly Guid LENGTH_CHARACTERISTIC_UUID = new Guid("713D0003-503E-4C75-BA94-3148F18D941E");
-        private readonly Guid MODE_CHARACTERISTIC_UUID = new Guid("813D0003-503E-4C75-BA94-3148F18D941E");
+        private readonly Guid MODE_CHARACTERISTIC_UUID   = new Guid("813D0003-503E-4C75-BA94-3148F18D941E");
 
         private const Byte MAX_POINTS = 20; // ~ BLE-Buffersize
 
-        private const Byte IA_TACTILE_MAXLENGTH = 10;
-        private const Byte IA_TACTILE_NULLENGTH = 0x0A;
-        private const Byte IA_TACTILE_EOD = 0xFF; // end of data
+        private const Byte IA_TACTILE_EOD       = 0xFF; // end of data
 
         private const Byte IA_TACTILE_MODE_STOP = 0x00;
-        private const Byte IA_TACTILE_MODE_DEF = 0x01;
-        private const Byte IA_TACTILE_MODE_ALT = 0x02;
-
-        private const Int16 IA_TACTILE_DELAY = 265;
-        private const Int16 IA_TACTILE_TIMESTEP = 2000;
 
         private Int16[] lengthSignal = new Int16[MAX_POINTS - 1];
+        private Int16[] frequencies = new Int16[MAX_POINTS - 1];
 
         public MainPage()
         {
@@ -127,8 +121,6 @@ namespace EA3
             listViewDevices.DisplayMemberPath = "Name";
             StartBleDeviceWatcher();
 
-            Mode = IA_TACTILE_MODE_DEF;
-            
             DataContext = this;
         }
 
@@ -578,11 +570,6 @@ namespace EA3
         /// </summary>
         private void DisposeCurrentDevice()
         {
-            CurrentBTDevice?.Dispose();
-            CurrentBTDevice = null;
-            CurrentBTDeviceInfo = null;
-            currentServiceCollection = new ObservableCollection<BLEAttributeDisplayContainer>();
-
             try
             {
                 CurrentLengthService = null;
@@ -591,6 +578,11 @@ namespace EA3
                 CurrentModeCharacteristic = null;
             }
             catch { }
+
+            CurrentBTDevice?.Dispose();
+            CurrentBTDevice = null;
+            CurrentBTDeviceInfo = null;
+            currentServiceCollection = new ObservableCollection<BLEAttributeDisplayContainer>();
         }
 
         /// <summary>
@@ -603,21 +595,37 @@ namespace EA3
         {
             connectButton.IsEnabled = false;
 
+            if (CurrentBTDevice != null) // disconnect pressed
+            {
+                DisposeCurrentDevice();
+                return;
+            }
+
             DisposeCurrentDevice();
-            try { CurrentBTDevice = await BluetoothLEDevice.FromIdAsync(dev.Id); }
+
+            try { CurrentBTDevice     = await BluetoothLEDevice.FromIdAsync(dev.Id); }
             catch { CurrentBTDeviceInfo = null; }
 
             if (CurrentBTDevice != null)
             {
-                #pragma warning disable 0618
                 foreach (var service in CurrentBTDevice.GattServices) {
                     currentServiceCollection.Add(new BLEAttributeDisplayContainer(service));
                 }
+
+                if (GetServices() && GetCharacteristics())
+                {
+                    // geraet ist verbunden
+                }
+                else
+                {
+                    // geraet ist nicht verbunden
+                }
+
             }
             else
             {
                 DisposeCurrentDevice();
-                CurrentBTDeviceInfo = null;
+                //CurrentBTDeviceInfo = null;
             }
 
             connectButton.Content = "Disconnect";
@@ -627,72 +635,63 @@ namespace EA3
             GetCharacteristics();
         }
    
-        private void GetServices()
+        private bool GetServices()
         {
+            bool resLENGTH = false;
+            bool resMODE = false;
+
             if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.service.Uuid == LENGTH_SERVICE_UUID)) {
-                CurrentLengthService = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.service.Uuid == LENGTH_SERVICE_UUID);
+                CurrentLengthService = currentServiceCollection.FirstOrDefault<BLEAttributeDisplayContainer>(x => x.service.Uuid.CompareTo(LENGTH_SERVICE_UUID) == 0);
+                resLENGTH = true;
             } else {
-                // TODO: better exception handling pls
                 CurrentLengthService = null;
-                return;
+                resLENGTH = false;
             }
             
             if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.service.Uuid == MODE_SERVICE_UUID)) {
-                CurrentModeService = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.service.Uuid == MODE_SERVICE_UUID);
+                CurrentModeService = currentServiceCollection.FirstOrDefault<BLEAttributeDisplayContainer>(x => x.service.Uuid.CompareTo(MODE_SERVICE_UUID) == 0);
+                resMODE = true;
             } else {
-                // TODO: better exception handling pls
                 CurrentModeService = null;
-                return;
+                resMODE = false;
             }
+            return resLENGTH && resMODE;
         }
 
-        private void GetCharacteristics()
+        private bool GetCharacteristics()
         {
-            // TODO: LIST -> ELEMENT ONLY
-            IReadOnlyList<GattCharacteristic> length_characteristics = null;
-            IReadOnlyList<GattCharacteristic> mode_characteristics = null;
+            if (GetServices())
+            {
+                CurrentLengthCharacteristic = GetSingleCharacteristic(LENGTH_CHARACTERISTIC_UUID, CurrentLengthService);
+                CurrentModeCharacteristic   = GetSingleCharacteristic(MODE_CHARACTERISTIC_UUID, CurrentModeService);
+            }
+          
+            return ((CurrentLengthCharacteristic != null) && (CurrentModeCharacteristic != null)); 
+        }
 
-            // get length characteristics
-            try { length_characteristics = CurrentLengthService.service.GetAllCharacteristics(); }
+        private BLEAttributeDisplayContainer GetSingleCharacteristic(Guid UUID, BLEAttributeDisplayContainer currentService)
+        {
+            IReadOnlyList<GattCharacteristic> service_characteristics = null;
+
+            try {
+                service_characteristics = currentService.service.GetAllCharacteristics();
+            }
             catch
             {
-                // Restricted service. Can't read characteristics
-                // On error, act as if there are no characteristics.
-                length_characteristics = new List<GattCharacteristic>();
-                mode_characteristics = new List<GattCharacteristic>();
-                return;
+                return null;
             }
 
-            // get mode characteristics
-            try { mode_characteristics = CurrentModeService.service.GetAllCharacteristics(); }
-            catch
-            {
-                // Restricted service. Can't read characteristics
-                // On error, act as if there are no characteristics.
-                length_characteristics = new List<GattCharacteristic>();
-                mode_characteristics = new List<GattCharacteristic>();
-                return;
-            }
-
-
-            List<BLEAttributeDisplayContainer> LengthCharacteristicCollection = new List<BLEAttributeDisplayContainer>();
-            List<BLEAttributeDisplayContainer> ModeCharacteristicCollection = new List<BLEAttributeDisplayContainer>();
-
-            // set CurrentLengthCharacteristic variable
-            foreach (GattCharacteristic c in length_characteristics)
-                LengthCharacteristicCollection.Add(new BLEAttributeDisplayContainer(c));
-
-            if (LengthCharacteristicCollection.Any<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == LENGTH_CHARACTERISTIC_UUID))
-                CurrentLengthCharacteristic = LengthCharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == LENGTH_CHARACTERISTIC_UUID);
-            else return;
+            List<BLEAttributeDisplayContainer> CharacteristicCollection = new List<BLEAttributeDisplayContainer>();
 
             // set currentModeCharacteristic variable
-            foreach (GattCharacteristic c in mode_characteristics)
-                ModeCharacteristicCollection.Add(new BLEAttributeDisplayContainer(c));
+            foreach (GattCharacteristic gattCharacteristic in service_characteristics)
+            {
+                CharacteristicCollection.Add(new BLEAttributeDisplayContainer(gattCharacteristic));
+            }
 
-            if (ModeCharacteristicCollection.Any<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == MODE_CHARACTERISTIC_UUID))
-                CurrentModeCharacteristic = ModeCharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristic.Uuid == MODE_CHARACTERISTIC_UUID);
-            else return;
+            var characteristic = CharacteristicCollection.FirstOrDefault<BLEAttributeDisplayContainer> (x => x.characteristic.Uuid.CompareTo(UUID) == 0);
+
+            return characteristic;
         }
 
         // berechnet die Werte der Signale fuer das tactile Geraet.
@@ -778,32 +777,35 @@ namespace EA3
         private async void playSignalNow(Signal signal) 
         {
             calculateSignalsForTactile(signal.getTime());
-            #region BLE
-            var writerLength = new DataWriter();
-            //var writerMode = new DataWriter();
+            var writerLength = new Byte[MAX_POINTS];
+            var writerMode = new DataWriter();
+
+            for (int i = 0; i < lengthSignal.Length; i++)
+            {
+                writerLength[i] = (Byte)lengthSignal.ElementAt(i);
+            }
 
             byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
 
             //foreach (var l in lengthSignal) {
-            foreach (var l in myTestByte) {
+            /*foreach (var l in myTestByte) {
                 writerLength.WriteInt16(l);
-            }
+            }*/
 
             // add end-value to avoid "garbage"-byte to be read
-            if (myTestByte.Count() < 20) {
+            /*if (myTestByte.Count() < 20) {
                 writerLength.WriteInt16(0xFF);
-            }
+            }*/
 
             //writerMode.WriteInt16(Mode);
 
             // send values to tactile device
             try {
-                await CurrentLengthCharacteristic.characteristic.WriteValueAsync(writerLength.DetachBuffer());
+                await CurrentLengthCharacteristic.characteristic.WriteValueAsync(writerLength.AsBuffer());
                 //await CurrentModeCharacteristic.characteristic.WriteValueAsync(writerMode.DetachBuffer());
             } catch {
                 Debug.WriteLine("Something went wrong by sending BLE DATA !!!!!!!");
             }
-            #endregion
         }
 
         private void testButton_Click(object sender, RoutedEventArgs e)

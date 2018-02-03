@@ -1,0 +1,427 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
+
+using Windows.Devices.Bluetooth;
+using Windows.Devices.Enumeration;
+using static BulkGoodsTracking.BTZeugs;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Storage.Streams;
+using Windows.Security.Cryptography;
+using System.Diagnostics;
+using System.Windows.Threading;
+using System.Resources;
+using Windows.Devices.Sensors;
+using System.Threading;
+using Windows.Graphics.Display;
+using Microsoft.Win32;
+
+namespace BulkGoodsTracking
+{
+
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+
+
+        private ObservableCollection<DeviceInformation> BTDevices = new ObservableCollection<DeviceInformation>();
+        private DeviceWatcher deviceWatcher;
+
+        private BluetoothLEDevice currentBTDevices = null; // current BT device
+        private DeviceInformation currentBTDeviceInfo = null;
+        private ObservableCollection<BLEAttributeDisplayContainer> currentServiceCollection = new ObservableCollection<BLEAttributeDisplayContainer>();
+        private BLEAttributeDisplayContainer currentBatteryService = null;
+        private BLEAttributeDisplayContainer currentBatteryCharacteristic = null;
+
+
+        public MainWindow()
+        {
+            InitializeComponent();
+
+            TxBZeug.Text = "";
+
+            listViewDevices.ItemsSource = BTDevices;
+            listViewDevices.DisplayMemberPath = "Name";
+
+            StartBleDeviceWatcher();
+        }
+
+
+        #region Device discovery
+
+        /// <summary>
+        /// Starts a device watcher that looks for all nearby BT devices (paired or unpaired).
+        /// </summary>
+        private void StartBleDeviceWatcher()
+        {
+            // Additional properties we would like about the device.
+            string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
+
+            // BT_Code: Currently Bluetooth APIs don't provide a selector to get ALL devices that are both paired and non-paired.
+            deviceWatcher =
+                    DeviceInformation.CreateWatcher(
+                        "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")",
+                        requestedProperties,
+                        DeviceInformationKind.AssociationEndpoint);
+
+            // Register event handlers before starting the watcher.
+            deviceWatcher.Added += DeviceWatcher_Added;
+            deviceWatcher.Updated += DeviceWatcher_Updated;
+            deviceWatcher.Removed += DeviceWatcher_Removed;
+
+            // Start over with an empty collection.
+            BTDevices.Clear();
+
+            // Start the watcher.
+            deviceWatcher.Start();
+        }
+
+        private async void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation deviceInfo)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                if (sender == deviceWatcher)
+                {
+                    if (deviceInfo.Name != String.Empty && !BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfo.Id))
+                    {
+                        BTDevices.Add(deviceInfo);
+                    }
+                }
+            }));
+        }
+
+        private async void DeviceWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                if (sender == deviceWatcher)
+                {
+                    if (BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id))
+                    {
+                        BTDevices.First<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id).Update(deviceInfoUpdate);
+                    }
+                }
+            }));
+        }
+
+        private async void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                if (sender == deviceWatcher)
+                {
+                    if (BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id))
+                    {
+                        BTDevices.Remove(BTDevices.First<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id));
+                    }
+                }
+            }));
+        }
+
+        #endregion
+
+
+        /// <summary>
+        /// Disposes of everything associated with the currently connected device
+        /// </summary>
+        private void DisposeCurrentDevice()
+        {
+            currentBTDevices?.Dispose();
+            currentBTDevices = null;
+            currentServiceCollection = new ObservableCollection<BLEAttributeDisplayContainer>();
+
+            try
+            {
+                currentBatteryCharacteristic.characteristic.ValueChanged -= BatteryCharacteristic_ValueChanged;
+                currentBatteryService = null;
+                currentBatteryCharacteristic = null;
+            }
+            catch { }
+        }
+
+
+        /// <summary>
+        /// Looks for battery characteristic and subscribes to it
+        /// </summary>
+        private async void DoBattery()
+        {
+
+            if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.serviceName == GattNativeServiceUuid.Battery))
+            {
+                currentBatteryService = currentServiceCollection.First<BLEAttributeDisplayContainer>(x => x.serviceName == GattNativeServiceUuid.Battery);
+            }
+            else
+            {
+                AppendLogMessage("Battery service not found.", true);
+                return;
+            }
+
+            IReadOnlyList<GattCharacteristic> characteristics = null;
+            try
+            {
+                // BT_Code: Get all the child characteristics of a service.
+                characteristics = currentBatteryService.service.GetAllCharacteristics();
+            }
+            catch (Exception ex)
+            {
+                AppendLogMessage("Restricted service. Can't read characteristics: " + ex.Message, true);
+                // On error, act as if there are no characteristics.
+                characteristics = new List<GattCharacteristic>();
+                return;
+            }
+
+            List<BLEAttributeDisplayContainer> CharacteristicCollection = new List<BLEAttributeDisplayContainer>();
+
+            foreach (GattCharacteristic c in characteristics)
+            {
+                CharacteristicCollection.Add(new BLEAttributeDisplayContainer(c));
+            }
+
+            if (CharacteristicCollection.Any<BLEAttributeDisplayContainer>(x => x.characteristicName == GattNativeCharacteristicUuid.BatteryLevel))
+            {
+                currentBatteryCharacteristic = CharacteristicCollection.First<BLEAttributeDisplayContainer>(x => x.characteristicName == GattNativeCharacteristicUuid.BatteryLevel);
+            }
+            else
+            {
+                AppendLogMessage("Battery characteristic not found.", true);
+                return;
+            }
+
+            var result = await currentBatteryCharacteristic.characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+            if (result == GattCommunicationStatus.Success)
+            {
+                currentBatteryCharacteristic.characteristic.ValueChanged += BatteryCharacteristic_ValueChanged;
+            }
+            else
+            {
+                AppendLogMessage("Battery characteristic change couldn't be subscribed.", true); // Todo: kommt des öfteren wiso au imma?
+            }
+
+            var level = await currentBatteryCharacteristic.characteristic.ReadValueAsync();
+
+            if (level.Status == GattCommunicationStatus.Success)
+            {
+                ShowBatteryValue(level.Value); // Todo: reads old values if not connected? odda wann au imma?
+            }
+            else
+            {
+                AppendLogMessage("Battery value couldn't be read. Unreachable.", true);
+            }
+        }
+
+
+        /// <summary>
+        /// Connect to a device
+        /// </summary>
+        /// <param name="dev"></param>
+        private async void Connect(DeviceInformation dev)
+        {
+
+            AppendLogMessage("Connecting...");
+
+            BtnConnect.IsEnabled = false;
+
+            DisposeCurrentDevice();
+            try
+            {
+                // BT_Code: BluetoothLEDevice.FromIdAsync must be called from a UI thread because it may prompt for consent.
+                currentBTDevices = await BluetoothLEDevice.FromIdAsync(dev.Id);
+            }
+            catch (Exception ex) when ((uint)ex.HResult == 0x800710df)
+            {
+                AppendLogMessage("ERROR_DEVICE_NOT_AVAILABLE because the Bluetooth radio is not on.", true);
+                currentBTDeviceInfo = null;
+            }
+
+            if (currentBTDevices != null)
+            {
+                // BT_Code: GattServices returns a list of all the supported services of the device.
+                // If the services supported by the device are expected to change
+                // during BT usage, subscribe to the GattServicesChanged event.
+                foreach (var service in currentBTDevices.GattServices)
+                {
+                    currentServiceCollection.Add(new BLEAttributeDisplayContainer(service));
+                }
+            }
+            else
+            {
+                DisposeCurrentDevice();
+                AppendLogMessage("Failed to connect to device.", true);
+                currentBTDeviceInfo = null;
+            }
+
+            BtnConnect.Content = "Disconnect";
+            BtnConnect.IsEnabled = true;
+            AppendLogMessage("Connected");
+
+            DoBattery();
+
+            // Do other stuff
+        }
+
+
+        private async void BtnConnect_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentBTDeviceInfo != null) // already connected -> disconnect
+            {
+                AppendLogMessage("Disconnecting...");
+                DisposeCurrentDevice();
+                currentBTDeviceInfo = null;
+                BtnConnect.Content = "Connect";
+                AppendLogMessage("Disconnected");
+                return;
+            }
+
+            if (listViewDevices.SelectedItem != null && listViewDevices.SelectedItem is DeviceInformation)
+            {
+                currentBTDeviceInfo = listViewDevices.SelectedItem as DeviceInformation;
+            }
+            else
+            {
+                currentBTDeviceInfo = null;
+                AppendLogMessage("No device selected.", true);
+                return;
+            }
+
+            Connect(currentBTDeviceInfo);
+
+        }
+
+        private void AppendLogMessage(string text, bool isError = false)
+        {
+            txBOutput.Text += Environment.NewLine + DateTime.Now.ToLongTimeString() + "  \t" + (isError ? "Error: \t" : "") + text;
+            txBOutput.ScrollToEnd();
+        }
+
+        private void BatteryCharacteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            ShowBatteryValue(args.CharacteristicValue);
+        }
+
+        private void ShowBatteryValue(IBuffer val)
+        {
+            byte[] data;
+            CryptographicBuffer.CopyToByteArray(val, out data);         
+
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                TxBBatteryStatus.Text = "Battery: " + data[0].ToString() + "%";
+            }));
+        }
+
+        private void Item_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+
+            throw new NotImplementedException();
+        }
+
+        private void BtnSaveData_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.ShowDialog();
+        }
+
+        //private async void Characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
+        //{
+        //    // BT_Code: An Indicate or Notify reported that the value has changed.
+        //    // Display the new value with a timestamp.
+        //    var newValue = FormatValueByPresentation(args.CharacteristicValue, presentationFormat);
+        //    var message = $"Value at {DateTime.Now:hh:mm:ss.FFF}: {newValue}";
+        //    //await Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+        //    //    () => txBOutput.Text += Environment.NewLine + message);
+        //}
+
+
+        //private string FormatValueByPresentation(IBuffer buffer, GattPresentationFormat format)
+        //{
+        //    // BT_Code: For the purpose of this sample, this function converts only UInt32 and
+        //    // UTF-8 buffers to readable text. It can be extended to support other formats if your app needs them.
+        //    byte[] data;
+        //    CryptographicBuffer.CopyToByteArray(buffer, out data);
+        //    if (format != null)
+        //    {
+        //        if (format.FormatType == GattPresentationFormatTypes.UInt32 && data.Length >= 4)
+        //        {
+        //            return BitConverter.ToInt32(data, 0).ToString();
+        //        }
+        //        else if (format.FormatType == GattPresentationFormatTypes.Utf8)
+        //        {
+        //            try
+        //            {
+        //                return Encoding.UTF8.GetString(data);
+        //            }
+        //            catch (ArgumentException)
+        //            {
+        //                return "(error: Invalid UTF-8 string)";
+        //            }
+        //        }
+        //        //else if (format.FormatType == GattPresentationFormatTypes.UInt16 || format.FormatType == GattPresentationFormatTypes.Utf16)
+        //        //{
+        //        //    try
+        //        //    {
+        //        //        return Encoding.UTF8.GetString(data);
+        //        //    }
+        //        //    catch (ArgumentException)
+        //        //    {
+        //        //        return "(error: Invalid UTF-8 string)";
+        //        //    }
+        //        //}
+        //        else
+        //        {
+        //            // Add support for other format types as needed.
+        //            return "Unsupported format: " + CryptographicBuffer.EncodeToHexString(buffer) + " " + (int)format.FormatType;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // We don't know what format to use. Let's try a well-known profile, or default back to UTF-8.
+        //        if (selectedCharacteristic.Uuid.Equals(GattCharacteristicUuids.BatteryLevel))
+        //        {
+        //            try
+        //            {
+        //                // battery level is encoded as a percentage value in the first byte according to
+        //                // https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.characteristic.battery_level.xml
+        //                return "Battery Level: " + data[0].ToString() + "%";
+        //            }
+        //            catch (ArgumentException)
+        //            {
+        //                return "Battery Level: (unable to parse)";
+        //            }
+        //        }
+        //        else
+        //        {
+        //            try
+        //            {
+        //                return "Unknown format: " + Encoding.UTF8.GetString(data);
+        //            }
+        //            catch (ArgumentException)
+        //            {
+        //                return "Unknown format";
+        //            }
+        //        }
+        //    }
+        //}
+
+    }
+
+}
+

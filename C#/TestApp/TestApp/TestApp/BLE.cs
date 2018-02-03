@@ -4,15 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Windows.Devices;
-using Windows.Devices.Enumeration;
+using System.ComponentModel;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
+using Windows.Devices;
 
-namespace EA3
+namespace TestApp
 {
     class BLE
     {
+
+
+
         /// <summary>
         ///     Represents the display of an attribute - both characteristics and services.
         /// </summary>
@@ -306,5 +310,9 @@ namespace EA3
                 return data;
             }
         }
+
+
+
+
     }
 }
