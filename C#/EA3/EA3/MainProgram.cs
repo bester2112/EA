@@ -374,8 +374,8 @@ namespace EA3
 
         public async void testWritingFile()
         {
-            Uri myUri = new Uri("ms-appx:///file.txt");
-            StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(myUri);
+            //Uri myUri = new Uri("ms-appx:///file.txt");
+            //StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(myUri);
 
 
 
