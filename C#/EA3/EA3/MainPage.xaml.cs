@@ -606,8 +606,10 @@ namespace EA3
             try { CurrentBTDevice     = await BluetoothLEDevice.FromIdAsync(dev.Id); }
             catch { CurrentBTDeviceInfo = null; }
 
+
             if (CurrentBTDevice != null)
             {
+
                 foreach (var service in CurrentBTDevice.GattServices) {
                     currentServiceCollection.Add(new BLEAttributeDisplayContainer(service));
                 }
