@@ -37,6 +37,7 @@ const uint8_t actor[2] = {0, 12};       // actor channels
 byte mode;
 byte currentSignal[TXRX_BUF_LEN];
 byte nextSignal[TXRX_BUF_LEN];
+int vibrationStrength;
 
 //                         Signal----  Pause-----  
 byte    tempOfTesting[] = {0x14, 0x00, 0x24, 0x00, 
@@ -259,13 +260,9 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
       }
       Serial.println("}");
     }
-    
-    //memcpy(nextSignal, buf, TXRX_BUF_LEN * sizeof(byte));
-    //newSignal = true;
-      
-    if (PRINT) {
-      Serial.println("the newSignal is now true");
-    }
+
+    vibrationStrength = buf[0] * 255;
+    //memcpy(nextSignalStrength, buf, TXRX_BUF_LEN * sizeof(byte));
   }
 }
 
@@ -487,7 +484,7 @@ void run() {
   if (newSignal == true) {
   //if (mode != MODE_STANDBY) {
     memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
-
+      
     internalIndex = 0;
     
     if (PRINT) {
