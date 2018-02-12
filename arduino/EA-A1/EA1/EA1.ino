@@ -266,11 +266,11 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
 // WICHTIG WIRD BISHER NOCH NICHT BENTUTZT !!!!!!!!
 void passkeyDisplayCallback(Gap::Handle_t handle, const SecurityManager::Passkey_t passkey)
 {
-    Serial.println("Input passKey: ");
+    /*Serial.println("Input passKey: ");
     for (unsigned i = 0; i < Gap::ADDR_LEN; i++) {
         Serial.println("%c ", passkey[i]);
     }
-    Serial.println("\r\n");
+    Serial.println("\r\n");*/
 }
 
 // NICHT UMBEDINGT NOTWENDIG; KANN AUCH WIEDER ENTFERNT WERDEN
@@ -279,11 +279,11 @@ void passkeyDisplayCallback(Gap::Handle_t handle, const SecurityManager::Passkey
 // This will be skipped for bonded devices. The callback is passed in the success/failure status of the security setup procedure.
 static void securitySetupCompletedCallback(Gap::Handle_t handle, SecurityManager::SecurityCompletionStatus_t status)
 {
-  if (status == SecurityManager::SEC_STATUS_SUCCESS) {
+  /*if (status == SecurityManager::SEC_STATUS_SUCCESS) {
     Serial.println("Security success %d\r\n", status);
   } else {
     Serial.println("Security failed %d\r\n", status);
-  }
+  }*/
 }
 
 // Initialisierungsmethode für BLE
