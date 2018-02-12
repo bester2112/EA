@@ -7,17 +7,13 @@
 #define DEVICE_NAME           "EA 3"    // Name des Gerätes
 #define TXRX_BUF_LEN          20        // die maximale Länge sind 20 bytes die man über BLE senden kann
 
-#define VIBRATION_LENGTH      200       // Vibration lengs (ms) - mode0 only
 #define VIBRATION_STRENGTH    65535     // Vibrationsstärke für die Benutzung des TLC's
-#define PAUSE_LENGTH          50        // Pausen Länge
-#define MAX_BPS               10        // maximal mögliche BPS (Baud rate (bps) – Configures the UART baud rate.)
-#define TIME_LENGTH           2000      // intervall länge
 #define MAXSIGNALS_SEND       10
 
 // Definiere Zustände
-#define MODE_STANDBY          0x00      // standby
-#define MODE_DEF              0x02      // Mode 0
-#define MODE_ALT              0x02      // Mode 1
+//#define MODE_STANDBY          0x00      // standby
+//#define MODE_DEF              0x02      // Mode 0
+//#define MODE_ALT              0x02      // Mode 1
 #define MODE_END_SIGNAL       0xFF      // Ende des Signals
 
 #define DEBUG                 1         // DEBUG Mode
@@ -35,44 +31,12 @@ int internalIndex;
 Adafruit_TLC59711 tlc = Adafruit_TLC59711(NUM_TLC59711, LED_PIN, DATA_PIN);
 const uint8_t actor[2] = {0, 12};       // actor channels 
 
-// BLE Definition
-BLE ble;
-
-//////////////// TODO EIGENE CHARAKTERISICS ERSTELLEN
-
-//static const uint8_t writeService_uuid[]      = {0x71, 0x3D, 0, 0, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
-//static const uint8_t   gatt_write_uuid[]      = {0x71, 0x3D, 0, 3, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
-
-//static const uint8_t writeModeService_uuid[]  = {0x81, 0x3D, 0, 0, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
-//static const uint8_t  gatt_write_mode_uuid[]  = {0x81, 0x3D, 0, 3, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
-
-// SELBST ERSTELLTE Charakteristics
-static const uint8_t lengthService_uuid[]     = {0x71, 0x3D, 0, 0, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
-static const uint8_t service_tx_uuid[] = {0x71, 0x3D, 0, 3, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
-
-static const uint8_t modeService_uuid[] = {0x81, 0x3D, 0, 0, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
-static const uint8_t service_rx_uuid[]    = {0x81, 0x3D, 0, 3, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
-
-//uint8_t      write_value[TXRX_BUF_LEN]  = {0};
-//uint8_t write_mode_value[TXRX_BUF_LEN]  = {0};
-// Bedeutung von RX / TX 
-// https://devzone.nordicsemi.com/question/56744/rx-and-tx-characteristics-in-ble_app_uart-example/
-uint8_t tx_value[TXRX_BUF_LEN] = {0};
-uint8_t rx_value[TXRX_BUF_LEN] = {0};
-
-
 // Variablen
 // vibration mode:
-//    0 - STAND BY
-//    1 - Beats per second
-//    2 - ~ Pauses per second (README in development..)
 byte mode;
+byte currentSignal[TXRX_BUF_LEN];
+byte nextSignal[TXRX_BUF_LEN];
 
-boolean motorUp;      // true: top-actor; false: bot-actor
-byte    currentBPS;
-byte    nextBPS;
-byte    currentSignal[TXRX_BUF_LEN];
-byte    nextSignal[TXRX_BUF_LEN];
 //                         Signal----  Pause-----  
 byte    tempOfTesting[] = {0x14, 0x00, 0x24, 0x00, 
 //                         Signal----  Pause-----
@@ -86,45 +50,85 @@ byte    tempOfTesting[] = {0x14, 0x00, 0x24, 0x00,
 
 
 int intervalLength;   // length of current interval
-int   curVibLength;   // length of vib-signal (based on mode)
 boolean newSignal;
 boolean replay; 
 
 int lengthOfSignal[MAXSIGNALS_SEND];
 int signalType[MAXSIGNALS_SEND]; // 1 = Signal 2 = Pause
+int strengthOfSignal[MAXSIGNALS_SEND]; 
+
+
+//uint8_t      write_value[TXRX_BUF_LEN]  = {0};
+//uint8_t write_mode_value[TXRX_BUF_LEN]  = {0};
+// Bedeutung von RX / TX 
+// https://devzone.nordicsemi.com/question/56744/rx-and-tx-characteristics-in-ble_app_uart-example/
+// BLE Definition
+BLE ble;
+
+uint8_t len_value[TXRX_BUF_LEN] = {0};
+uint8_t mod_value[TXRX_BUF_LEN] = {0};
+uint8_t str_value[TXRX_BUF_LEN] = {0};
+
+// SELBST ERSTELLTE Charakteristics
+static const uint8_t lenService_uuid[]  = {0x71, 0x3D, 0, 0, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E}; // length
+static const uint8_t service_len_uuid[] = {0x71, 0x3D, 0, 3, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
+
+static const uint8_t modService_uuid[]  = {0x81, 0x3D, 0, 0, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E}; // mode
+static const uint8_t service_mod_uuid[] = {0x81, 0x3D, 0, 3, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
+
+static const uint8_t strService_uuid[]  = {0x91, 0x3D, 0, 0, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E}; // strength
+static const uint8_t service_str_uuid[] = {0x91, 0x3D, 0, 3, 0x50, 0x3E, 0x4C, 0x75, 0xBA, 0x94, 0x31, 0x48, 0xF1, 0x8D, 0x94, 0x1E};
 
 // service and characteristics
-// Eine Characteristic namen "lengthCharacteristic"  erstellt 
-GattCharacteristic  lengthCharacteristic(
-                        service_tx_uuid, 
-                        tx_value,
+// Eine Characteristic namen "lenCharacteristic"  erstellt 
+GattCharacteristic  lenCharacteristic(
+                        service_len_uuid, 
+                        len_value,
                         1,
                         TXRX_BUF_LEN,
                         GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE |
                         GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE );
-// erstellen einer Liste von Characteristic mit dem "lengthCharacteristic"
-GattCharacteristic *uartChars[] = {&lengthCharacteristic};
+// erstellen einer Liste von Characteristic mit dem "lenCharacteristic"
+GattCharacteristic *lenUartChars[] = {&lenCharacteristic};
 // erstellen eines Services 
-GattService         lengthService(
-                        lengthService_uuid,
-                        uartChars,
-                        sizeof(uartChars) / sizeof(GattCharacteristic *));
+GattService         lenService(
+                        lenService_uuid,
+                        lenUartChars,
+                        sizeof(lenUartChars) / sizeof(GattCharacteristic *));
 
-// erstellen einer Characteristic namens "modeCharacteristic"
-GattCharacteristic  modeCharacteristic(
-                        service_rx_uuid,
-                        rx_value,
+// erstellen einer Characteristic namens "modCharacteristic"
+GattCharacteristic  modCharacteristic(
+                        service_mod_uuid,
+                        mod_value,
                         1,
                         TXRX_BUF_LEN,
                         GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE |
                         GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE );
-// Liste einer Characteristic aus "modeCharacteristic" erstellt
-GattCharacteristic *uartCharsMode[] = { &modeCharacteristic };
+// Liste einer Characteristic aus "modCharacteristic" erstellt
+GattCharacteristic *modUartChars[] = { &modCharacteristic };
 // erstellen eines Services
-GattService         modeService(
-                        modeService_uuid,
-                        uartCharsMode,
-                        sizeof(uartCharsMode) / sizeof(GattCharacteristic *));
+GattService         modService(
+                        modService_uuid,
+                        modUartChars,
+                        sizeof(modUartChars) / sizeof(GattCharacteristic *));
+
+// erstellen einer Characteristic namens "strCharacteristic"
+GattCharacteristic  strCharacteristic(
+                        service_str_uuid,
+                        str_value,
+                        1,
+                        TXRX_BUF_LEN,
+                        GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE |
+                        GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE );
+// Liste einer Characteristic aus "strCharacteristic" erstellt
+GattCharacteristic *strUartChars[] = { &strCharacteristic };
+// erstellen eines Services
+GattService         strService(
+                        strService_uuid,
+                        strUartChars,
+                        sizeof(strUartChars) / sizeof(GattCharacteristic *));
+
+
 ///////////////
 
 
@@ -161,8 +165,14 @@ void connectionCallBack( const Gap::ConnectionCallbackParams_t *params ) {
  */
 void disconnectionCallBack(const Gap::DisconnectionCallbackParams_t *params) {
   if (DEBUG) {
-    Serial.println("BLE is Disconnected");
-    Serial.println("BLE Restart advertising");
+    Serial.println("-----------------------");
+    Serial.println("Params");
+    Serial.print("Handle");
+    Serial.println(params->handle);
+    Serial.print("Reason");
+    Serial.println(params->reason);
+    /*Serial.println("BLE is Disconnected");
+    Serial.println("BLE Restart advertising");*/
   }
   ble.startAdvertising();
 }
@@ -187,25 +197,16 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
   uint8_t buf[TXRX_BUF_LEN];
   uint16_t bytesRead, index;
 
-  // retrieving graph:
-  //
-  //    > byte array with values from [0x00,0x15]
-  //
-  //    > [0x00,0x09] ~ [-10,-1] || [0x0A,0x15] ~ [0-10]
-  //
-  //    > either 20 (TXRX_BUF_LEN) elements OR n elements + 0xFF <- EndOfGraph-code
-  //
   if (DEBUG) {
     Serial.println("BLE onDataWritten : ");
   }
 
-  // DONE EIGENE CHARACTERISTIK benutzen |
-  //                                     v
-  if (Handler->handle == lengthCharacteristic.getValueAttribute().getHandle()) {
-    ble.readCharacteristicValue(lengthCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
+  // length
+  if (Handler->handle == lenCharacteristic.getValueAttribute().getHandle()) {
+    ble.readCharacteristicValue(lenCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
 
     if (DEBUG) {
-      Serial.print("Gelesene Butes im ARRAY {");
+      Serial.print("Gelesene Bytes im ARRAY Length {");
       for(int index = 0; index < bytesRead; index++)
       {
         Serial.print(buf[index]);
@@ -221,11 +222,9 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
     }
   }
 
-  // get mode // TODO
-  // DONE EIGENE CHARACTERISTIK benutzen |
-  //                                     v
-  if (Handler->handle == modeCharacteristic.getValueAttribute().getHandle()) {
-    ble.readCharacteristicValue(modeCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
+  // mode
+  if (Handler->handle == modCharacteristic.getValueAttribute().getHandle()) {
+    ble.readCharacteristicValue(modCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
     
     mode = buf[0];
     if (DEBUG) {
@@ -240,28 +239,50 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
       Serial.print("I WAS NOT IN mode = buf[0] (CONTENT) = ");
     }
   }
+
+  // strength
+  if (Handler->handle == strCharacteristic.getValueAttribute().getHandle()) {
+    ble.readCharacteristicValue(strCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
+
+    if (DEBUG) {
+      Serial.print("Gelesene Bytes im ARRAY Strength {");
+      for(int index = 0; index < bytesRead; index++)
+      {
+        Serial.print(buf[index]);
+        if (index != TXRX_BUF_LEN -1) {
+          Serial.print(", ");
+        }
+      }
+      Serial.println("}");
+
+      //memcpy(nextSignal, buf, TXRX_BUF_LEN * sizeof(byte));
+      //newSignal = true;
+      //Serial.println("the newSignal is now true");
+    }
+  }
 }
 
 // NICHT UMBEDINGT NOTWENDIG; KANN AUCH WIEDER ENTFERNT WERDEN
 // WICHTIG WIRD BISHER NOCH NICHT BENTUTZT !!!!!!!!
 void passkeyDisplayCallback(Gap::Handle_t handle, const SecurityManager::Passkey_t passkey)
 {
-    printf("Input passKey: ");
+    Serial.println("Input passKey: ");
     for (unsigned i = 0; i < Gap::ADDR_LEN; i++) {
-        printf("%c ", passkey[i]);
+        Serial.println("%c ", passkey[i]);
     }
-    printf("\r\n");
+    Serial.println("\r\n");
 }
+
 // NICHT UMBEDINGT NOTWENDIG; KANN AUCH WIEDER ENTFERNT WERDEN
-  // securitySetupCompletedCallback
-  // Set up a callback for when the security setup procedure (key generation and exchange) for a link has completed.
-  // This will be skipped for bonded devices. The callback is passed in the success/failure status of the security setup procedure.
+// securitySetupCompletedCallback
+// Set up a callback for when the security setup procedure (key generation and exchange) for a link has completed.
+// This will be skipped for bonded devices. The callback is passed in the success/failure status of the security setup procedure.
 static void securitySetupCompletedCallback(Gap::Handle_t handle, SecurityManager::SecurityCompletionStatus_t status)
 {
   if (status == SecurityManager::SEC_STATUS_SUCCESS) {
-    printf("Security success %d\r\n", status);
+    Serial.println("Security success %d\r\n", status);
   } else {
-    printf("Security failed %d\r\n", status);
+    Serial.println("Security failed %d\r\n", status);
   }
 }
 
@@ -290,8 +311,9 @@ void initBLE() {
   ble.setAdvertisingType(GapAdvertisingParams::ADV_CONNECTABLE_UNDIRECTED);
 
   // add service 
-  ble.addService(lengthService);
-  ble.addService(modeService);
+  ble.addService(lenService);
+  ble.addService(modService);
+  ble.addService(strService);
 
   // set device name 
   ble.setDeviceName((const uint8_t *)DEVICE_NAME);
@@ -501,36 +523,12 @@ void run() {
         break;
       }
       
-      /*if (mode == MODE_STANDBY) {
-        break;
-      }*/
       Serial.println("after break");
       playSignal();
       Serial.println("I was in the playSignal()");
     }
-    /*if (DEBUG) {
-      Serial.println("RUN: TEST OUTPUT ");
-      Serial.print("MODE_STANDBY = ");
-      Serial.print(MODE_STANDBY);
-      Serial.print("DEBUG = ");
-      Serial.print(DEBUG);
-      Serial.print("MODE_DEF = ");
-      Serial.print(MODE_DEF);
-      Serial.print("MODE_ALT = ");
-      Serial.print(MODE_ALT);
-      Serial.print("MODE_END_SIGNAL = ");
-      Serial.print(MODE_END_SIGNAL);
-      Serial.println("");
-      
-      //MODE_STANDBY          0x00
-      //DEBUG                 0x01
-      //MODE_DEF              0x02
-      //MODE_ALT              0x02
-      //MODE_END_SIGNAL       0xFF
-    }*/
 
     newSignal = false;
-    //mode = MODE_STANDBY;
   }
 }
 
@@ -561,7 +559,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   run();
-  //ble.waitForEvent();
+  ble.waitForEvent();
 }
 
 
