@@ -17,6 +17,7 @@
 #define MODE_END_SIGNAL       0xFF      // Ende des Signals
 
 #define DEBUG                 1         // DEBUG Mode
+#define PRINT                 1         // Print out
 #define NUM_TLC59711          2         // Anzahl der TLC's
 
 // PINS 
@@ -148,7 +149,7 @@ GattService         strService(
  *                       params->connectionParams->connectionSupervisionTimeout
  */
 void connectionCallBack( const Gap::ConnectionCallbackParams_t *params ) {
-  if (DEBUG) {
+  if (PRINT) {
     Serial.println("BLE DEVICE is CONNECTED");
   }
 }
@@ -164,7 +165,7 @@ void connectionCallBack( const Gap::ConnectionCallbackParams_t *params ) {
  *                                        CONN_INTERVAL_UNACCEPTABLE                  = 0x3B,
  */
 void disconnectionCallBack(const Gap::DisconnectionCallbackParams_t *params) {
-  if (DEBUG) {
+  if (PRINT) {
     Serial.println("-----------------------");
     Serial.println("Params");
     Serial.print("Handle");
@@ -197,7 +198,7 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
   uint8_t buf[TXRX_BUF_LEN];
   uint16_t bytesRead, index;
 
-  if (DEBUG) {
+  if (PRINT) {
     Serial.println("BLE onDataWritten : ");
   }
 
@@ -205,7 +206,7 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
   if (Handler->handle == lenCharacteristic.getValueAttribute().getHandle()) {
     ble.readCharacteristicValue(lenCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
 
-    if (DEBUG) {
+    if (PRINT) {
       Serial.print("Gelesene Bytes im ARRAY Length {");
       for(int index = 0; index < bytesRead; index++)
       {
@@ -215,9 +216,12 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
         }
       }
       Serial.println("}");
-
-      memcpy(nextSignal, buf, TXRX_BUF_LEN * sizeof(byte));
-      newSignal = true;
+    }
+    
+    memcpy(nextSignal, buf, TXRX_BUF_LEN * sizeof(byte));
+    newSignal = true;
+    
+    if (PRINT) {
       Serial.println("the newSignal is now true");
     }
   }
@@ -227,7 +231,7 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
     ble.readCharacteristicValue(modCharacteristic.getValueAttribute().getHandle(), buf, &bytesRead);
     
     mode = buf[0];
-    if (DEBUG) {
+    if (PRINT) {
       Serial.print("mode = buf[0] (CONTENT) = ");
       Serial.println(mode);
     }
@@ -235,7 +239,7 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
     replay = true;
     newSignal = true;
   } else {
-    if (DEBUG) {
+    if (PRINT) {
       Serial.print("I WAS NOT IN mode = buf[0] (CONTENT) = ");
     }
   }
@@ -254,10 +258,13 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
         }
       }
       Serial.println("}");
-
-      //memcpy(nextSignal, buf, TXRX_BUF_LEN * sizeof(byte));
-      //newSignal = true;
-      //Serial.println("the newSignal is now true");
+    }
+    
+    //memcpy(nextSignal, buf, TXRX_BUF_LEN * sizeof(byte));
+    //newSignal = true;
+      
+    if (PRINT) {
+      Serial.println("the newSignal is now true");
     }
   }
 }
@@ -266,11 +273,15 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
 // WICHTIG WIRD BISHER NOCH NICHT BENTUTZT !!!!!!!!
 void passkeyDisplayCallback(Gap::Handle_t handle, const SecurityManager::Passkey_t passkey)
 {
-    /*Serial.println("Input passKey: ");
-    for (unsigned i = 0; i < Gap::ADDR_LEN; i++) {
-        Serial.println("%c ", passkey[i]);
+    if (PRINT) {
+      Serial.println("Input passKey: ");
     }
-    Serial.println("\r\n");*/
+    for (unsigned i = 0; i < Gap::ADDR_LEN; i++) {
+        //Serial.println("%c ", passkey[i]);
+    }
+    if (PRINT) {
+      Serial.println("\r\n");
+    }
 }
 
 // NICHT UMBEDINGT NOTWENDIG; KANN AUCH WIEDER ENTFERNT WERDEN
@@ -279,11 +290,11 @@ void passkeyDisplayCallback(Gap::Handle_t handle, const SecurityManager::Passkey
 // This will be skipped for bonded devices. The callback is passed in the success/failure status of the security setup procedure.
 static void securitySetupCompletedCallback(Gap::Handle_t handle, SecurityManager::SecurityCompletionStatus_t status)
 {
-  /*if (status == SecurityManager::SEC_STATUS_SUCCESS) {
-    Serial.println("Security success %d\r\n", status);
+  if (status == SecurityManager::SEC_STATUS_SUCCESS) {
+    //Serial.println("Security success %d\r\n", status);
   } else {
-    Serial.println("Security failed %d\r\n", status);
-  }*/
+    //Serial.println("Security failed %d\r\n", status);
+  }
 }
 
 // Initialisierungsmethode für BLE
@@ -327,7 +338,7 @@ void initBLE() {
   // start advertising
   ble.startAdvertising();
 
-  if (DEBUG) {
+  if (PRINT) {
     Serial.println("Start advertising");
   }
 }
@@ -368,7 +379,7 @@ boolean calculateSignalLength() {
   boolean res = true;
   
   for (int i = 0; i < TXRX_BUF_LEN; i += 2) {
-    if (DEBUG) {
+    if (PRINT) {
       Serial.print("index = ");
       Serial.println(i);
     
@@ -380,18 +391,18 @@ boolean calculateSignalLength() {
       Serial.print("currentSignal[");
     }
     int iN = i + 1;
-    if (DEBUG) {
+    if (PRINT) {
       Serial.print(iN);
       Serial.print("] = ");
     }
     int cS = currentSignal[iN];
-    if (DEBUG) {
+    if (PRINT) {
       Serial.println(currentSignal[iN]);
     }
 
     int temp = (currentSignal[i] * 256); 
 
-    if (DEBUG) {
+    if (PRINT) {
       Serial.print("currentSignal[");
       Serial.print(i);
       Serial.print("] * 256 = ");
@@ -399,7 +410,7 @@ boolean calculateSignalLength() {
     }
     int temp2 = (temp + cS);
 
-    if (DEBUG) {
+    if (PRINT) {
       Serial.print("currentSignal[");
       Serial.print(i);
       Serial.print("] * 256 + currentSignal[");
@@ -414,7 +425,7 @@ boolean calculateSignalLength() {
     
     int res1 = temp2 % 4096;
 
-    if (DEBUG) {
+    if (PRINT) {
       Serial.print("temp2 % 4096 = ");
       Serial.print(temp);
       Serial.print(" % 4096 = ");
@@ -425,7 +436,7 @@ boolean calculateSignalLength() {
     signalType[index] = lengthOfSignal[index] / 4096; // ergebniss ist 1 fuer Signal oder 2 fuer Pause
     index++;
 
-    if (DEBUG) {
+    if (PRINT) {
       Serial.print("lengthOfSignal[");
       Serial.print(i);
       Serial.print("] = ");
@@ -454,14 +465,14 @@ boolean calculateSignalLength() {
 }
 
 void playSignal() { // TODO 
-  if (DEBUG) {
+  if (PRINT) {
       Serial.print("Vibration Time = ");
       Serial.println(lengthOfSignal[internalIndex]);
   }
   startVibration();
   delay(lengthOfSignal[internalIndex]);
   internalIndex++; // Signal wurde abgespielt, index muss jetzt hochgezaehlt werden
-  if (DEBUG) {
+  if (PRINT) {
       Serial.print("Pause Time = ");
       Serial.println(lengthOfSignal[internalIndex]);
   }
@@ -479,14 +490,14 @@ void run() {
 
     internalIndex = 0;
     
-    if (DEBUG) {
+    if (PRINT) {
       Serial.print("RUN: ");
     }
 
     if(STUPID_EDGE_CASE){
       for (int i = 0; i < TXRX_BUF_LEN; i++) {
         currentSignal[i] = tempOfTesting[i];
-        if (DEBUG) {
+        if (PRINT) {
           Serial.print("temp[");
           Serial.print(i);
           Serial.print("] = ");
@@ -502,10 +513,13 @@ void run() {
     if (!replay) {
       boolean calculateOK = calculateSignalLength();
       if (calculateOK) {
-      
-        Serial.println(" berechnung war erfolgreich ");
+        if (PRINT) {
+          Serial.println(" berechnung war erfolgreich ");
+        }
       } else {
-        Serial.println(" Die Reihenfolge von den Signalen war nicht einwandfrei => Fehler in Calculate Funktion ");
+        if (PRINT) {
+          Serial.println(" Die Reihenfolge von den Signalen war nicht einwandfrei => Fehler in Calculate Funktion ");
+        }
       }
     } else {
       replay = false; 
@@ -513,7 +527,7 @@ void run() {
 
     for(int index = 0; index < MAXSIGNALS_SEND / 2; index++)
     {
-      if (DEBUG) {
+      if (PRINT) {
         Serial.print("currentSignal [");
         Serial.print(index);
         Serial.print("] = ");
@@ -522,10 +536,14 @@ void run() {
       if (currentSignal[index] == MODE_END_SIGNAL) {
         break;
       }
-      
-      Serial.println("after break");
+
+      if (PRINT) {
+        Serial.println("after break");
+      }
       playSignal();
-      Serial.println("I was in the playSignal()");
+      if (PRINT) {
+        Serial.println("I was in the playSignal()");
+      }
     }
 
     newSignal = false;
