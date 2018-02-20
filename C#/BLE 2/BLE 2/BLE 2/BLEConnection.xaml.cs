@@ -43,7 +43,13 @@ namespace BLE_2
         private static readonly string SERVICE_UUID = "5A2D3BF8-F0BC-11E5-9CE9-5E5517507E66";
         private static readonly string CHARACTERISTIC_UUID = "5a2d40ee-f0bc-11e5-9ce9-5e5517507e66";
 
+        private static readonly string LENGTH_SERVICE_UUID        = "713D0000-503E-4C75-BA94-3148F18D941E";
+        private static readonly string MODE_SERVICE_UUID          = "813D0000-503E-4C75-BA94-3148F18D941E";
+        private static readonly string LENGTH_CHARACTERISTIC_UUID = "713D0003-503E-4C75-BA94-3148F18D941E";
+        private static readonly string MODE_CHARACTERISTIC_UUID   = "813D0003-503E-4C75-BA94-3148F18D941E";
+
         private List<DeviceInformation> devices = new List<DeviceInformation>();
+        byte[] bytes;
         //private BLEVisualizer visualizer = new BLEVisualizer();
 
         private DeviceWatcher deviceWatcher;
@@ -79,6 +85,38 @@ namespace BLE_2
                 }
             }
             return false;
+        }
+
+        public async void WriteBytes()
+        {
+
+            // visualizer.AddValue(bytes);
+            if (motorCharacteristic == null)
+            {
+                return;
+            }
+            var writer = new DataWriter();
+            long startTime = Environment.TickCount;
+            Debug.WriteLine(startTime + " Sending " + ByteArrayToString(bytes));
+            writer.WriteBytes(bytes);
+            GattCommunicationStatus status = await
+            motorCharacteristic.WriteValueAsync(writer.DetachBuffer()); //TODO catch Exception after disconnect
+            long endTime = Environment.TickCount;
+            Debug.WriteLine(endTime + " Status for " + ByteArrayToString(bytes) + ": " + status + ". Time: " + (endTime - startTime) + " ms");
+        }
+
+        private void Write1(object sender, RoutedEventArgs e)
+        {
+            byte[] myBytes = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
+            bytes = myBytes;
+            WriteBytes();
+        }
+
+        private void Write2(object sender, RoutedEventArgs e)
+        {
+            byte[] myBytes = { 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00 };
+            bytes = myBytes;
+            WriteBytes();
         }
 
         public async void WriteBytes(byte[] bytes)
@@ -128,28 +166,29 @@ namespace BLE_2
 
                 foreach (GattDeviceService service in services)
                 {
-                    Console.WriteLine("Service: " + service.Uuid);
-                    GattCharacteristicsResult characteristicsResult = await service.GetCharacteristicsAsync();
-                    if (characteristicsResult.Status == GattCommunicationStatus.Success)
+                    Debug.WriteLine("Service: " + service.Uuid);
+                    GattCharacteristicsResult characteristicsResultOut = await service.GetCharacteristicsAsync();
+                    if (characteristicsResultOut.Status == GattCommunicationStatus.Success)
                     {
-                        IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
+                        IReadOnlyList<GattCharacteristic> characteristics = characteristicsResultOut.Characteristics;
                         foreach (GattCharacteristic characteristic in characteristics)
                         {
                             Debug.WriteLine("Characteristic: " + characteristic.Uuid);
                         }
                     }
-                    /*if (service.Uuid.Equals(new Guid(SERVICE_UUID)))
+                
+                    if (service.Uuid.Equals(new Guid(LENGTH_SERVICE_UUID))) //SERVICE_UUID
                     {
-                        Console.WriteLine("Service found!");
+                        Debug.WriteLine("Service found!");
                         GattCharacteristicsResult characteristicsResult = await service.GetCharacteristicsAsync();
                         if (characteristicsResult.Status == GattCommunicationStatus.Success)
                         {
                             IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
                             foreach (GattCharacteristic characteristic in characteristics)
                             {
-                                if (characteristic.Uuid.Equals(new Guid(CHARACTERISTIC_UUID)))
+                                if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
                                 {
-                                    Console.WriteLine("Characteristic found!");
+                                    Debug.WriteLine("Characteristic found!");
                                     motorCharacteristic = characteristic;
                                 }
                             }
@@ -157,8 +196,8 @@ namespace BLE_2
                     }
                     else
                     {
-                        Console.WriteLine("Unknown service: " + service.Uuid);
-                    }*/
+                        Debug.WriteLine("Unknown service: " + service.Uuid);
+                    }
                 }
 
             }
@@ -225,5 +264,6 @@ namespace BLE_2
             string hex = BitConverter.ToString(ba);
             return hex.Replace("-", "");
         }
+
     }
 }

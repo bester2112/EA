@@ -13,6 +13,9 @@
                 <AppBarButton Icon="Back" Click="AppBarButton_Click"/>
             </Frame>
             <Button x:Name="ConnectTactPlayButton" Content="ConnectTactPlay" HorizontalAlignment="Left" Margin="133,172,0,0" VerticalAlignment="Top" Click="ConnectTactPlay"/>
+            <Button x:Name="Write1Button" Content="Write 1" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="107" Margin="138,248,-179.667,-248" Click="Write1"/>
+            <Button x:Name="write2Button" Content="Write 2" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="107" Margin="138,320,-179.667,-320" Click="Write2"/>
+
         </RelativePanel>
     </Grid>
 </Page>
