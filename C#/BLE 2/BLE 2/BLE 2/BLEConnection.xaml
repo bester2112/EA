@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="BLE_2.MainPage"
+    x:Class="BLE_2.BLEConnection"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:BLE_2"
@@ -8,8 +8,11 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Button Content="Bluetooth Connection" HorizontalAlignment="Left" Margin="362,266,0,0" VerticalAlignment="Top" Click="ChangeToSettings"/>
-        <Button x:Name="BleButtonConnect" Content="Bluetooth Connection 2" HorizontalAlignment="Left" Margin="323,435,0,0" VerticalAlignment="Top" Click="BleButtonConnect_Click"/>
-
+        <RelativePanel>
+            <Frame Margin="0,5,0,0">
+                <AppBarButton Icon="Back" Click="AppBarButton_Click"/>
+            </Frame>
+            <Button x:Name="ConnectTactPlayButton" Content="ConnectTactPlay" HorizontalAlignment="Left" Margin="133,172,0,0" VerticalAlignment="Top" Click="ConnectTactPlay"/>
+        </RelativePanel>
     </Grid>
 </Page>

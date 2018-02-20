@@ -803,7 +803,8 @@ namespace EA3
 
             // send values to tactile device
             try {
-                await CurrentLengthCharacteristic.characteristic.WriteValueAsync(writerLength.AsBuffer());
+                var status1 = await CurrentLengthCharacteristic.characteristic.WriteValueAsync(writerLength.AsBuffer());
+                Debug.WriteLine(status1);
                 //await CurrentModeCharacteristic.characteristic.WriteValueAsync(writerMode.DetachBuffer());
             } catch {
                 Debug.WriteLine("Something went wrong by sending BLE DATA !!!!!!!");

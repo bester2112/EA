@@ -122,7 +122,7 @@ namespace BLE_2.BLE
         public BluetoothLEDeviceDisplay(DeviceInformation deviceInfoIn)
         {
             DeviceInformation = deviceInfoIn;
-            UpdateGlyphBitmapImage();
+            //UpdateGlyphBitmapImage();
         }
 
         public DeviceInformation DeviceInformation { get; private set; }
@@ -151,7 +151,7 @@ namespace BLE_2.BLE
             OnPropertyChanged("Properties");
             OnPropertyChanged("IsConnectable");
 
-            UpdateGlyphBitmapImage();
+            //UpdateGlyphBitmapImage();
         }
 
         private async void UpdateGlyphBitmapImage()

@@ -31,5 +31,10 @@ namespace BLE_2
         {
             Frame.Navigate(typeof(SettingsPage));
         }
+
+        private void BleButtonConnect_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(BLEConnection));
+        }
     }
 }

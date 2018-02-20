@@ -95,6 +95,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BLEConnection.xaml.cs">
+      <DependentUpon>BLEConnection.xaml</DependentUpon>
+    </Compile>
     <Compile Include="BLE\Constants.cs" />
     <Compile Include="BLE\DisplayHelpers.cs" />
     <Compile Include="BLE\PresentationFormats.cs" />
@@ -127,6 +130,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="BLEConnection.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

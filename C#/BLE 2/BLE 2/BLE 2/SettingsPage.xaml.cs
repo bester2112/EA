@@ -182,6 +182,38 @@ namespace BLE_2
 
             ConnectButton.IsEnabled = true;
         }
+
+
+        private async void playSignalNow()
+        {
+            var writerMode = new DataWriter();
+            
+
+            byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
+
+            //foreach (var l in lengthSignal) {
+            /*foreach (var l in myTestByte) {
+                writerLength.WriteInt16(l);
+            }*/
+
+            // add end-value to avoid "garbage"-byte to be read
+            /*if (myTestByte.Count() < 20) {
+                writerLength.WriteInt16(0xFF);
+            }*/
+
+            //writerMode.WriteInt16(Mode);
+
+            // send values to tactile device
+            try
+            {
+               // await CurrentLengthCharacteristic.characteristic.WriteValueAsync(myTestByte.AsBuffer());
+                //await CurrentModeCharacteristic.characteristic.WriteValueAsync(writerMode.DetachBuffer());
+            }
+            catch
+            {
+                Debug.WriteLine("Something went wrong by sending BLE DATA !!!!!!!");
+            }
+        }
         #endregion
 
 
