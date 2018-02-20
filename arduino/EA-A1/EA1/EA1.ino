@@ -17,7 +17,7 @@
 #define MODE_END_SIGNAL       0xFF      // Ende des Signals
 
 #define DEBUG                 1         // DEBUG Mode
-#define PRINT                 1         // Print out
+#define PRINT                 0         // Print out
 #define NUM_TLC59711          2         // Anzahl der TLC's
 
 // PINS 
@@ -344,9 +344,9 @@ void startVibration() {
   for (int index = 0; index < NUM_TLC59711; index++) {
     uint8_t channel = actor[index];
     
-    tlc.setPWM(channel, VIBRATION_STRENGTH);
-    tlc.setPWM(channel + 1, VIBRATION_STRENGTH);
-    tlc.setPWM(channel + 2, VIBRATION_STRENGTH);
+    tlc.setPWM(channel, vibrationStrength);
+    tlc.setPWM(channel + 1, vibrationStrength);
+    tlc.setPWM(channel + 2, vibrationStrength);
   }
   tlc.write(); // WICHTIG: Zum Bus schreiben!
 }
@@ -559,6 +559,7 @@ void setup() {
   // ...
   newSignal = false;
   replay = false;
+  vibrationStrength = VIBRATION_STRENGTH;
 
   // TLC 
   tlc.begin();
