@@ -609,6 +609,7 @@ namespace EA3
 
             if (CurrentBTDevice != null)
             {
+                var gatt = await CurrentBTDevice.GetGattServicesAsync();
 
                 foreach (var service in CurrentBTDevice.GattServices) {
                     currentServiceCollection.Add(new BLEAttributeDisplayContainer(service));
