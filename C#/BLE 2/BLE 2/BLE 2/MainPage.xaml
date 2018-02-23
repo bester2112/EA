@@ -10,6 +10,7 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Button Content="Bluetooth Connection" HorizontalAlignment="Left" Margin="362,266,0,0" VerticalAlignment="Top" Click="ChangeToSettings"/>
         <Button x:Name="BleButtonConnect" Content="Bluetooth Connection 2" HorizontalAlignment="Left" Margin="323,435,0,0" VerticalAlignment="Top" Click="BleButtonConnect_Click"/>
+        <Button x:Name="WriteFileButton" Content="Write in File" HorizontalAlignment="Left" Margin="329,537,0,0" VerticalAlignment="Top" Click="WriteFile"/>
 
     </Grid>
 </Page>

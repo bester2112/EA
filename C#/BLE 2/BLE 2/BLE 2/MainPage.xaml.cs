@@ -36,5 +36,10 @@ namespace BLE_2
         {
             Frame.Navigate(typeof(BLEConnection));
         }
+
+        private void WriteFile(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(FilePage));
+        }
     }
 }

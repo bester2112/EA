@@ -1,0 +1,22 @@
+﻿<Page
+    x:Class="BLE_2.FilePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BLE_2"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <RelativePanel>
+            <Frame Margin="0,5,0,0">
+                <AppBarButton Icon="Back" Click="AppBarButton_Click"/>
+            </Frame>
+            <Button x:Name="WriteFileButton" Content="Write File" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="64.6667" Margin="134,188,-134.333,-188" Click="writeFile"/>
+            <Button x:Name="DirecotyButton" Content="Choose Directory" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="167" Margin="140,296,-242.333,-296" Click="ChooseDirectory"/>
+            <TextBlock x:Name="PathTextBlock" HorizontalAlignment="Left" Height="38" Text="TextBlock" TextWrapping="Wrap" VerticalAlignment="Top" Width="322" Margin="134,256,-394,-274"/>
+
+
+        </RelativePanel>
+    </Grid>
+</Page>
