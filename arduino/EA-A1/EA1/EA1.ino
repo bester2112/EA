@@ -53,7 +53,7 @@ byte    tempOfTesting[] = {0x14, 0x00, 0x24, 0x00,
 
 int intervalLength;   // length of current interval
 boolean newSignal;
-boolean replay; 
+boolean startPlay; 
 
 int lengthOfSignal[MAXSIGNALS_SEND];
 int signalType[MAXSIGNALS_SEND]; // 1 = Signal 2 = Pause
@@ -167,12 +167,12 @@ void connectionCallBack( const Gap::ConnectionCallbackParams_t *params ) {
  */
 void disconnectionCallBack(const Gap::DisconnectionCallbackParams_t *params) {
   if (PRINT) {
-    Serial.println("-----------------------");
+    /*Serial.println("-----------------------");
     Serial.println("Params");
     Serial.print("Handle");
     Serial.println(params->handle);
     Serial.print("Reason");
-    Serial.println(params->reason);
+    Serial.println(params->reason);*/
     /*Serial.println("BLE is Disconnected");
     Serial.println("BLE Restart advertising");*/
   }
@@ -220,11 +220,11 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
     }
     
     memcpy(nextSignal, buf, TXRX_BUF_LEN * sizeof(byte));
-    newSignal = true;
+    //newSignal = true;
     
-    if (PRINT) {
+    /*if (PRINT) {
       Serial.println("the newSignal is now true");
-    }
+    }*/
   }
 
   // mode
@@ -237,8 +237,8 @@ void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
       Serial.println(mode);
     }
 
-    replay = true;
-    newSignal = true;
+    startPlay = true;
+    //newSignal = true;
   } else {
     if (PRINT) {
       Serial.print("I WAS NOT IN mode = buf[0] (CONTENT) = ");
@@ -481,7 +481,8 @@ void playSignal() { // TODO
 void run() {
   // mache erst was, wenn sich das Gerät nicht mehr im Standby befindet
 
-  if (newSignal == true) {
+  if (startPlay == true) {
+  //if (newSignal == true) {
   //if (mode != MODE_STANDBY) {
     memcpy(currentSignal, nextSignal, TXRX_BUF_LEN * sizeof(byte));
       
@@ -507,7 +508,7 @@ void run() {
         }
       }
     }
-    if (!replay) {
+    if (!startPlay) {
       boolean calculateOK = calculateSignalLength();
       if (calculateOK) {
         if (PRINT) {
@@ -519,7 +520,7 @@ void run() {
         }
       }
     } else {
-      replay = false; 
+      startPlay = false; 
     }
 
     for(int index = 0; index < MAXSIGNALS_SEND / 2; index++)
@@ -543,7 +544,8 @@ void run() {
       }
     }
 
-    newSignal = false;
+    startPlay = false;
+    //newSignal = false;
   }
 }
 
@@ -557,8 +559,8 @@ void setup() {
 
   // initialisierung der Variablen
   // ...
-  newSignal = false;
-  replay = false;
+  //newSignal = false;
+  startPlay = false;
   vibrationStrength = VIBRATION_STRENGTH;
 
   // TLC 
