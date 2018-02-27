@@ -40,13 +40,15 @@ namespace BLE_2
         }
 
         private static readonly string DEVICE_NAME = "EA 3";
-        private static readonly string SERVICE_UUID = "5A2D3BF8-F0BC-11E5-9CE9-5E5517507E66";
+        private static readonly string SERVICE_UUID        = "5A2D3BF8-F0BC-11E5-9CE9-5E5517507E66";
         private static readonly string CHARACTERISTIC_UUID = "5a2d40ee-f0bc-11e5-9ce9-5e5517507e66";
 
-        private static readonly string LENGTH_SERVICE_UUID        = "713D0000-503E-4C75-BA94-3148F18D941E";
-        private static readonly string MODE_SERVICE_UUID          = "813D0000-503E-4C75-BA94-3148F18D941E";
-        private static readonly string LENGTH_CHARACTERISTIC_UUID = "713D0003-503E-4C75-BA94-3148F18D941E";
-        private static readonly string MODE_CHARACTERISTIC_UUID   = "813D0003-503E-4C75-BA94-3148F18D941E";
+        private static readonly string LENGTH_SERVICE_UUID          = "713D0000-503E-4C75-BA94-3148F18D941E";
+        private static readonly string START_SERVICE_UUID           = "813D0000-503E-4C75-BA94-3148F18D941E";
+        private static readonly string STRENGTH_SERVICE_UUID        = "913D0000-503E-4C75-BA94-3148F18D941E";
+        private static readonly string LENGTH_CHARACTERISTIC_UUID   = "713D0003-503E-4C75-BA94-3148F18D941E";
+        private static readonly string START_CHARACTERISTIC_UUID    = "813D0003-503E-4C75-BA94-3148F18D941E";
+        private static readonly string STRENGTH_CHARACTERISTIC_UUID = "913D0003-503E-4C75-BA94-3148F18D941E";
 
         private List<DeviceInformation> devices = new List<DeviceInformation>();
         byte[] bytes;
@@ -54,7 +56,9 @@ namespace BLE_2
 
         private DeviceWatcher deviceWatcher;
         private bool connecting;
-        private GattCharacteristic motorCharacteristic;
+        private GattCharacteristic lengthCharacteristic;
+        private GattCharacteristic startCharacteristic;
+        private GattCharacteristic strengthCharacteristic;
 
 
         public void QueryDevices()
@@ -90,17 +94,39 @@ namespace BLE_2
         public async void WriteBytes()
         {
 
+            byte[] startBytes = { 0x55 };
+            byte[] strengthBytes = { 0xFF };
+
             // visualizer.AddValue(bytes);
-            if (motorCharacteristic == null)
+            if (lengthCharacteristic == null || startCharacteristic == null || strengthCharacteristic == null)
             {
                 return;
             }
-            var writer = new DataWriter();
+
+            var lengthWriter = new DataWriter();
+            var strengthWriter = new DataWriter();
+            var startWriter = new DataWriter();
             long startTime = Environment.TickCount;
+
             Debug.WriteLine(startTime + " Sending " + ByteArrayToString(bytes));
-            writer.WriteBytes(bytes);
-            GattCommunicationStatus status = await
-            motorCharacteristic.WriteValueAsync(writer.DetachBuffer()); //TODO catch Exception after disconnect
+
+            lengthWriter.WriteBytes(bytes);
+            strengthWriter.WriteBytes(strengthBytes);
+            startWriter.WriteBytes(startBytes);
+
+            GattCommunicationStatus statusLength = await
+            lengthCharacteristic.WriteValueAsync(lengthWriter.DetachBuffer()); //TODO catch Exception after disconnect
+            GattCommunicationStatus statusStrength = await
+            strengthCharacteristic.WriteValueAsync(strengthWriter.DetachBuffer()); //TODO catch Exception after disconnect
+            GattCommunicationStatus statusStart = await
+            startCharacteristic.WriteValueAsync(startWriter.DetachBuffer()); //TODO catch Exception after disconnect
+
+            GattCommunicationStatus status = GattCommunicationStatus.ProtocolError; // DEFAULT IST PROTOKOLL FEHLER 
+            if (statusLength == GattCommunicationStatus.Success && statusStrength == GattCommunicationStatus.Success && statusStart == GattCommunicationStatus.Success)
+            {
+                status = GattCommunicationStatus.Success;
+            }
+
             long endTime = Environment.TickCount;
             Debug.WriteLine(endTime + " Status for " + ByteArrayToString(bytes) + ": " + status + ". Time: " + (endTime - startTime) + " ms");
         }
@@ -122,7 +148,7 @@ namespace BLE_2
         public async void WriteBytes(byte[] bytes)
         {
             // visualizer.AddValue(bytes);
-            if (motorCharacteristic == null)
+            if (lengthCharacteristic == null)
             {
                 return;
             }
@@ -130,8 +156,9 @@ namespace BLE_2
             long startTime = Environment.TickCount;
             Debug.WriteLine(startTime + " Sending " + ByteArrayToString(bytes));
             writer.WriteBytes(bytes);
+
             GattCommunicationStatus status = await
-            motorCharacteristic.WriteValueAsync(writer.DetachBuffer()); //TODO catch Exception after disconnect
+            lengthCharacteristic.WriteValueAsync(writer.DetachBuffer()); //TODO catch Exception after disconnect
             long endTime = Environment.TickCount;
             Debug.WriteLine(endTime + " Status for " + ByteArrayToString(bytes) + ": " + status + ". Time: " + (endTime - startTime) + " ms");
         }
@@ -160,6 +187,7 @@ namespace BLE_2
             Debug.WriteLine("Query service");
             GattDeviceServicesResult servicesResult = await bluetoothLeDevice.GetGattServicesAsync();
             Debug.WriteLine("Query service complete");
+
             if (servicesResult.Status == GattCommunicationStatus.Success)
             {
                 IReadOnlyList<GattDeviceService> services = servicesResult.Services;
@@ -179,7 +207,7 @@ namespace BLE_2
                 
                     if (service.Uuid.Equals(new Guid(LENGTH_SERVICE_UUID))) //SERVICE_UUID
                     {
-                        Debug.WriteLine("Service found!");
+                        Debug.WriteLine("Length Service found!");
                         GattCharacteristicsResult characteristicsResult = await service.GetCharacteristicsAsync();
                         if (characteristicsResult.Status == GattCommunicationStatus.Success)
                         {
@@ -188,8 +216,42 @@ namespace BLE_2
                             {
                                 if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
                                 {
-                                    Debug.WriteLine("Characteristic found!");
-                                    motorCharacteristic = characteristic;
+                                    Debug.WriteLine("Length Characteristic found!");
+                                    lengthCharacteristic = characteristic;
+                                }
+                            }
+                        }
+                    }
+                    else if (service.Uuid.Equals(new Guid(STRENGTH_SERVICE_UUID))) //SERVICE_UUID
+                    {
+                        Debug.WriteLine("Strength Service found!");
+                        GattCharacteristicsResult characteristicsResult = await service.GetCharacteristicsAsync();
+                        if (characteristicsResult.Status == GattCommunicationStatus.Success)
+                        {
+                            IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
+                            foreach (GattCharacteristic characteristic in characteristics)
+                            {
+                                if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
+                                {
+                                    Debug.WriteLine("Strength Characteristic found!");
+                                    strengthCharacteristic = characteristic;
+                                }
+                            }
+                        }
+                    }
+                    else if (service.Uuid.Equals(new Guid(START_SERVICE_UUID))) //SERVICE_UUID
+                    {
+                        Debug.WriteLine("Start Service found!");
+                        GattCharacteristicsResult characteristicsResult = await service.GetCharacteristicsAsync();
+                        if (characteristicsResult.Status == GattCommunicationStatus.Success)
+                        {
+                            IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
+                            foreach (GattCharacteristic characteristic in characteristics)
+                            {
+                                if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
+                                {
+                                    Debug.WriteLine("Start Characteristic found!");
+                                    startCharacteristic = characteristic;
                                 }
                             }
                         }
