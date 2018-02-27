@@ -372,7 +372,9 @@ namespace EA3
             reader.Dispose();
         }
 
-        public async void testWritingFile()
+
+        
+            public async void testWritingFile()
         {
             //Uri myUri = new Uri("ms-appx:///file.txt");
             //StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(myUri);

@@ -24,6 +24,8 @@ using Windows.UI.ViewManagement;
 using Windows.ApplicationModel.Core;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
+using Windows.Storage.Pickers;
+using Windows.Storage;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x407 dokumentiert.
 
@@ -42,7 +44,7 @@ namespace EA3
         bool newGeneration = false;
 
         // BLE VARS
-        private ObservableCollection<DeviceInformation> BTDevices = new ObservableCollection<DeviceInformation>();
+        /*private ObservableCollection<DeviceInformation> BTDevices = new ObservableCollection<DeviceInformation>();
         private DeviceWatcher deviceWatcher;
 
         private BluetoothLEDevice CurrentBTDevice { get; set; }
@@ -68,6 +70,30 @@ namespace EA3
 
         private Int16[] lengthSignal = new Int16[MAX_POINTS - 1];
         private Int16[] frequencies = new Int16[MAX_POINTS - 1];
+        */
+        private Int16[] lengthSignal = new Int16[MAX_POINTS - 1];
+        private const Byte MAX_POINTS = 20; // ~ BLE-Buffersize
+
+
+        private static readonly string DEVICE_NAME = "EA 3";
+        private static readonly string SERVICE_UUID = "5A2D3BF8-F0BC-11E5-9CE9-5E5517507E66";
+        private static readonly string CHARACTERISTIC_UUID = "5a2d40ee-f0bc-11e5-9ce9-5e5517507e66";
+
+        private static readonly string LENGTH_SERVICE_UUID = "713D0000-503E-4C75-BA94-3148F18D941E";
+        private static readonly string START_SERVICE_UUID = "813D0000-503E-4C75-BA94-3148F18D941E";
+        private static readonly string STRENGTH_SERVICE_UUID = "913D0000-503E-4C75-BA94-3148F18D941E";
+        private static readonly string LENGTH_CHARACTERISTIC_UUID = "713D0003-503E-4C75-BA94-3148F18D941E";
+        private static readonly string START_CHARACTERISTIC_UUID = "813D0003-503E-4C75-BA94-3148F18D941E";
+        private static readonly string STRENGTH_CHARACTERISTIC_UUID = "913D0003-503E-4C75-BA94-3148F18D941E";
+        private List<DeviceInformation> devices = new List<DeviceInformation>();
+        byte[] bytes;
+        //private BLEVisualizer visualizer = new BLEVisualizer();
+
+        private DeviceWatcher deviceWatcher;
+        private bool connecting;
+        private GattCharacteristic lengthCharacteristic;
+        private GattCharacteristic startCharacteristic;
+        private GattCharacteristic strengthCharacteristic;
 
         public MainPage()
         {
@@ -117,9 +143,10 @@ namespace EA3
             connectButton.Content = "Connect";
 
             // BLE watcher init.
-            listViewDevices.ItemsSource = BTDevices;
+            //listViewDevices.ItemsSource = BTDevices;
             listViewDevices.DisplayMemberPath = "Name";
-            StartBleDeviceWatcher();
+            //StartBleDeviceWatcher();
+            QueryDevices();
 
             DataContext = this;
         }
@@ -439,8 +466,112 @@ namespace EA3
         }
 
 
-        private void connectButton_Click(object sender, RoutedEventArgs e)
+        private async void connectButton_Click(object sender, RoutedEventArgs e)
         {
+            lock (this)
+            {
+                if (connecting)
+                {
+                    return;
+                }
+                else
+                {
+                    connecting = true;
+                }
+            }
+            DeviceInformation deviceInfo = GetDeviceByName(DEVICE_NAME);
+            if (deviceInfo == null)
+            {
+                Debug.WriteLine("device info is null");
+                return;
+            }
+            Debug.WriteLine("Connecting to " + deviceInfo.Id + "  " + deviceInfo.Name);
+            BluetoothLEDevice bluetoothLeDevice = await BluetoothLEDevice.FromIdAsync(deviceInfo.Id);
+            Debug.WriteLine("Query service");
+            GattDeviceServicesResult servicesResult = await bluetoothLeDevice.GetGattServicesAsync();
+            Debug.WriteLine("Query service complete");
+
+            if (servicesResult.Status == GattCommunicationStatus.Success)
+            {
+                IReadOnlyList<GattDeviceService> services = servicesResult.Services;
+
+                foreach (GattDeviceService service in services)
+                {
+                    Debug.WriteLine("Service: " + service.Uuid);
+                    GattCharacteristicsResult characteristicsResultOut = await service.GetCharacteristicsAsync();
+                    if (characteristicsResultOut.Status == GattCommunicationStatus.Success)
+                    {
+                        IReadOnlyList<GattCharacteristic> characteristics = characteristicsResultOut.Characteristics;
+                        foreach (GattCharacteristic characteristic in characteristics)
+                        {
+                            Debug.WriteLine("Characteristic: " + characteristic.Uuid);
+                        }
+                    }
+
+                    if (service.Uuid.Equals(new Guid(LENGTH_SERVICE_UUID))) //SERVICE_UUID
+                    {
+                        Debug.WriteLine("Length Service found!");
+                        GattCharacteristicsResult characteristicsResult = await service.GetCharacteristicsAsync();
+                        if (characteristicsResult.Status == GattCommunicationStatus.Success)
+                        {
+                            IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
+                            foreach (GattCharacteristic characteristic in characteristics)
+                            {
+                                if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
+                                {
+                                    Debug.WriteLine("Length Characteristic found!");
+                                    lengthCharacteristic = characteristic;
+                                }
+                            }
+                        }
+                    }
+                    else if (service.Uuid.Equals(new Guid(STRENGTH_SERVICE_UUID))) //SERVICE_UUID
+                    {
+                        Debug.WriteLine("Strength Service found!");
+                        GattCharacteristicsResult characteristicsResult = await service.GetCharacteristicsAsync();
+                        if (characteristicsResult.Status == GattCommunicationStatus.Success)
+                        {
+                            IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
+                            foreach (GattCharacteristic characteristic in characteristics)
+                            {
+                                if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
+                                {
+                                    Debug.WriteLine("Strength Characteristic found!");
+                                    strengthCharacteristic = characteristic;
+                                }
+                            }
+                        }
+                    }
+                    else if (service.Uuid.Equals(new Guid(START_SERVICE_UUID))) //SERVICE_UUID
+                    {
+                        Debug.WriteLine("Start Service found!");
+                        GattCharacteristicsResult characteristicsResult = await service.GetCharacteristicsAsync();
+                        if (characteristicsResult.Status == GattCommunicationStatus.Success)
+                        {
+                            IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
+                            foreach (GattCharacteristic characteristic in characteristics)
+                            {
+                                if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
+                                {
+                                    Debug.WriteLine("Start Characteristic found!");
+                                    startCharacteristic = characteristic;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Unknown service: " + service.Uuid);
+                    }
+                }
+
+            }
+            lock (this)
+            {
+                connecting = false;
+            }
+
+            /*
             if (CurrentBTDeviceInfo != null) // already connected -> disconnect
             {
                 DisposeCurrentDevice();
@@ -456,13 +587,106 @@ namespace EA3
                 //Connect(devInfo);
             }
             else {
-                return; /* do nothing */ 
+                return; // do nothing 
             }
 
-            Connect(CurrentBTDeviceInfo);
+            Connect(CurrentBTDeviceInfo);*/
         }
 
         #region BLE Device discovery
+        public bool TactPlayFound()
+        {
+            foreach (DeviceInformation bleDeviceInfo in devices)
+            {
+                if (bleDeviceInfo.Name.Equals(DEVICE_NAME))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void QueryDevices()
+        {
+            // Query for extra properties you want returned
+            string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
+
+            deviceWatcher = DeviceInformation.CreateWatcher(
+                                BluetoothLEDevice.GetDeviceSelectorFromPairingState(false),
+                                requestedProperties,
+                                DeviceInformationKind.AssociationEndpoint);
+
+            // Register event handlers before starting the watcher.
+            // Added, Updated and Removed are required to get all nearby devices
+            deviceWatcher.Added += DeviceWatcher_Added;
+            deviceWatcher.Updated += DeviceWatcher_Updated;
+            // Start the watcher.
+            deviceWatcher.Start();
+        }
+
+        private DeviceInformation GetDeviceByID(string id)
+        {
+            foreach (DeviceInformation bleDeviceInfo in devices)
+            {
+                if (bleDeviceInfo.Id == id)
+                {
+                    return bleDeviceInfo;
+                }
+            }
+            return null;
+        }
+
+        private DeviceInformation GetDeviceByName(string name)
+        {
+            foreach (DeviceInformation bleDeviceInfo in devices)
+            {
+                if (bleDeviceInfo.Name == name)
+                {
+                    return bleDeviceInfo;
+                }
+            }
+            return null;
+        }
+
+        private void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation deviceInfo)
+        {
+            devices.Add(deviceInfo);
+            Debug.WriteLine("Device added: " + deviceInfo.Id + "  " + deviceInfo.Name);
+        }
+
+        private void DeviceWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
+        {
+            if (GetDeviceByID(deviceInfoUpdate.Id) != null)
+            {
+                GetDeviceByID(deviceInfoUpdate.Id).Update(deviceInfoUpdate);
+                Debug.WriteLine("Device Updated for " + deviceInfoUpdate.Id);
+            }
+        }
+
+        public static byte[] StringToByteArray(String hex)
+        {
+            if (hex.StartsWith("0x"))
+            {
+                hex = hex.Substring(2);
+            }
+            int NumberChars = hex.Length;
+            byte[] bytes = new byte[NumberChars / 2];
+            for (int i = 0; i < NumberChars; i += 2)
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            return bytes;
+        }
+
+        public static string ByteArrayToString(byte[] ba)
+        {
+            string hex = BitConverter.ToString(ba);
+            return hex.Replace("-", "");
+        }
+
+
+
+
+        /*
+        
         // DONE
         /// <summary>
         /// Starts a device watcher that looks for all nearby BT devices (paired or unpaired).
@@ -562,13 +786,13 @@ namespace EA3
                     }
                 }
             });
-        }
+        }*/
         #endregion
 
         /// <summary>
         ///    Disposes of everything associated with the currently connected device. 
         /// </summary>
-        private void DisposeCurrentDevice()
+        /*private void DisposeCurrentDevice()
         {
             try
             {
@@ -695,7 +919,7 @@ namespace EA3
             var characteristic = CharacteristicCollection.FirstOrDefault<BLEAttributeDisplayContainer> (x => x.characteristic.Uuid.CompareTo(UUID) == 0);
 
             return characteristic;
-        }
+        }*/
 
         // berechnet die Werte der Signale fuer das tactile Geraet.
         private void calculateSignalsForTactile(int time)
@@ -736,6 +960,8 @@ namespace EA3
             }*/
             byte[] myByteTest = StringToByteArray(hexString);
 
+
+            bytes = StringToByteArray(hexString);
             lengthSignal = StringToByteArrayInt16(hexString);
             int tempZahl = int.Parse(hexString, System.Globalization.NumberStyles.HexNumber);
             int tempZahl2 = Convert.ToInt32(hexString, 16);
@@ -768,16 +994,16 @@ namespace EA3
             return array;
         }
 
-        public static byte[] StringToByteArray(String hex)
+        /*public static byte[] StringToByteArray(String hex)
         {
           int NumberChars = hex.Length;
           byte[] bytes = new byte[NumberChars / 2];
           for (int i = 0; i < NumberChars; i += 2)
             bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
           return bytes;
-        }
+        }*/
 
-        private async void playSignalNow(Signal signal) 
+        private void playSignalNow(Signal signal) 
         {
             calculateSignalsForTactile(signal.getTime());
             var writerLength = new Byte[MAX_POINTS];
@@ -804,13 +1030,59 @@ namespace EA3
 
             // send values to tactile device
             try {
-                var status1 = await CurrentLengthCharacteristic.characteristic.WriteValueAsync(writerLength.AsBuffer());
-                Debug.WriteLine(status1);
+
+                // bytes = myBytes ist schon in calculateTactileLength gemacht worden.
+                WriteBytes();
+
+                //var status1 = await CurrentLengthCharacteristic.characteristic.WriteValueAsync(writerLength.AsBuffer());
+                //Debug.WriteLine(status1);
                 //await CurrentModeCharacteristic.characteristic.WriteValueAsync(writerMode.DetachBuffer());
             } catch {
                 Debug.WriteLine("Something went wrong by sending BLE DATA !!!!!!!");
             }
         }
+
+        public async void WriteBytes()
+        {
+            byte[] startBytes = { 0x55 };
+            byte[] strengthBytes = { 0xFF };
+
+            // visualizer.AddValue(bytes);
+            if (lengthCharacteristic == null || startCharacteristic == null || strengthCharacteristic == null)
+            {
+                return;
+            }
+
+            var lengthWriter = new DataWriter();
+            var strengthWriter = new DataWriter();
+            var startWriter = new DataWriter();
+
+            long startTime = Environment.TickCount;
+
+            Debug.WriteLine(startTime + " Sending " + ByteArrayToString(bytes));
+
+            lengthWriter.WriteBytes(bytes);
+            strengthWriter.WriteBytes(strengthBytes);
+            startWriter.WriteBytes(startBytes);
+
+            GattCommunicationStatus statusLength = await
+            lengthCharacteristic.WriteValueAsync(lengthWriter.DetachBuffer()); //TODO catch Exception after disconnect
+            GattCommunicationStatus statusStrength = await
+            strengthCharacteristic.WriteValueAsync(strengthWriter.DetachBuffer()); //TODO catch Exception after disconnect
+            GattCommunicationStatus statusStart = await
+            startCharacteristic.WriteValueAsync(startWriter.DetachBuffer()); //TODO catch Exception after disconnect
+
+            GattCommunicationStatus status = GattCommunicationStatus.ProtocolError; // DEFAULT IST PROTOKOLL FEHLER 
+            if (statusLength == GattCommunicationStatus.Success && statusStrength == GattCommunicationStatus.Success && statusStart == GattCommunicationStatus.Success)
+            {
+                status = GattCommunicationStatus.Success;
+            }
+
+            long endTime = Environment.TickCount;
+            Debug.WriteLine(endTime + " Status for " + ByteArrayToString(bytes) + ": " + status + ". Time: " + (endTime - startTime) + " ms");
+        }
+
+
 
         private void testButton_Click(object sender, RoutedEventArgs e)
         {
@@ -819,8 +1091,79 @@ namespace EA3
 
             setup.testWritingFile();
             //setup.newSaveInFileinCSharp();
+            testWritingFile2222();
+            testWritingFile222();
 
             testButton.Content = "TestButton DONE!";
+        }
+
+        FileOpenPicker picker = new FileOpenPicker();
+
+        public async void testWritingFile2222()
+        {
+            picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            picker.ViewMode = PickerViewMode.List;
+            picker.FileTypeFilter.Add(".txt");
+
+            // Show picker enabling user to pick one file.
+            StorageFile result = await picker.PickSingleFileAsync();
+
+            if (result != null)
+            {
+                try
+                {
+                    // Use FileIO to replace the content of the text file
+                    await FileIO.WriteTextAsync(result, textBlock.Text);
+
+                    // Display a success message
+                    Debug.WriteLine("Status: File saved successfully");
+                }
+                catch (Exception ex)
+                {
+                    // Display an error message
+                    Debug.WriteLine("Status: error saving the file - " + ex.Message);
+                }
+            }
+            else
+                Debug.WriteLine("Status: User cancelled save operation");
+        }
+
+        public void testWritingFile222()
+        {
+
+            string pathDir = Path.GetDirectoryName(@"c:") + "c:\\settings";
+            string settingsFile = "settings.txt";
+            StreamWriter w;
+
+            // Create the parent directory if it doesn't exist
+            if (!Directory.Exists(pathDir))
+                Directory.CreateDirectory(pathDir);
+            settingsFile = Path.Combine(pathDir, settingsFile);
+            w = new StreamWriter(settingsFile, true);
+
+
+            // Get the directories currently on the C drive.
+            DirectoryInfo[] cDirs = new DirectoryInfo(@"c:\").GetDirectories();
+
+            // Write each directory name to a file.
+            using (StreamWriter sw = new StreamWriter("CDriveDirs.txt"))
+            {
+                foreach (DirectoryInfo dir in cDirs)
+                {
+                    sw.WriteLine(dir.Name);
+
+                }
+            }
+
+            // Read and show each line from the file.
+            string line = "";
+            using (StreamReader sr = new StreamReader("CDriveDirs.txt"))
+            {
+                while ((line = sr.ReadLine()) != null)
+                {
+                    Console.WriteLine(line);
+                }
+            }
         }
     }
 }
