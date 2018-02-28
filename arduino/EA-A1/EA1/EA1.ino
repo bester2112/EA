@@ -25,7 +25,7 @@
 #define LED_PIN               A3        // PIN für die LED
 #define VCC_ON                D3        // muss sofort im setup() auf HIGH gesetzt werden
 
-#define STUPID_EDGE_CASE     1
+#define STUPID_EDGE_CASE      0
 int internalIndex;
 
 // Anlegen des Vibrationsmotors
@@ -38,9 +38,9 @@ byte mode;
 byte currentSignal[TXRX_BUF_LEN];
 byte nextSignal[TXRX_BUF_LEN];
 int vibrationStrength;
-
+/*
 //                         Signal----  Pause-----  
-byte    tempOfTesting[] = {0x14, 0x00, 0x24, 0x00, 
+byte    tempOfTesting[] = {0x14, 0x00, 0xFF, 0x00, 
 //                         Signal----  Pause-----
                            0x13, 0x00, 0x23, 0x00, 
 //                         Signal----  Pause-----
@@ -48,7 +48,18 @@ byte    tempOfTesting[] = {0x14, 0x00, 0x24, 0x00,
 //                         Signal----  Pause-----
                            0x11, 0x00, 0x21, 0x00, 
 //                         Signal----  Pause-----
-                           0x14, 0x00, 0x24, 0x00};
+                           0x14, 0x00, 0x24, 0x00};*/
+                           
+//                         Signal----  Pause-----  
+byte    tempOfTesting[] = {0x14, 0x00, 0x00, 0x00, 
+//                         Signal----  Pause-----
+                           0x00, 0x00, 0x00, 0x00, 
+//                         Signal----  Pause-----
+                           0x00, 0x00, 0x00, 0x00, 
+//                         Signal----  Pause-----
+                           0x00, 0x00, 0x00, 0x00, 
+//                         Signal----  Pause-----
+                           0x00, 0x00, 0x00, 0x00};
 
 
 int intervalLength;   // length of current interval
