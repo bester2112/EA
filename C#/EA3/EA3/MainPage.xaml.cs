@@ -432,7 +432,7 @@ namespace EA3
                 textBlockAlgo.Text = "Zum Beginn der naechsten Session bitte auf Beginnen druecken.";
                 playSignalButtonAlgo.Content = "Beginnen";
 
-                setup.SaveInFileAlgo();
+                //setup.SaveInFileAlgo();
 
                 playSignalButtonAlgo.IsEnabled = true;
                 newGeneration = true;
@@ -534,7 +534,7 @@ namespace EA3
                             IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
                             foreach (GattCharacteristic characteristic in characteristics)
                             {
-                                if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
+                                if (characteristic.Uuid.Equals(new Guid(STRENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
                                 {
                                     Debug.WriteLine("Strength Characteristic found!");
                                     strengthCharacteristic = characteristic;
@@ -551,7 +551,7 @@ namespace EA3
                             IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
                             foreach (GattCharacteristic characteristic in characteristics)
                             {
-                                if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
+                                if (characteristic.Uuid.Equals(new Guid(START_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
                                 {
                                     Debug.WriteLine("Start Characteristic found!");
                                     startCharacteristic = characteristic;
@@ -958,10 +958,10 @@ namespace EA3
 			if (hexString.Length % 2 != 0) {
                 hexString = "0" + hexString;
             }*/
-            byte[] myByteTest = StringToByteArray(hexString);
+            byte[] myByteTest = StringToByteArray(hexString + "000000000000000000000000000000000000");
 
 
-            bytes = StringToByteArray(hexString);
+            bytes = StringToByteArray(hexString + "000000000000000000000000000000000000");
             lengthSignal = StringToByteArrayInt16(hexString);
             int tempZahl = int.Parse(hexString, System.Globalization.NumberStyles.HexNumber);
             int tempZahl2 = Convert.ToInt32(hexString, 16);
@@ -1069,11 +1069,11 @@ namespace EA3
             lengthCharacteristic.WriteValueAsync(lengthWriter.DetachBuffer()); //TODO catch Exception after disconnect
             GattCommunicationStatus statusStrength = await
             strengthCharacteristic.WriteValueAsync(strengthWriter.DetachBuffer()); //TODO catch Exception after disconnect
-            GattCommunicationStatus statusStart = await
-            startCharacteristic.WriteValueAsync(startWriter.DetachBuffer()); //TODO catch Exception after disconnect
+            //GattCommunicationStatus statusStart = await
+            //startCharacteristic.WriteValueAsync(startWriter.DetachBuffer()); //TODO catch Exception after disconnect
 
             GattCommunicationStatus status = GattCommunicationStatus.ProtocolError; // DEFAULT IST PROTOKOLL FEHLER 
-            if (statusLength == GattCommunicationStatus.Success && statusStrength == GattCommunicationStatus.Success && statusStart == GattCommunicationStatus.Success)
+            if (statusLength == GattCommunicationStatus.Success && statusStrength == GattCommunicationStatus.Success) // && statusStart == GattCommunicationStatus.Success)
             {
                 status = GattCommunicationStatus.Success;
             }
