@@ -118,11 +118,11 @@ namespace BLE_2
             lengthCharacteristic.WriteValueAsync(lengthWriter.DetachBuffer()); //TODO catch Exception after disconnect
             GattCommunicationStatus statusStrength = await
             strengthCharacteristic.WriteValueAsync(strengthWriter.DetachBuffer()); //TODO catch Exception after disconnect
-            GattCommunicationStatus statusStart = await
-            startCharacteristic.WriteValueAsync(startWriter.DetachBuffer()); //TODO catch Exception after disconnect
+            //GattCommunicationStatus statusStart = await
+            //startCharacteristic.WriteValueAsync(startWriter.DetachBuffer()); //TODO catch Exception after disconnect
 
             GattCommunicationStatus status = GattCommunicationStatus.ProtocolError; // DEFAULT IST PROTOKOLL FEHLER 
-            if (statusLength == GattCommunicationStatus.Success && statusStrength == GattCommunicationStatus.Success && statusStart == GattCommunicationStatus.Success)
+            if (statusLength == GattCommunicationStatus.Success)  //&& statusStrength == GattCommunicationStatus.Success && statusStart == GattCommunicationStatus.Success)
             {
                 status = GattCommunicationStatus.Success;
             }
@@ -133,14 +133,18 @@ namespace BLE_2
 
         private void Write1(object sender, RoutedEventArgs e)
         {
-            byte[] myBytes = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
+            //byte[] myBytes = { 0x14, 0x00, 0xFF };
+            byte[] myBytes = { 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
             bytes = myBytes;
             WriteBytes();
         }
 
         private void Write2(object sender, RoutedEventArgs e)
         {
-            byte[] myBytes = { 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00 };
+            //byte[] myBytes = { 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00, 0x14, 0x00, 0x24, 0x00 };
+            byte[] myBytes = { 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
             bytes = myBytes;
             WriteBytes();
         }
@@ -231,7 +235,7 @@ namespace BLE_2
                             IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
                             foreach (GattCharacteristic characteristic in characteristics)
                             {
-                                if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
+                                if (characteristic.Uuid.Equals(new Guid(STRENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
                                 {
                                     Debug.WriteLine("Strength Characteristic found!");
                                     strengthCharacteristic = characteristic;
@@ -248,7 +252,7 @@ namespace BLE_2
                             IReadOnlyList<GattCharacteristic> characteristics = characteristicsResult.Characteristics;
                             foreach (GattCharacteristic characteristic in characteristics)
                             {
-                                if (characteristic.Uuid.Equals(new Guid(LENGTH_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
+                                if (characteristic.Uuid.Equals(new Guid(START_CHARACTERISTIC_UUID))) // CHARACTERISTIC_UUID
                                 {
                                     Debug.WriteLine("Start Characteristic found!");
                                     startCharacteristic = characteristic;
