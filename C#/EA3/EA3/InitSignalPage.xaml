@@ -1,0 +1,33 @@
+﻿<Page
+    x:Class="EA3.InitSignalPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:EA3"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" Height="500" Width="800">
+
+	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
+		<StackPanel Margin="50,50,50,50">
+			<TextBlock x:Name="FirstLineText" Text="TextBlock"/>
+
+			<StackPanel Height="200" Margin="50,50,50,50">
+				<StackPanel Height="94" Margin="0,0,0,0">
+				</StackPanel>
+				<StackPanel Height="75" Margin="100,0,100,0">
+					<TextBlock x:Name="TextBlockKurz" Text="Kurz" Padding="85,0,0,0" Margin="0,0,0,0"/>
+					<TextBlock x:Name="TextBlockMittel" Text="Mittel" Padding="180,0,0,0" Margin="0,-20,0,0"/>
+					<TextBlock x:Name="TextBlockLang" Text="Lang" Padding="284,0,0,0" Margin="0,-20,0,0"/>
+
+					<RadioButton x:Name="RadioButtonKurz" Width="50" Margin="90,0,0,0"/>
+					<RadioButton x:Name="RadioButtonMittel" Width="30" Margin="190,-32,0,0"/>
+					<RadioButton x:Name="RadioButtonLang" Width="50" Margin="290,-32,0,0"/>
+				</StackPanel>
+
+			</StackPanel>
+			<Button x:Name="ButtonReplay" Margin="637,-100,0,0" Height="43" Width="43" Background="White" Click="Replay">
+				<Image Source="Assets/replay-512-512.png" Stretch="UniformToFill" Height="43" VerticalAlignment="Top" Margin="-11,-8.333,-8.667,-6.667"/>
+			</Button>
+		</StackPanel>
+	</Grid>
+</Page>

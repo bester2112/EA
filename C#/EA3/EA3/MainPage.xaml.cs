@@ -105,12 +105,15 @@ namespace EA3
                 coreTitleBar1.ExtendViewIntoTitleBar = true;
             };
 
+            //relativePanelAlgo.
+
 
             var appView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
             appView.FullScreenSystemOverlayMode = FullScreenSystemOverlayMode.Minimal;
 
             initCode();
             setup = new MainProgram();
+            
 
             //CoreApplicationViewTitleBar coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
             //coreTitleBar.IsVisibleChanged += OnIsVisibleChanged;
@@ -119,22 +122,22 @@ namespace EA3
             coreTitleBar1.ExtendViewIntoTitleBar = true;*/
 
             //CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-           // Window.Current.SetTitleBar(null);
+            // Window.Current.SetTitleBar(null);
 
 
             // Setzt die Farbe der Leiste auf Weiß
-           /* ApplicationViewTitleBar titleBar = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().TitleBar;
-            titleBar.ButtonBackgroundColor = Windows.UI.Colors.White;
-            titleBar.ButtonForegroundColor = Windows.UI.Colors.White;
-            titleBar.ButtonHoverBackgroundColor = Windows.UI.Colors.White;
-            titleBar.ButtonHoverForegroundColor = Windows.UI.Colors.White;
-            titleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.White;
-            titleBar.ButtonInactiveForegroundColor = Windows.UI.Colors.White;
-            titleBar.ButtonPressedBackgroundColor = Windows.UI.Colors.White;
-            titleBar.ButtonPressedForegroundColor = Windows.UI.Colors.White;
-            titleBar.InactiveBackgroundColor = Windows.UI.Colors.White;
-            titleBar.InactiveForegroundColor = Windows.UI.Colors.White;
-            */
+            /* ApplicationViewTitleBar titleBar = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().TitleBar;
+             titleBar.ButtonBackgroundColor = Windows.UI.Colors.White;
+             titleBar.ButtonForegroundColor = Windows.UI.Colors.White;
+             titleBar.ButtonHoverBackgroundColor = Windows.UI.Colors.White;
+             titleBar.ButtonHoverForegroundColor = Windows.UI.Colors.White;
+             titleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.White;
+             titleBar.ButtonInactiveForegroundColor = Windows.UI.Colors.White;
+             titleBar.ButtonPressedBackgroundColor = Windows.UI.Colors.White;
+             titleBar.ButtonPressedForegroundColor = Windows.UI.Colors.White;
+             titleBar.InactiveBackgroundColor = Windows.UI.Colors.White;
+             titleBar.InactiveForegroundColor = Windows.UI.Colors.White;
+             */
             //textBlock.Text = setup.playSignalStart();
 
 
@@ -1164,6 +1167,37 @@ namespace EA3
                     Console.WriteLine(line);
                 }
             }
+        }
+
+        private void testButton2(object sender, RoutedEventArgs e)
+        {
+            myFrame.Navigate(typeof(IntroPage));
+        }
+
+        private void testButton3(object sender, RoutedEventArgs e)
+        {
+            myFrame.Navigate(typeof(InitSignalPage));
+        }
+        private void testButton4(object sender, RoutedEventArgs e)
+        {
+            myFrame.Navigate(typeof(AlgoSignalPage));
+        }
+        private void testButton5(object sender, RoutedEventArgs e)
+        {
+            myFrame.Navigate(typeof(EmotionPage));
+        }
+        private void testButton6(object sender, RoutedEventArgs e)
+        {
+            myFrame.Navigate(typeof(ErkennungPage));
+        }
+
+        private async void radioButtonMittel_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new MessageDialog("Es wurde mittel gedrückt.");
+            await dialog.ShowAsync();
+            radioButtonKurz.IsChecked = true;
+            radioButtonLang.IsChecked = true;
+            radioButtonMittel.IsChecked = false;
         }
     }
 }
