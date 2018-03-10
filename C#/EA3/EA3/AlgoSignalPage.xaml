@@ -11,9 +11,10 @@
 		<StackPanel Margin="50,50,50,50">
 			<TextBlock x:Name="FirstLineText" Text="TextBlock"/>
 
-			<StackPanel Height="300" Margin="50,50,50,50">
+			<StackPanel Height="320" Margin="50,50,50,50">
 				<StackPanel>
 					<TextBlock x:Name="TextBlockFrage1" Text="Frage 1" Padding="0,0,0,0" Margin="0,0,0,0"/>
+					<TextBlock Text="" Padding="0,0,0,0" Margin="0,0,0,0"/>
 					<StackPanel Height="75" Margin="100,0,100,0">
 						<TextBlock x:Name="TextBlockKurz" Text="kurz" Padding="85,0,0,0" Margin="0,0,0,0"/>
 						<TextBlock x:Name="TextBlockMittel" Text="mittel" Padding="180,0,0,0" Margin="0,-20,0,0"/>
@@ -26,6 +27,7 @@
 				</StackPanel>
 				<StackPanel>
 					<TextBlock x:Name="TextBlockFrage2" Text="Frage 2" Padding="0,0,0,0" Margin="0,0,0,0"/>
+					<TextBlock Text="" Padding="0,0,0,0" Margin="0,0,0,0"/>
 					<StackPanel Height="75" Margin="90,0,0,0">
 						<TextBlock x:Name="TextBlockSehrSchlecht" Text="sehr schlecht" Padding="0,0,0,0" Margin="-35,0,0,0"/>
 						<TextBlock x:Name="TextBlockSehrGut" Text="sehr gut" Padding="380,0,0,0" Margin="0,-20,0,0"/>
@@ -39,12 +41,13 @@
 				</StackPanel>
 				<StackPanel>
 					<TextBlock x:Name="TextBlockFrage3" Text="Frage 3" Padding="0,0,0,0" Margin="0,0,0,0"/>
+					<TextBlock Text="" Padding="0,0,0,0" Margin="0,0,0,0"/>
 					<StackPanel Height="75" Margin="100,0,100,0">
 						<TextBlock x:Name="TextBlockSchwach" Text="zu schwach" Padding="60,0,0,0" Margin="0,0,0,0"/>
 						<TextBlock x:Name="TextBlockPassend" Text="passend" Padding="174,0,0,0" Margin="0,-20,0,0"/>
 						<TextBlock x:Name="TextBlockStark" Text="zu stark" Padding="277,0,0,0" Margin="0,-20,0,0"/>
 
-						<RadioButton x:Name="RadioButtonSchwach" Width="50" Margin="90,0,0,0"/>
+						<RadioButton x:Name="RadioButtonSchwach" Width="25" Margin="90,0,0,0"/>
 						<RadioButton x:Name="RadioButtonPassend" Width="30" Margin="190,-32,0,0"/>
 						<RadioButton x:Name="RadioButtonStark" Width="50" Margin="290,-32,0,0"/>
 					</StackPanel>
@@ -53,7 +56,7 @@
 				</StackPanel>
 
 			</StackPanel>
-			<Button x:Name="ButtonReplay" Margin="637,-100,0,0" Height="43" Width="43" Background="White">
+			<Button x:Name="ButtonReplay" Margin="657,-124,0,0" Height="43" Width="43" Background="White">
 				<Image Source="Assets/replay-512-512.png" Stretch="UniformToFill" Height="43" VerticalAlignment="Top" Margin="-11,-8.333,-8.667,-6.667"/>
 			</Button>
 		</StackPanel>

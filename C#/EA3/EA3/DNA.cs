@@ -239,9 +239,10 @@ namespace EA3
             return inputType;
         }*/
 
-        public void setSignalType(SignalTyp signalTyp)
+        public void setSignalType(SignalTyp signalTyp, long time)
         {
             signal.setType(signalTyp);
+            signal.setTimeToRecognize(time);
         }
 
         public void setSignalRating(SignalRating rating)

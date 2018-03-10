@@ -6,16 +6,19 @@ using System.Threading.Tasks;
 
 namespace EA3
 {
-    enum Gender { man, woman, na };
-    class Person
+    public enum Gender { MAN, WOMAN, NA };
+    public enum Emotion { VERYMAD, MAD, OK, GOOD, VERYGOOD, NA };
+    public class Person
     {
         private int age;
         private Gender sex;
+        private List<Emotion> emotes;
 
         public Person()
         {
             this.age = -1;
-            this.sex = Gender.na;
+            this.sex = Gender.NA;
+            emotes = new List<Emotion>();
         }
 
         public Person(int age, Gender sex)
@@ -24,6 +27,7 @@ namespace EA3
             this.sex = sex;
         }
 
+        #region getter
         public Gender getGender()
         {
             return this.sex;
@@ -33,7 +37,9 @@ namespace EA3
         {
             return this.age;
         }
+        #endregion
 
+        #region setter
         public void setGender(Gender sex)
         {
             this.sex = sex;
@@ -42,6 +48,12 @@ namespace EA3
         public void setAge(int age)
         {
             this.age = age;
+        }
+        #endregion
+
+        public void addEmotion(Emotion emote)
+        {
+            emotes.Add(emote);
         }
     }
 }

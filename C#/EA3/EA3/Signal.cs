@@ -43,6 +43,7 @@ namespace EA3
         private int iEins;          // Anzahl der Einsen
         private int begin;          // MinimalZeit fÃ¼r den Typ von Signal
         private int end;            // MaximalZeit fÃ¼r den Typ von Signal
+        private long neededTimeToRecognize; // Zeit die benoetigt wurde um das Signal zu erkennen / bewerten
 
         /**
          * erzeugt ein Signal, dass mit der genannten Zeit
@@ -169,6 +170,14 @@ namespace EA3
         public void setType(SignalTyp sType)
         {
             type = sType;
+        }
+
+        /**
+         * setzt die Zeit die benoetigt wurde um das Signal zu erkennen
+         */
+        public void setTimeToRecognize(long time)
+        {
+            this.neededTimeToRecognize = time;
         }
 
         /**

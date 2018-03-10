@@ -44,6 +44,7 @@
 			<Button x:Name="testButton_4" Content="AlgoSignalPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="400,388,-711.333,-389.667" Click="testButton4"/>
 			<Button x:Name="testButton_5" Content="EmotionPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="550,388,-711.333,-389.667" Click="testButton5"/>
 			<Button x:Name="testButton_6" Content="ErkennungPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="700,388,-711.333,-389.667" Click="testButton6"/>
+			<Button x:Name="testButton_7" Content="Move" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="850,388,-711.333,-389.667" Click="TestButtonMoveCursor"/>
 			<Frame x:Name="myFrame" Content="myFrame" HorizontalAlignment="Left" Height="500" Margin="341,471,-840.667,-762" VerticalAlignment="Top" Width="800" BorderBrush="Black" BorderThickness="1"/>
 		</RelativePanel>
 

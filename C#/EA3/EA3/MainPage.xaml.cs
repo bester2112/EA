@@ -36,12 +36,13 @@ namespace EA3
     /// </summary>
     public sealed partial class MainPage : Page
     {
-
-        SignalTyp untypedSignal;
-        SignalRating signalRating;
-        MainProgram setup;
-        int generation = 0;
-        bool newGeneration = false;
+        public static MainPage Current;
+        public MainProgram setup;
+        private SignalTyp untypedSignal;
+        private SignalRating signalRating;
+        private int generation = 0;
+        private bool newGeneration = false;
+        private Person user;
 
         // BLE VARS
         /*private ObservableCollection<DeviceInformation> BTDevices = new ObservableCollection<DeviceInformation>();
@@ -98,6 +99,7 @@ namespace EA3
         public MainPage()
         {
             this.InitializeComponent();
+            Current = this;
 
             Loaded += (s, e) =>
             {
@@ -113,6 +115,8 @@ namespace EA3
 
             initCode();
             setup = new MainProgram();
+
+            user = new Person();
             
 
             //CoreApplicationViewTitleBar coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
@@ -210,7 +214,7 @@ namespace EA3
             }
             else
             {
-                setup.nextSignal(untypedSignal);
+                setup.saveSignalTyp(untypedSignal, 0);
                 switch (untypedSignal)
                 {
                     case SignalTyp.KURZ:
@@ -366,7 +370,7 @@ namespace EA3
             }
             else
             {
-                setup.nextSignalRating(signalRating);
+                setup.saveSignalRating(signalRating);
                 switch (signalRating)
                 {
                     case SignalRating.VERYBAD:
@@ -1006,7 +1010,7 @@ namespace EA3
           return bytes;
         }*/
 
-        private void playSignalNow(Signal signal) 
+        public void playSignalNow(Signal signal) 
         {
             calculateSignalsForTactile(signal.getTime());
             var writerLength = new Byte[MAX_POINTS];
@@ -1191,6 +1195,20 @@ namespace EA3
             myFrame.Navigate(typeof(ErkennungPage));
         }
 
+        private void TestButtonMoveCursor(object sender, RoutedEventArgs e)
+        {
+            var p  = Window.Current.CoreWindow.PointerCursor;
+            Debug.WriteLine(" PointerCursor ID = " + p.Id + "; type = " + p.Type + "; to string =" + p.ToString());
+            var q = Window.Current.CoreWindow.PointerPosition;
+            Debug.WriteLine("1- PointerPosition  X = " + q.X + "; Y = " + q.Y);
+
+            Window.Current.CoreWindow.PointerPosition = new Point(1000, 1000);
+            var z = Window.Current.CoreWindow.PointerPosition;
+            Debug.WriteLine("2- PointerPosition  X = " + z.X + "; Y = " + z.Y);
+        }
+
+        
+
         private async void radioButtonMittel_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new MessageDialog("Es wurde mittel gedrückt.");
@@ -1198,6 +1216,24 @@ namespace EA3
             radioButtonKurz.IsChecked = true;
             radioButtonLang.IsChecked = true;
             radioButtonMittel.IsChecked = false;
+        }
+
+        public void setPerson(Person person)
+        {
+            this.user = person; 
+            Debug.WriteLine("TEST TEST TEST");
+            Debug.WriteLine("this User =  " + user.getAge() + " " + user.getGender());
+        }
+
+        public void setEmotion(Emotion emote)
+        {
+            this.user.addEmotion(emote);
+        }
+
+        public void setCursorPositionOnDefault(int iX, int iY)
+        {
+            Window.Current.CoreWindow.PointerPosition = new Point(iX, iY);
+            // TODO die richtige Position herausfinden
         }
     }
 }

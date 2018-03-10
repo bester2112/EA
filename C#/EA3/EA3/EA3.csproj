@@ -99,6 +99,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="BLE.cs" />
+    <Compile Include="ContainerClass.cs" />
     <Compile Include="DNA.cs" />
     <Compile Include="EmotionPage.xaml.cs">
       <DependentUpon>EmotionPage.xaml</DependentUpon>
@@ -129,6 +130,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\replay-512-512.png" />
+    <Content Include="Assets\smiley\replay-512-512.png" />
+    <Content Include="Assets\smiley\smiley-Good.png" />
+    <Content Include="Assets\smiley\smiley-Mad.png" />
+    <Content Include="Assets\smiley\smiley-neutral.png" />
+    <Content Include="Assets\smiley\smiley-VeryGood.png" />
+    <Content Include="Assets\smiley\smiley-VeryMad.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

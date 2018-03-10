@@ -83,9 +83,9 @@ namespace EA3
             return onceMore <= numOfPopulation;
         }
 
-        public void saveSignalType(SignalTyp signal)
+        public void saveSignalType(SignalTyp signal, long time)
         {
-            population[randomIndex].setSignalType(signal);
+            population[randomIndex].setSignalType(signal, time);
         }
 
         public void saveSignalRating(SignalRating rating)

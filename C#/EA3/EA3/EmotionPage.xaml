@@ -7,25 +7,39 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" Height="500" Width="800">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 		<StackPanel Margin="50,50,50,50">
 			<TextBlock x:Name="FirstLineText" Text="TextBlock"/>
 
 			<StackPanel Height="300" Margin="50,50,50,50">
-				<StackPanel Height="94" Margin="0,0,0,0">
-				</StackPanel>
 				<StackPanel>
 					<TextBlock x:Name="TextBlockFrage" Text="Frage" Padding="0,0,0,0" Margin="0,0,0,0"/>
-					<StackPanel Height="75" Margin="90,0,0,0">
-						<TextBlock x:Name="TextBlockSehrSchlecht" Text="sehr gelangweilt" Padding="0,0,0,0" Margin="-50,0,0,0"/>
-						<TextBlock x:Name="TextBlockSehrGut" Text="gar nicht" Padding="380,0,0,0" Margin="0,-20,0,0"/>
+					<TextBlock Text="" Padding="0,0,0,0" Margin="0,0,0,0"/>
+					<StackPanel Height="140" Margin="90,0,0,0">
+						<Button x:Name="ButtonVeryMad" Margin="-21,0,0,0" Height="62,5" Width="62,5" Background="Transparent" Click="VeryMadButton_Click">
+							<Image Source="Assets/smiley/smiley-VeryMad.png" Height="62,5" Width="62,5" Margin="-10,-6,-10,-6" />
+						</Button>
+						<Button x:Name="ButtonMad" Margin="78.5,-62.5,0,0" Height="62,5" Width="62,5" Background="Transparent" Click="MadButton_Click">
+							<Image Source="Assets/smiley/smiley-Mad.png" Height="62,5" Width="62,5" Margin="-10,-6,-10,-6" />
+						</Button>
+						<Button x:Name="ButtonNeutral" Margin="179,-62.5,0,0" Height="62,5" Width="62,5" Background="Transparent" Click="NeutralButton_Click">
+							<Image Source="Assets/smiley/smiley-Neutral.png" Height="62,5" Width="62,5" Margin="-10,-6,-10,-6" />
+						</Button>
+						<Button x:Name="ButtonGood" Margin="279,-62.5,0,0" Height="62,5" Width="62,5" Background="Transparent" Click="GoodButton_Click">
+							<Image Source="Assets/smiley/smiley-Good.png" Height="62,5" Width="62,5" Margin="-10,-6,-10,-6" />
+						</Button>
+						<Button x:Name="ButtonVeryGood" Margin="378.5,-62.5,0,0" Height="62,5" Width="62,5" Background="Transparent" Click="VeryGoodButton_Click">
+							<Image Source="Assets/smiley/smiley-VeryGood.png" Height="62,5" Width="62,5" Margin="-10,-6,-10,-6" />
+						</Button>
 
-						<RadioButton x:Name="RadioButtonVeryBad" Width="50" Margin="0,0,0,0"/>
-						<RadioButton x:Name="RadioButtonBad" Width="30" Margin="100,-32,0,0"/>
-						<RadioButton x:Name="RadioButtonOK" Width="50" Margin="200,-32,0,0"/>
-						<RadioButton x:Name="RadioButtonGood" Width="50" Margin="300,-32,0,0"/>
-						<RadioButton x:Name="RadioButtonVeryGood" Width="50" Margin="400,-32,0,0"/>
+						<RadioButton x:Name="RadioButtonVeryMad" Width="30" Margin="0,0,0,0" Click="RadioButtonVeryMad_Clicked"/>
+						<RadioButton x:Name="RadioButtonMad" Width="30" Margin="100,-32,0,0" Click="RadioButtonMad_Clicked"/>
+						<RadioButton x:Name="RadioButtonOK" Width="30" Margin="200,-32,0,0" Click="RadioButtonOK_Clicked"/>
+						<RadioButton x:Name="RadioButtonGood" Width="30" Margin="300,-32,0,0" Click="RadioButtonGood_Clicked"/>
+						<RadioButton x:Name="RadioButtonVeryGood" Width="30" Margin="400,-32,0,0" Click="RadioButtonVeryGood_Clicked"/>
 					</StackPanel>
+				</StackPanel>
+				<StackPanel Height="94" Margin="0,0,0,0">
 				</StackPanel>
 			</StackPanel>
 		</StackPanel>

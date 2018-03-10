@@ -23,6 +23,7 @@ namespace EA3
     /// </summary>
     public sealed partial class IntroPage : Page
     {
+        private MainPage rootPage;
         private Person user;
         private bool allData;
         public IntroPage()
@@ -42,6 +43,12 @@ namespace EA3
 
             user = new Person();
             allData = false;
+
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            rootPage = MainPage.Current;
         }
 
         private async void Confirm(object sender, RoutedEventArgs e)
@@ -51,13 +58,13 @@ namespace EA3
             if ((Boolean) RadioButtonMale.IsChecked)
             {
                 RadioButtonMale.IsChecked = false;
-                user.setGender(Gender.man);
+                user.setGender(Gender.MAN);
                 sex = true;
             }
             else if ((Boolean) RadioButtonWoman.IsChecked) 
             {
                 RadioButtonWoman.IsChecked = false;
-                user.setGender(Gender.woman);
+                user.setGender(Gender.WOMAN);
                 sex = true;
             }
             else
@@ -69,10 +76,12 @@ namespace EA3
             int userAge = Int32.Parse(TextBoxAge.Text);
             if (userAge > 0 && userAge <= 100)
             {
+                user.setAge(userAge);
                 age = true;
             } 
             else
             {
+                age = false;
                 var dialog = new MessageDialog("Bitte geben Sie auch Ihr Alter an");
                 await dialog.ShowAsync();
             }
@@ -86,9 +95,10 @@ namespace EA3
             {
                 var dialog = new MessageDialog("Danke Für Ihre Eingabe, Sie werden jetzt mit dem nächsten Schritt fortfahren");
                 await dialog.ShowAsync();
-                // TODO GO INTO NEXT STEP,
-                // SAVE THE DATA in the MAIN 
+                // TODO GO INTO Init-Signal-Page ,
                 // 
+                rootPage.setPerson(user);
+                
             }
         }
 

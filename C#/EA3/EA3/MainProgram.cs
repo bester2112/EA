@@ -8,7 +8,6 @@ using Windows.Storage;
 using System.Diagnostics;
 using Windows.Storage.Pickers;
 using Windows.UI.Popups;
-using Windows.Storage;
 
 namespace EA3
 {
@@ -266,13 +265,13 @@ namespace EA3
             return startSize;
         }
 
-        // diese Methode liefert das nächste Signal
-        public void nextSignal(SignalTyp signalTyp)
+        // diese Methode liefert das speichert den näachsten Signaltypen und die Zeit die benötigt wurde um es zu erkennen
+        public void saveSignalTyp(SignalTyp signalTyp, long time)
         {
-            p.saveSignalType(signalTyp);
+            p.saveSignalType(signalTyp, time);
         }
 
-        public void nextSignalRating(SignalRating signalRating)
+        public void saveSignalRating(SignalRating signalRating)
         {
             pAlgo.saveSignalRating(signalRating);
         }
@@ -396,7 +395,7 @@ namespace EA3
             {
                 // I/O errors are reported as exceptions.
                 var dialog = new MessageDialog(String.Format("Error creating the file {0}: {1}", filename, ex.Message));
-                dialog.ShowAsync();
+                await dialog.ShowAsync();
             }
 
         }
