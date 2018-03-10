@@ -271,6 +271,12 @@ namespace EA3
             p.saveSignalType(signalTyp, time);
         }
 
+        public void saveSignalAlgo(SignalTyp untypedSignal, SignalRating signalRating, SignalStrength signalStrength,
+                                   long timeSignal, long timeRating, long timeStrength)
+        {
+            pAlgo.saveSignalAlgo(untypedSignal, signalRating, signalStrength, timeSignal, timeRating, timeStrength);
+        }
+
         public void saveSignalRating(SignalRating signalRating)
         {
             pAlgo.saveSignalRating(signalRating);

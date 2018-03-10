@@ -31,11 +31,22 @@ namespace EA3
         NODATA = -1
     }
 
+    public enum SignalStrength
+    {
+        VERYWEAK,
+        WEAK,
+        OK,
+        STRONG,
+        VERYSTRONG, 
+        NODATA 
+    }
+
     public class Signal
     {
 
         private SignalTyp type;
         private SignalRating rating;
+        private SignalStrength strength;
         private int time;           // Zeit in ms
         private string signalCode;  // 
         private char[] cSignalCode; // 
@@ -43,7 +54,9 @@ namespace EA3
         private int iEins;          // Anzahl der Einsen
         private int begin;          // MinimalZeit fÃ¼r den Typ von Signal
         private int end;            // MaximalZeit fÃ¼r den Typ von Signal
-        private long neededTimeToRecognize; // Zeit die benoetigt wurde um das Signal zu erkennen / bewerten
+        private long timeToRecognizeType;       // Zeit die benoetigt wurde um den Signal Typen zu erkennen 
+        private long timeToRecognizeRating;     // Zeit die benoetigt wurde um das Signal zu bewerten 
+        private long timeToRecognizeStrength;   // Zeit die benoetigt wurde um die Stärke zu bewerten
 
         /**
          * erzeugt ein Signal, dass mit der genannten Zeit
@@ -175,18 +188,42 @@ namespace EA3
         /**
          * setzt die Zeit die benoetigt wurde um das Signal zu erkennen
          */
-        public void setTimeToRecognize(long time)
+        public void setTimeToRecognizeType(long time)
         {
-            this.neededTimeToRecognize = time;
+            this.timeToRecognizeType = time;
         }
-
+        
         /**
          * setzt die Bewertung des Signals 
          * @param sRating ist der Rating-Wert vom Benutzer
          */
         public void setRating(SignalRating sRating)
         {
-            rating = sRating;
+            this.rating = sRating;
+        }
+
+        /**
+         * 
+         */
+        public void setTimeToRecognizeRating(long time)
+        {
+            this.timeToRecognizeRating = time;
+        }
+
+        /**
+         * setzt den Typen 
+         */
+        public void setStrength(SignalStrength strength)
+        {
+            this.strength = strength;
+        }
+
+        /**
+         * 
+         */
+        public void setTimeToRecognizeStrength(long time)
+        {
+            this.timeToRecognizeStrength = time;
         }
 
         /**

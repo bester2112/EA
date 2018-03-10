@@ -88,6 +88,11 @@ namespace EA3
             population[randomIndex].setSignalType(signal, time);
         }
 
+        public void saveSignalAlgo(SignalTyp signaltyp, SignalRating rating, SignalStrength signalStrength, long timeSignal, long timeRating, long timeStrength)
+        {
+            population[randomIndex].setSignalAlgo(signaltyp, rating, signalStrength, timeSignal, timeRating, timeStrength);
+        }
+
         public void saveSignalRating(SignalRating rating)
         {
             population[randomIndex].setSignalRating(rating);

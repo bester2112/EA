@@ -103,6 +103,15 @@ namespace EA3
             this.emote = emoji;
             rootPage.setEmotion(this.emote);
             // TODO in Reihenfolge aufufen
+            int generation = rootPage.getGeneration();
+            if (generation <= 4)
+            {
+                rootPage.changeToFrame(typeof(AlgoSignalPage));
+            }
+            else
+            {
+                rootPage.changeToFrame(typeof(ErkennungPage));
+            }
         }
     }
 }

@@ -95,9 +95,11 @@ namespace EA3
             {
                 var dialog = new MessageDialog("Danke Für Ihre Eingabe, Sie werden jetzt mit dem nächsten Schritt fortfahren");
                 await dialog.ShowAsync();
-                // TODO GO INTO Init-Signal-Page ,
-                // 
+
+                // Daten werden in der rootpage gespeichert
                 rootPage.setPerson(user);
+                // Frame wird zu InitSignalPage gewechelt
+                rootPage.changeToFrame(typeof(InitSignalPage));
                 
             }
         }

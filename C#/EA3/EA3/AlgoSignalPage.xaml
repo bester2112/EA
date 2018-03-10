@@ -20,9 +20,9 @@
 						<TextBlock x:Name="TextBlockMittel" Text="mittel" Padding="180,0,0,0" Margin="0,-20,0,0"/>
 						<TextBlock x:Name="TextBlockLang" Text="lang" Padding="284,0,0,0" Margin="0,-20,0,0"/>
 
-						<RadioButton x:Name="RadioButtonKurz" Width="50" Margin="90,0,0,0"/>
-						<RadioButton x:Name="RadioButtonMittel" Width="30" Margin="190,-32,0,0"/>
-						<RadioButton x:Name="RadioButtonLang" Width="50" Margin="290,-32,0,0"/>
+						<RadioButton x:Name="RadioButtonKurz" Width="50" Margin="90,0,0,0" Click="RadioButtonKurz_Click"/>
+						<RadioButton x:Name="RadioButtonMittel" Width="30" Margin="190,-32,0,0" Click="RadioButtonMittel_Click"/>
+						<RadioButton x:Name="RadioButtonLang" Width="50" Margin="290,-32,0,0" Click="RadioButtonLang_Click"/>
 					</StackPanel>
 				</StackPanel>
 				<StackPanel>
@@ -32,31 +32,32 @@
 						<TextBlock x:Name="TextBlockSehrSchlecht" Text="sehr schlecht" Padding="0,0,0,0" Margin="-35,0,0,0"/>
 						<TextBlock x:Name="TextBlockSehrGut" Text="sehr gut" Padding="380,0,0,0" Margin="0,-20,0,0"/>
 
-						<RadioButton x:Name="RadioButtonVeryBad" Width="50" Margin="0,0,0,0"/>
-						<RadioButton x:Name="RadioButtonBad" Width="30" Margin="100,-32,0,0"/>
-						<RadioButton x:Name="RadioButtonOK" Width="50" Margin="200,-32,0,0"/>
-						<RadioButton x:Name="RadioButtonGood" Width="50" Margin="300,-32,0,0"/>
-						<RadioButton x:Name="RadioButtonVeryGood" Width="50" Margin="400,-32,0,0"/>
+						<RadioButton x:Name="RadioButtonVeryBad" Width="50" Margin="0,0,0,0" Click="RadioButtonVeryBad_Click"/>
+						<RadioButton x:Name="RadioButtonBad" Width="30" Margin="100,-32,0,0" Click="RadioButtonBad_Click"/>
+						<RadioButton x:Name="RadioButtonOK" Width="50" Margin="200,-32,0,0" Click="RadioButtonOK_Click"/>
+						<RadioButton x:Name="RadioButtonGood" Width="50" Margin="300,-32,0,0" Click="RadioButtonGood_Click"/>
+						<RadioButton x:Name="RadioButtonVeryGood" Width="50" Margin="400,-32,0,0" Click="RadioButtonVeryGood_Click"/>
 					</StackPanel>
 				</StackPanel>
 				<StackPanel>
 					<TextBlock x:Name="TextBlockFrage3" Text="Frage 3" Padding="0,0,0,0" Margin="0,0,0,0"/>
 					<TextBlock Text="" Padding="0,0,0,0" Margin="0,0,0,0"/>
-					<StackPanel Height="75" Margin="100,0,100,0">
-						<TextBlock x:Name="TextBlockSchwach" Text="zu schwach" Padding="60,0,0,0" Margin="0,0,0,0"/>
-						<TextBlock x:Name="TextBlockPassend" Text="passend" Padding="174,0,0,0" Margin="0,-20,0,0"/>
-						<TextBlock x:Name="TextBlockStark" Text="zu stark" Padding="277,0,0,0" Margin="0,-20,0,0"/>
+					<StackPanel Height="75" Margin="90,0,0,0">
+						<TextBlock x:Name="TextBlockSchwach" Text="zu schwach" Padding="0,0,0,0" Margin="-30,0,0,0"/>
+						<TextBlock x:Name="TextBlockStark" Text="zu stark" Padding="382,0,0,0" Margin="0,-20,0,0"/>
 
-						<RadioButton x:Name="RadioButtonSchwach" Width="25" Margin="90,0,0,0"/>
-						<RadioButton x:Name="RadioButtonPassend" Width="30" Margin="190,-32,0,0"/>
-						<RadioButton x:Name="RadioButtonStark" Width="50" Margin="290,-32,0,0"/>
+						<RadioButton x:Name="RadioButtonVeryWeak" Width="25" Margin="0,0,0,0" Click="RadioButtonVeryWeak_Click"/>
+						<RadioButton x:Name="RadioButtonWeak" Width="25" Margin="100,-32,0,0" Click="RadioButtonWeak_Click"/>
+						<RadioButton x:Name="RadioButtonPassend" Width="30" Margin="200,-32,0,0" Click="RadioButtonPassend_Click"/>
+						<RadioButton x:Name="RadioButtonStrong" Width="30" Margin="300,-32,0,0" Click="RadioButtonStrong_Click"/>
+						<RadioButton x:Name="RadioButtonVeryStrong" Width="50" Margin="400,-32,0,0" Click="RadioButtonVeryStrong_Click"/>
 					</StackPanel>
 				</StackPanel>
 				<StackPanel Height="94" Margin="0,0,0,0">
 				</StackPanel>
 
 			</StackPanel>
-			<Button x:Name="ButtonReplay" Margin="657,-124,0,0" Height="43" Width="43" Background="White">
+			<Button x:Name="ButtonReplay" Margin="657,-124,0,0" Height="43" Width="43" Background="White" Click="Replay">
 				<Image Source="Assets/replay-512-512.png" Stretch="UniformToFill" Height="43" VerticalAlignment="Top" Margin="-11,-8.333,-8.667,-6.667"/>
 			</Button>
 		</StackPanel>

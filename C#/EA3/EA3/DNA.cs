@@ -242,12 +242,22 @@ namespace EA3
         public void setSignalType(SignalTyp signalTyp, long time)
         {
             signal.setType(signalTyp);
-            signal.setTimeToRecognize(time);
+            signal.setTimeToRecognizeType(time);
         }
 
         public void setSignalRating(SignalRating rating)
         {
             signal.setRating(rating);
+        }
+
+        public void setSignalAlgo(SignalTyp signalTyp, SignalRating rating, SignalStrength signalStrength, long timeSignal, long timeRating, long timeStrength)
+        {
+            signal.setType(signalTyp);
+            signal.setTimeToRecognizeType(timeSignal);
+            signal.setRating(rating);
+            signal.setTimeToRecognizeRating(timeRating);
+            signal.setStrength(signalStrength);
+            signal.setTimeToRecognizeStrength(timeSignal);
         }
     }
 }

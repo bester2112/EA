@@ -26,12 +26,12 @@ namespace EA3
     public sealed partial class InitSignalPage : Page
     {
         private MainPage rootPage;
+
         private SignalTyp untypedSignal;
 
-        long startTime;
-        long endTime;
-        bool reset;
-        List<long> times;
+        private long startTime;
+        private long endTime;
+        private List<long> times;
         
 
         public InitSignalPage()
@@ -41,7 +41,6 @@ namespace EA3
             // Variablen initialisieren
             untypedSignal = SignalTyp.NODATA;
             times = new List<long>();
-            reset = false;
 
             // Erklärungstext aufrufen und Zeit starten
             initialize();
@@ -91,7 +90,7 @@ namespace EA3
             this.endTime = Environment.TickCount;
             RadioButtonKurz.IsChecked = true;
             untypedSignal = SignalTyp.KURZ;
-            evaluateClick();
+            afterClick(true);
         }
 
         private void RadioButtonMittel_Clicked(object sender, RoutedEventArgs e)
@@ -99,7 +98,7 @@ namespace EA3
             this.endTime = Environment.TickCount;
             RadioButtonMittel.IsChecked = true;
             untypedSignal = SignalTyp.MITTEL;
-            evaluateClick();
+            afterClick(true);
         }
 
         private void RadioButtonLang_Clicked(object sender, RoutedEventArgs e)
@@ -107,9 +106,9 @@ namespace EA3
             this.endTime = Environment.TickCount;
             RadioButtonLang.IsChecked = true;
             untypedSignal = SignalTyp.LANG;
-            evaluateClick();
+            afterClick(true);
         }
-        #endregion
+         #endregion
 
         // diese methode wird verwendet um das Signal abzuspielen
         private async void playSignal()
@@ -131,9 +130,10 @@ namespace EA3
                     var dialog = new MessageDialog("Ihre Eingabe wurde erfolgreich evaluiert\n" +
                                                  "Bitte drücken Sie auf den Knopf 'Schritt 2' um mit den Programm fortzufahren.");
                     await dialog.ShowAsync();
-                    //removeStartElements();
 
-                    // TODO wechsle zu Algo-Signals-Page
+
+                    // Frame wird zu AlgoSignalPage gewechelt
+                    rootPage.changeToFrame(typeof(AlgoSignalPage));
                 }
                 else
                 {
@@ -143,12 +143,25 @@ namespace EA3
                                                  "Sie müssen die Daten erneut eingeben ");
                     await dialog.ShowAsync();
                     // falls ein Fehler aufgetreten ist, wird nach der Fehlermeldung die playSignal Methode erneut ausgeführt, da es keinen Ausloeser / Event mehr gibt um einen Signal zu starten.
-                    playSignal();
 
-                    rootPage.setCursorPositionOnDefault(1500, 1500);
-                    startTime = Environment.TickCount;
+                    afterClick(false);
                 }
             }
+        }
+        
+        // evaluiert, und spiel Signal ab. 
+        // wenn es bei nach einem Durchlauf kein Ergebnis erfolgen konnte, muss false uebergeben werden, denn dann wird eine Neue Session gestartet.
+        private void afterClick(bool evaluate)
+        {
+            if (evaluate)
+            {
+                evaluateClick();
+            }
+
+            playSignal();
+
+            rootPage.setCursorPositionOnDefault(1500, 1500);
+            startTime = Environment.TickCount;
         }
 
         private async void evaluateClick()
@@ -179,11 +192,6 @@ namespace EA3
             
             // setzte den Wert wieder auf NODATA
             untypedSignal = SignalTyp.NODATA;
-
-            playSignal();
-
-            rootPage.setCursorPositionOnDefault(1500, 1500);
-            startTime = Environment.TickCount;
         }
 
 

@@ -1195,6 +1195,11 @@ namespace EA3
             myFrame.Navigate(typeof(ErkennungPage));
         }
 
+        public void changeToFrame(Type frameType) 
+        {
+            myFrame.Navigate(frameType);
+        }
+
         private void TestButtonMoveCursor(object sender, RoutedEventArgs e)
         {
             var p  = Window.Current.CoreWindow.PointerCursor;
@@ -1234,6 +1239,11 @@ namespace EA3
         {
             Window.Current.CoreWindow.PointerPosition = new Point(iX, iY);
             // TODO die richtige Position herausfinden
+        }
+
+        public int getGeneration()
+        {
+            return this.generation;
         }
     }
 }
