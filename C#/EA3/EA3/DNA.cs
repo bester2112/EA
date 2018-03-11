@@ -19,6 +19,8 @@ namespace EA3
         public DNA(Signal signal)
         {
             this.signal = signal;
+            inputType = -1;
+            fitness = -1;
         }
 
         public void calculateSignalType()
@@ -258,6 +260,19 @@ namespace EA3
             signal.setTimeToRecognizeRating(timeRating);
             signal.setRecognizeStrength(signalStrength);
             signal.setTimeToRecognizeStrength(timeSignal);
+        }
+
+        public override string ToString()
+        {
+            string str = "";
+
+            str += " DNA: " + Environment.NewLine;
+            str += "int inputType, double fitness" + Environment.NewLine;
+            str += string.Format("{0},{1}", inputType, fitness) + Environment.NewLine;
+            str += " Signal " + Environment.NewLine;
+            str += signal.ToString();
+
+            return str;
         }
     }
 }

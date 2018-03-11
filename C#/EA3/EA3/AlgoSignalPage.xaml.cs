@@ -60,16 +60,16 @@ namespace EA3
         }
         private void setVariablesDefault()
         {
-            untypedSignal   = SignalTyp.NODATA;
-            signalRating    = SignalRating.NODATA;
-            signalStrength  = SignalStrength.NODATA;
-            bType           = false;
-            bRating         = false;
-            bStrength       = false;
-            startTime       = -1;
-            endTimeSignal   = -1;
-            endTimeRating   = -1;
-            endTimeStrength = -1;
+            untypedSignal    = SignalTyp.NODATA;
+            signalRating     = SignalRating.NODATA;
+            signalStrength   = SignalStrength.NODATA;
+            bType            = false;
+            bRating          = false;
+            bStrength        = false;
+            startTime        = Environment.TickCount;
+            endTimeSignal    = -1;
+            endTimeRating    = -1;
+            endTimeStrength  = -1;
             diffTimeSignal   = -1;
             diffTimeRating   = -1;
             diffTimeStrength = -1;
@@ -249,7 +249,7 @@ namespace EA3
                 playSignal();
 
                 //rootPage.setCursorPositionOnDefault(1500, 1500);
-                startTime = Environment.TickCount;
+                //startTime = Environment.TickCount;
             }
         }
 
@@ -280,10 +280,9 @@ namespace EA3
                 await Task.Delay(1000);
 
                 //setup.SaveInFileAlgo();
-                
-                rootPage.countGeneration();
 
-                rootPage.setup.prepareForNextGeneration();
+                rootPage.prepareAlgoForNextGeneration();
+                rootPage.changeToFrame(typeof(EmotionPage));
             }
 
         }

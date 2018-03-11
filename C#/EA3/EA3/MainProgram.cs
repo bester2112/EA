@@ -203,8 +203,6 @@ namespace EA3
             return "NO ELEMENT AVALABLE IN playSignal() Methode!, Bitte frage vorher mit isElementAvailable() ab";
         }
 
-        
-
         public void calculateFitness()
         {
             pAlgo.calculate();
@@ -222,6 +220,7 @@ namespace EA3
 
         public void prepareForNextGeneration()
         {
+
             pAlgo.resetForNextGeneration();
         }
 
@@ -379,7 +378,7 @@ namespace EA3
 
 
         
-            public async void testWritingFile()
+        public async void testWritingFile()
         {
             //Uri myUri = new Uri("ms-appx:///file.txt");
             //StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(myUri);
@@ -403,7 +402,22 @@ namespace EA3
                 var dialog = new MessageDialog(String.Format("Error creating the file {0}: {1}", filename, ex.Message));
                 await dialog.ShowAsync();
             }
-
         }
+
+        public Population getAlgoPopulation()
+        {
+            return pAlgo.DeepCopy();
+        }
+
+        public Population getInitPupulation()
+        {
+            return p.DeepCopy();
+        }
+
+        /*private Population deepCopy(Population pop)
+        {
+            Population temp = new Population(pop);
+            return temp;
+        }*/
     }
 }

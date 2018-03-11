@@ -131,6 +131,7 @@ namespace EA3
                                                  "Bitte drücken Sie auf den Knopf 'Schritt 2' um mit den Programm fortzufahren.");
                     await dialog.ShowAsync();
 
+                    rootPage.saveInitPopulationBeforeNextStep();
 
                     // Frame wird zu AlgoSignalPage gewechelt
                     rootPage.changeToFrame(typeof(AlgoSignalPage));

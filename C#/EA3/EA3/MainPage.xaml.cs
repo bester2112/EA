@@ -43,6 +43,10 @@ namespace EA3
         private int generation = 0;
         private bool newGeneration = false;
         private Person user;
+        private List<Population> initPopulation = new List<Population>();
+        private static readonly int MAX_POPULATION = 5;
+        private List<Population> allAlgoPopulations = new List<Population>();
+
 
         // BLE VARS
         /*private ObservableCollection<DeviceInformation> BTDevices = new ObservableCollection<DeviceInformation>();
@@ -115,7 +119,6 @@ namespace EA3
 
             initCode();
             setup = new MainProgram();
-
             user = new Person();
             
 
@@ -157,9 +160,7 @@ namespace EA3
 
             DataContext = this;
         }
-
-
-
+        
 
         private void initCode()
         {
@@ -987,10 +988,10 @@ namespace EA3
 
             byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
 
-            for (int i = 0; i < myTestByte.Length; i++)
+            /*for (int i = 0; i < myTestByte.Length; i++)
             {
                 Debug.WriteLine(i + ". Element = " + myTestByte[i]);
-            }
+            }*/
         }
         public static Int16[] StringToByteArrayInt16(String hex)
         {
@@ -1089,24 +1090,21 @@ namespace EA3
             Debug.WriteLine(endTime + " Status for " + ByteArrayToString(bytes) + ": " + status + ". Time: " + (endTime - startTime) + " ms");
         }
 
-
-
         private void testButton_Click(object sender, RoutedEventArgs e)
         {
             testButton.Content = "Test Button!!!!";
 
-
-            setup.testWritingFile();
+            //setup.testWritingFile();
             //setup.newSaveInFileinCSharp();
-            testWritingFile2222();
-            testWritingFile222();
+            testWritingFile2222("");
+            //testWritingFile222();
 
             testButton.Content = "TestButton DONE!";
         }
 
         FileOpenPicker picker = new FileOpenPicker();
 
-        public async void testWritingFile2222()
+        public async void testWritingFile2222(string input)
         {
             picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
             picker.ViewMode = PickerViewMode.List;
@@ -1120,7 +1118,8 @@ namespace EA3
                 try
                 {
                     // Use FileIO to replace the content of the text file
-                    await FileIO.WriteTextAsync(result, textBlock.Text);
+                    // await FileIO.WriteTextAsync(result, textBlock.Text);
+                    await FileIO.AppendTextAsync(result, input); //string.Format("{0}{1}", "OK", Environment.NewLine));
 
                     // Display a success message
                     Debug.WriteLine("Status: File saved successfully");
@@ -1132,7 +1131,9 @@ namespace EA3
                 }
             }
             else
+            {
                 Debug.WriteLine("Status: User cancelled save operation");
+            }
         }
 
         public void testWritingFile222()
@@ -1212,8 +1213,6 @@ namespace EA3
             Debug.WriteLine("2- PointerPosition  X = " + z.X + "; Y = " + z.Y);
         }
 
-        
-
         private async void radioButtonMittel_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new MessageDialog("Es wurde mittel gedrückt.");
@@ -1249,6 +1248,86 @@ namespace EA3
         public void countGeneration()
         {
             this.generation += 1;
+        }
+
+        public void saveInitPopulationBeforeNextStep()
+        {
+            initPopulation.Add(setup.getInitPupulation());
+        }
+
+        public void prepareAlgoForNextGeneration()
+        {
+            // speicher zuerst die Daten 
+            this.allAlgoPopulations.Add(setup.getAlgoPopulation());
+            // anschließend ruf die methode die alle Daten wieder auf default setzt.
+            setup.prepareForNextGeneration();
+            // zähl eine Generation hoch
+            countGeneration();
+        }
+
+        public bool saveAllData()
+        {
+            bool res = false;
+            string allInput = "empty";
+
+            // erstelle den String 
+            #region create String
+            #region Angaben zur Person und Emotion
+            string temp = "Angaben zur Person" + Environment.NewLine;
+            temp += line();
+
+            temp += this.user.ToString();
+
+            temp += line();
+            allInput = temp;
+            #endregion
+            #region Init Signal
+            temp = "";
+            temp = "Init Signal" + Environment.NewLine;
+            temp += line();
+
+            for (int iX = 0; iX < initPopulation.Count; iX++)
+            {
+                temp += initPopulation[iX].ToString();
+            }
+
+            temp += line();
+            allInput += temp;
+            #endregion
+            #region Algo Signal
+            temp = "Algorithmus Signal" + Environment.NewLine;
+            temp += line();
+            for (int iX = 0; iX < allAlgoPopulations.Count; iX++)
+            {
+                temp += allAlgoPopulations[iX].ToString();
+            }
+            temp += line();
+            allInput += temp;
+            #endregion
+            #region Erkennung Signal
+            // TODO
+            #endregion
+            #endregion
+            
+            Debug.WriteLine(allInput);
+            // speichere den String in der Datei
+            this.testWritingFile2222(allInput);
+
+            // gib das ergebnis zurück ob es in der datei gespeichert worden ist.
+
+
+            return res; 
+        }
+
+        private string line()
+        {
+            string temp = "";
+            for (int i = 0; i < 30; i++)
+            {
+                temp = temp + "*";
+            }
+            temp = temp + Environment.NewLine;
+            return temp;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace EA3
 {
@@ -25,6 +26,7 @@ namespace EA3
         {
             this.age = age;
             this.sex = sex;
+            emotes = new List<Emotion>();
         }
 
         #region getter
@@ -54,6 +56,23 @@ namespace EA3
         public void addEmotion(Emotion emote)
         {
             emotes.Add(emote);
+        }
+
+
+        // https://msdn.microsoft.com/de-de/library/a0h36syw(v=vs.110).aspx
+        public override string ToString()
+        {
+            string str = "";
+
+            str += string.Format("{0},{1},", this.age, this.sex) + Environment.NewLine;
+            
+            for (int i = 0; i < this.emotes.Count; i++)
+            {
+                str += string.Format("{0},", this.emotes[i].ToString("F"));
+            }
+            str += Environment.NewLine;
+
+            return str;
         }
     }
 }

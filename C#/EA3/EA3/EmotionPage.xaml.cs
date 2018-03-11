@@ -107,6 +107,7 @@ namespace EA3
             if (generation <= 4)
             {
                 rootPage.changeToFrame(typeof(AlgoSignalPage));
+                rootPage.saveAllData();
             }
             else
             {

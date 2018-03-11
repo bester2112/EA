@@ -65,7 +65,9 @@ namespace EA3
          */
         public Signal(int sTime)
         {
+            defaultVariables();
             type = SignalTyp.NODATA;
+            
             time = sTime;
             init();
         }
@@ -77,10 +79,32 @@ namespace EA3
          */
         public Signal(SignalTyp sType, int sTime)
         {
+            defaultVariables();
             type = sType;
             time = sTime;
             //cSignalCode = new char [(end/5)];
             init();
+        }
+
+        /**
+         * initialisiert alle Werte
+         */
+        private void defaultVariables()
+        {
+            type = SignalTyp.NODATA;
+
+            recognizeType = SignalTyp.NODATA;
+            rating = SignalRating.NODATA;
+            strength = SignalStrength.NODATA;
+            time = -1;
+            signalCode = "empty";
+            iNull = -1;
+            iEins = -1;
+            begin = -1;
+            end = -1;
+            timeToRecognizeType = -1;
+            timeToRecognizeRating = -1;
+            timeToRecognizeStrength = -1;
         }
 
         /**
@@ -300,5 +324,20 @@ namespace EA3
 			//int temp = signalCode.length() - signalCode.replace("1", "").length();
 			return iEins;
 		}*/
+
+        public override string ToString()
+        {
+            string str = "";
+
+            str += "signalTyp, recognizedType, rating, strength, time, iNull, iEins, begin, end, timeToRecognizeType, timeToRecognizeRating, timeToRecognizeStrength" + Environment.NewLine;
+
+            str += string.Format("{0},{1},{2},{3},", this.type.ToString("F"), this.recognizeType.ToString("F"), this.rating.ToString("F"), this.strength.ToString("F"));
+            str += string.Format("{0},{1},", this.time, this.iNull);
+            str += string.Format("{0},{1},{2},{3},", this.iEins, this.begin, this.end, this.timeToRecognizeType);
+            str += string.Format("{0},{1}", this.timeToRecognizeRating, this.timeToRecognizeStrength) + Environment.NewLine;
+            
+
+            return str;
+        }
     }
 }

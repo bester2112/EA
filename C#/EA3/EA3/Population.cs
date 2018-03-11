@@ -20,11 +20,11 @@ namespace EA3
         private List<DNA> pool;
 
         private int[] arithmetikMedian;                             // beinhaltet das arithmetische mittel von allen Kurzen (index 0), allen mittleren (index 1) und allen langen (index 2)
-        private int[] zones;                                            // beinhaltet die intervall grenzen in der folgenden Reihenfolge [minK, maxK, minM, macM, minL, maxL]	
+        private int[] zones;                                        // beinhaltet die intervall grenzen in der folgenden Reihenfolge [minK, maxK, minM, macM, minL, maxL]	
 
-        List<int> startArray;
-        int startIndex;
-        int randomIndex;
+        private List<int> startArray;
+        private int startIndex;
+        private int randomIndex;
 
         /**
          * Erstellt eine Population, bei dem die Elemente gleich verteilt sind
@@ -687,12 +687,89 @@ namespace EA3
 
         public DNA[] getPopulation()
         {
-            return population;
+            return this.population;
+        }
+
+        // https://social.msdn.microsoft.com/Forums/en-US/ae475337-1a50-4689-9732-24e74f0a53f4/deep-copy-of-an-array?forum=csharplanguage
+        public Population DeepCopy()
+        {
+            //string[] array3 = new string[array1.Length];
+            //Array.Copy(sourceArray, destinationArray, sourceArray.Count)
+
+            Population other = (Population)this.MemberwiseClone();
+
+            if (this.population != null)
+            {
+                other.population = new DNA[this.population.Length];
+                Array.Copy(this.population, other.population, this.population.Length);
+            }
+
+            if (this.poolK != null)
+            {
+                other.poolK = new List<DNA>(this.poolK);
+            }
+
+            if (this.poolM != null)
+            {
+                other.poolM = new List<DNA>(this.poolM);
+            }
+
+            if (this.poolL != null)
+            {
+                other.poolL = new List<DNA>(this.poolL);
+            }
+
+            if (this.pool != null)
+            {
+                other.pool = new List<DNA>(this.pool);
+            }
+
+            if (this.arithmetikMedian != null)
+            { 
+                other.arithmetikMedian = new int[this.arithmetikMedian.Length];
+                Array.Copy(this.arithmetikMedian, other.arithmetikMedian, this.arithmetikMedian.Length);
+            }
+
+            if (this.zones != null)
+            {
+                other.zones = new int[this.zones.Length];
+                Array.Copy(this.zones, other.zones, this.zones.Length);
+            }
+
+            if (this.startArray != null)
+            {
+                other.startArray = new List<int>(this.startArray);
+            }
+
+            other.numOfPopulation = this.numOfPopulation;
+            other.startIndex = this.startIndex;
+            other.randomIndex = this.randomIndex;
+
+
+            //other.Name = String.Copy(Name);
+            //other.population = new Population(IdInfo.IdNumber);
+            
+            /*this.population = new DNA[3];
+
+            this.numOfPopulation = -1;
+            this.poolK = new List<DNA>();
+            this.poolM = new List<DNA>();
+            this.poolL = new List<DNA>();
+            this.pool = new List<DNA>();
+
+            this.arithmetikMedian = new int[2];
+            this.zones = new int[1];
+
+            this.startArray = new List<int>();
+            this.startIndex = -1;
+            this.randomIndex = -1;*/
+
+            return other;
         }
 
         public int[] getZones()
         {
-            return zones;
+            return this.zones;
         }
 
         public void resetForNextGeneration()
@@ -700,6 +777,207 @@ namespace EA3
             startArray = new List<int>();
             startIndex = 0;
             randomIndex = -1;
+        }
+
+        /**
+         * 
+        private int numOfPopulation;        OK
+        private int startIndex;             OK
+        private int randomIndex;            OK
+            
+        private int[] arithmetikMedian;     OK
+        private int[] zones;
+        
+        private DNA[] population;           OK
+        
+        private List<int> startArray;       OK
+        private List<DNA> poolK;            OK
+        private List<DNA> poolM;            OK
+        private List<DNA> poolL;            OK
+        private List<DNA> pool;             OK
+         **/
+        public override string ToString()
+        {
+            string str = "";
+
+            str += "Population: ";
+
+            str += "numOfPopulation, startIndex, randomIndex" + Environment.NewLine;
+            str += numOfPopulation + "," + startIndex + "," + randomIndex + Environment.NewLine;
+            
+            if (arithmetikMedian != null)
+            {
+                // Ausgabe arithmetikMedian
+                str += line();
+                str += line();
+                str += " -----> int[] arithmetikMedian" + Environment.NewLine;
+                str += line();
+
+                for (int i = 0; i < arithmetikMedian.Length; i++)
+                {
+                    str += arithmetikMedian[i].ToString();
+                    if (i < arithmetikMedian.Length - 1)
+                    {
+                        str += ",";
+                    }
+                }
+                str += Environment.NewLine;
+                str += line();
+            }
+
+            if (zones != null)
+            {
+                // Ausgabe zones 
+                str += line();
+                str += line();
+                str += " -----> int[] zones" + Environment.NewLine;
+                str += line();
+
+                for (int i = 0; i < zones.Length; i++)
+                {
+                    str += zones[i].ToString();
+                    if (i < zones.Length - 1)
+                    {
+                        str += ",";
+                    }
+                }
+                str += Environment.NewLine;
+                str += line();
+            }
+
+            if (population != null)
+            {
+                // Ausgabe population
+                str += line();
+                str += line();
+                str += " -----> DNA[] population" + Environment.NewLine;
+                str += line();
+
+                for (int i = 0; i < population.Length; i++)
+                {
+                    str += population[i].ToString();
+                    if (i < population.Length - 1)
+                    {
+                        str += ",";
+                    }
+                }
+                str += Environment.NewLine;
+                str += line();
+            }
+
+            if (startArray != null)
+            {
+                // Ausgabe startArray
+                str += line();
+                str += line();
+                str += " -----> List<int> startArray" + Environment.NewLine;
+                str += line();
+
+                for (int i = 0; i < startArray.Count; i++)
+                {
+                    str += startArray[i].ToString();
+                    if (i < startArray.Count - 1)
+                    {
+                        str += ",";
+                    }
+                }
+                str += Environment.NewLine;
+                str += line();
+            }
+
+            if (poolK != null)
+            {
+                // Ausgabe poolK
+                str += line();
+                str += line();
+                str += " -----> List<DNA> poolK" + Environment.NewLine;
+                str += line();
+
+                for (int i = 0; i < poolK.Count; i++)
+                {
+                    str += poolK[i].ToString();
+                    if (i < poolK.Count - 1)
+                    {
+                        str += ",";
+                    }
+                }
+                str += Environment.NewLine;
+                str += line();
+            }
+
+            if (poolM != null)
+            {
+                // Ausgabe startArray
+                str += line();
+                str += line();
+                str += " -----> List<DNA> poolM" + Environment.NewLine;
+                str += line();
+
+                for (int i = 0; i < poolM.Count; i++)
+                {
+                    str += poolM[i].ToString();
+                    if (i < poolM.Count - 1)
+                    {
+                        str += ",";
+                    }
+                }
+                str += Environment.NewLine;
+                str += line();
+            }
+
+            if (poolL != null)
+            {
+                // Ausgabe startArray
+                str += line();
+                str += line();
+                str += " -----> List<DNA> poolL" + Environment.NewLine;
+                str += line();
+
+                for (int i = 0; i < poolL.Count; i++)
+                {
+                    str += poolL[i].ToString();
+                    if (i < poolL.Count - 1)
+                    {
+                        str += ",";
+                    }
+                }
+                str += Environment.NewLine;
+                str += line();
+            }
+
+            if (pool != null)
+            {
+                // Ausgabe startArray
+                str += line();
+                str += line();
+                str += " -----> List<DNA> pool" + Environment.NewLine;
+                str += line();
+
+                for (int i = 0; i < pool.Count; i++)
+                {
+                    str += pool[i].ToString();
+                    if (i < pool.Count - 1)
+                    {
+                        str += ",";
+                    }
+                }
+                str += Environment.NewLine;
+            }
+            
+            str += line();
+
+            return str;
+        }
+
+        private string line()
+        {
+            string temp = "";
+            for (int i = 0; i < 15; i++)
+            {
+                temp = temp + "-";
+            }
+            temp = temp + Environment.NewLine;
+            return temp;
         }
     }
 }
