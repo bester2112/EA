@@ -43,17 +43,18 @@ namespace EA3
 
     public class Signal
     {
+        private SignalTyp type;                 // Typ der vom Programm bestimmt wird 
 
-        private SignalTyp type;
-        private SignalRating rating;
-        private SignalStrength strength;
-        private int time;           // Zeit in ms
-        private string signalCode;  // 
-        private char[] cSignalCode; // 
-        private int iNull;          // Anzahl der Nullen
-        private int iEins;          // Anzahl der Einsen
-        private int begin;          // MinimalZeit fÃ¼r den Typ von Signal
-        private int end;            // MaximalZeit fÃ¼r den Typ von Signal
+        private SignalTyp recognizeType;        // Typ der vom Benutzer erkannt wurde
+        private SignalRating rating;            // rating von dem Typ vom Programm, bewertung durch den Benutzer
+        private SignalStrength strength;        // staerke vom Signal, der durch den Benutzer bestimt wurde
+        private int time;                       // Zeit in ms
+        private string signalCode;              // 
+        private char[] cSignalCode;             // 
+        private int iNull;                      // Anzahl der Nullen
+        private int iEins;                      // Anzahl der Einsen
+        private int begin;                      // MinimalZeit fuer den Typ von Signal
+        private int end;                        // MaximalZeit fuer den Typ von Signal
         private long timeToRecognizeType;       // Zeit die benoetigt wurde um den Signal Typen zu erkennen 
         private long timeToRecognizeRating;     // Zeit die benoetigt wurde um das Signal zu bewerten 
         private long timeToRecognizeStrength;   // Zeit die benoetigt wurde um die Stärke zu bewerten
@@ -185,6 +186,11 @@ namespace EA3
             type = sType;
         }
 
+        public void setRecognizeType(SignalTyp  recognizedTyp)
+        {
+            this.recognizeType = recognizedTyp;
+        }
+
         /**
          * setzt die Zeit die benoetigt wurde um das Signal zu erkennen
          */
@@ -213,7 +219,7 @@ namespace EA3
         /**
          * setzt den Typen 
          */
-        public void setStrength(SignalStrength strength)
+        public void setRecognizeStrength(SignalStrength strength)
         {
             this.strength = strength;
         }

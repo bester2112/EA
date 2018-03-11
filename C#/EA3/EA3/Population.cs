@@ -636,7 +636,7 @@ namespace EA3
                 DNA parentA = pool[randA];
                 DNA parentB = pool[randB];
 
-                DNA kind = parentA.crosover(parentB);
+                DNA kind = parentA.crosover(parentB);//
                 kind.mutate(MainProgram.MUTATIONRATE);
                 population[i] = kind;
             }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Popups;
@@ -108,6 +109,8 @@ namespace EA3
             RadioButtonKurz.IsChecked = true;
             untypedSignal = SignalTyp.KURZ;
             bType = true;
+
+            afterClick();
         }
 
         private void RadioButtonMittel_Click(object sender, RoutedEventArgs e)
@@ -116,6 +119,8 @@ namespace EA3
             RadioButtonMittel.IsChecked = true;
             untypedSignal = SignalTyp.MITTEL;
             bType = true;
+
+            afterClick();
         }
 
         private void RadioButtonLang_Click(object sender, RoutedEventArgs e)
@@ -124,6 +129,8 @@ namespace EA3
             RadioButtonLang.IsChecked = true;
             untypedSignal = SignalTyp.LANG;
             bType = true;
+
+            afterClick();
         }
         #endregion
 
@@ -134,6 +141,8 @@ namespace EA3
             RadioButtonVeryBad.IsChecked = true;
             signalRating = SignalRating.VERYBAD;
             bRating = true;
+            
+            afterClick();
         }
 
         private void RadioButtonBad_Click(object sender, RoutedEventArgs e)
@@ -142,6 +151,8 @@ namespace EA3
             RadioButtonBad.IsChecked = true;
             signalRating = SignalRating.BAD;
             bRating = true;
+
+            afterClick();
         }
 
         private void RadioButtonOK_Click(object sender, RoutedEventArgs e)
@@ -150,6 +161,8 @@ namespace EA3
             RadioButtonOK.IsChecked = true;
             signalRating = SignalRating.OK;
             bRating = true;
+
+            afterClick();
         }
 
         private void RadioButtonGood_Click(object sender, RoutedEventArgs e)
@@ -158,6 +171,8 @@ namespace EA3
             RadioButtonGood.IsChecked = true;
             signalRating = SignalRating.GOOD;
             bRating = true;
+
+            afterClick();
         }
 
         private void RadioButtonVeryGood_Click(object sender, RoutedEventArgs e)
@@ -166,6 +181,8 @@ namespace EA3
             RadioButtonVeryGood.IsChecked = true;
             signalRating = SignalRating.VERYGOOD;
             bRating = true;
+
+            afterClick();
         }
         #endregion
 
@@ -176,6 +193,8 @@ namespace EA3
             RadioButtonVeryWeak.IsChecked = true;
             signalStrength = SignalStrength.VERYWEAK;
             bStrength = true;
+
+            afterClick();
         }
 
         private void RadioButtonWeak_Click(object sender, RoutedEventArgs e)
@@ -184,6 +203,8 @@ namespace EA3
             RadioButtonWeak.IsChecked = true;
             signalStrength = SignalStrength.WEAK;
             bStrength = true;
+
+            afterClick();
         }
 
         private void RadioButtonPassend_Click(object sender, RoutedEventArgs e)
@@ -192,6 +213,8 @@ namespace EA3
             RadioButtonPassend.IsChecked = true;
             signalStrength = SignalStrength.OK;
             bStrength = true;
+
+            afterClick();
         }
 
         private void RadioButtonStrong_Click(object sender, RoutedEventArgs e)
@@ -200,6 +223,8 @@ namespace EA3
             RadioButtonStrong.IsChecked = true;
             signalStrength = SignalStrength.STRONG;
             bStrength = true;
+
+            afterClick();
         }
 
         private void RadioButtonVeryStrong_Click(object sender, RoutedEventArgs e)
@@ -208,6 +233,8 @@ namespace EA3
             RadioButtonVeryStrong.IsChecked = true;
             signalStrength = SignalStrength.VERYSTRONG;
             bStrength = true;
+
+            afterClick();
         }
         #endregion
 
@@ -218,26 +245,64 @@ namespace EA3
             if (bType && bRating && bStrength)
             {
                 evaluateSignal();
+                
+                playSignal();
+
+                //rootPage.setCursorPositionOnDefault(1500, 1500);
+                startTime = Environment.TickCount;
             }
         }
 
-        private void playSignal()
+        int counter = 0;
+
+        private async void playSignal()
         {
+            if (rootPage.setup.isNextElementAvailable())
+            {
+                counter++;
+                String s = rootPage.setup.playSignal();
+                Debug.WriteLine("Everything Counter = " + counter + " Signal = " + s);
+
+                Signal signal = rootPage.setup.getLastSignal();
+                rootPage.playSignalNow(signal); // spielt das aktullle Signal ab.
+            }
+            else
+            {
+                // Alle Daten wurden evalutiert, jetzt wird der Algorithmus ausgefuehrt.
+                // die Daten werden im gleichen Datensatz überschrieben, d.h. auf Daten von vorherigen Generationen kann man nicht mehr zurueckgreifen
+                // TODO Daten muessen gespeichert werden.
+                var dialog = new MessageDialog("Es wird Anhand Ihrer Eingaben die nächsten Signale erstellt. \n" +
+                                               "Bitte warten Sie einen Augenblick.");
+
+                rootPage.setup.calculateFitness();
+
+                await dialog.ShowAsync();
+                await Task.Delay(1000);
+
+                //setup.SaveInFileAlgo();
+                
+                rootPage.countGeneration();
+
+                rootPage.setup.prepareForNextGeneration();
+            }
 
         }
 
-        private void evaluateSignal()
+        private async void evaluateSignal()
         {
             // berechne die Zeit, die benoetigt wurde
             diffTimeSignal   = endTimeSignal - startTime;
             diffTimeRating   = endTimeRating - startTime;
             diffTimeStrength = endTimeStrength - startTime;
-            Debug.WriteLine("Time Type " + diffTimeSignal + " Time Rating " + diffTimeRating + " Time Strength ");
+            Debug.WriteLine("Time Type " + diffTimeSignal + " Time Rating " + diffTimeRating + " Time Strength " + diffTimeStrength);
             /** Zu übertragende Daten sind 
             /*  untypedSignal,  signalRating,   signalStrength
              *  diffTimeSignal, diffTimeRating, diffTimeStrength
              */
-            rootPage.setup.saveSignalAlgo(untypedSignal,  signalRating,   signalStrength, diffTimeSignal, diffTimeRating, diffTimeStrength);
+            rootPage.setup.saveSignalAlgo(untypedSignal,  signalRating, signalStrength, diffTimeSignal, diffTimeRating, diffTimeStrength);
+
+            // kurzes Delay (in ms)
+            await Task.Delay(400);
 
             switch (untypedSignal)
             {

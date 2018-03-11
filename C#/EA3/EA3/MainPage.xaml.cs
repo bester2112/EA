@@ -1245,5 +1245,10 @@ namespace EA3
         {
             return this.generation;
         }
+
+        public void countGeneration()
+        {
+            this.generation += 1;
+        }
     }
 }
