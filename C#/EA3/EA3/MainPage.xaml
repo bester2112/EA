@@ -8,7 +8,7 @@
     mc:Ignorable="d">
 
 	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-		<RelativePanel x:Name="relativePanelStart">
+		<RelativePanel x:Name="relativePanelStart" Margin="0,-350,0,0"> <!--  remove the margin to see it -->
 			<Border x:Name="borderStart" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="323" VerticalAlignment="Top" Width="571"/>
 			<TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="54,40,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="171" Width="327" FontSize="11"/>
 			<Button x:Name="NextSignalButton" Content="Next" HorizontalAlignment="Left" Margin="417,89,0,0" VerticalAlignment="Top" Click="NextSignalButton_Click_1" RenderTransformOrigin="0.492,0.616" Width="128"/>
@@ -19,11 +19,18 @@
 			<Button x:Name="replaySignalButton" Content="Wiederholen" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="128" Margin="417,141,-480,-152" Click="replaySignalButton_Click"/>
 		</RelativePanel>
 
-		<ListView x:Name="listViewDevices" HorizontalAlignment="Left" Height="62" Margin="626,35,0,0" VerticalAlignment="Top" Width="124" FocusVisualPrimaryBrush="#FFBD5050" FocusVisualSecondaryBrush="#995A3E3E" Foreground="#FF593F3F"/>
-		<Button x:Name="connectButton" Content="Verbinden" HorizontalAlignment="Left" Height="32" Margin="626,102,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="0.539,2.459" Click="connectButton_Click"/>
-		<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="99" Margin="626,35,0,0" VerticalAlignment="Top" Width="124"/>
+		<RelativePanel x:Name="previousMenusButtons" Margin="0,-300,0,0">
+			<Button x:Name="removeElementsButton" Content="remove Elements" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="152" Margin="1300,175,0,0" Click="removeElementsButton_Click"/>
+			<Button x:Name="moveElementsButton" Content="move Elements" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="152" Margin="1300,212,0,0" Click="moveElementsButton_Click"/>
+		</RelativePanel>
 
-		<RelativePanel x:Name="relativePanelAlgo">
+		<RelativePanel x:Name="menuUIButtons" Margin="1200,0,0,0">
+			<ListView x:Name="listViewDevices" HorizontalAlignment="Left" Height="62" Margin="0,35,0,0" VerticalAlignment="Top" Width="124" FocusVisualPrimaryBrush="#FFBD5050" FocusVisualSecondaryBrush="#995A3E3E" Foreground="#FF593F3F"/>
+			<Button x:Name="connectButton" Content="Verbinden" HorizontalAlignment="Left" Height="32" Margin="0,102,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="0.539,2.459" Click="connectButton_Click"/>
+			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="99" Margin="0,35,0,0" VerticalAlignment="Top" Width="124"/>
+		</RelativePanel>
+
+		<RelativePanel x:Name="relativePanelAlgo" Margin="0,-350,0,0">  <!--  remove the margin to see it -->
 			<Border x:Name="borderAlgo" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="323" VerticalAlignment="Top" Width="571" Margin="843,0,0,0"/>
 			<TextBlock x:Name="textBlockAlgo" HorizontalAlignment="Left" Height="171" Margin="870,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="327" FontSize="11">
                 <Run Text="Das Folgende Signal ist ein Kurzes Signal , "/>
@@ -38,18 +45,18 @@
 			<Button x:Name="replaySignalButtonAlgo" Content="Signal wiederholen" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="159" Margin="1230,141,-1324,-141" Click="replaySignalButtonAlgo_Click"/>
 			<Button x:Name="nextButtonAlgo" Content="Next" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="159" Margin="1230,89,-1324,-89" Click="nextButtonAlgo_Click"/>
 			<Button x:Name="playSignalButtonAlgo" Content="Signal abspielen" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="159" Margin="1230,41,-1324,-41" Click="playSignalButtonAlgo_Click"/>
-			<Button x:Name="testButton" Content="Button" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="65" Margin="662,291,-662,-291" Click="testButton_Click" />
-			<Button x:Name="testButton_2" Content="IntroPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="100,388,-711.333,-390" Click="testButton2"/>
-			<Button x:Name="testButton_3" Content="InitSignalPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="250,388,-711.333,-389.667" Click="testButton3"/>
-			<Button x:Name="testButton_4" Content="AlgoSignalPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="400,388,-711.333,-389.667" Click="testButton4"/>
-			<Button x:Name="testButton_5" Content="EmotionPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="550,388,-711.333,-389.667" Click="testButton5"/>
-			<Button x:Name="testButton_6" Content="ErkennungPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="700,388,-711.333,-389.667" Click="testButton6"/>
-			<Button x:Name="testButton_7" Content="Move" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="850,388,-711.333,-389.667" Click="TestButtonMoveCursor"/>
-			<Frame x:Name="myFrame" Content="myFrame" HorizontalAlignment="Left" Height="500" Margin="341,471,-840.667,-762" VerticalAlignment="Top" Width="800" BorderBrush="Black" BorderThickness="1"/>
 		</RelativePanel>
 
-		<Button x:Name="removeElementsButton" Content="remove Elements" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="152" Margin="626,175,0,0" Click="removeElementsButton_Click"/>
-		<Button x:Name="moveElementsButton" Content="move Elements" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="152" Margin="626,212,0,0" Click="moveElementsButton_Click"/>
+		<RelativePanel Margin="0,0,0,0">
+			<Button x:Name="testButton" Content="Button" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="65" Margin="1000,50,0,-291" Click="testButton_Click" />
+			<Button x:Name="testButton_2" Content="IntroPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="100,50,-711.333,-390" Click="testButton2"/>
+			<Button x:Name="testButton_3" Content="InitSignalPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="250,50,-711.333,-389.667" Click="testButton3"/>
+			<Button x:Name="testButton_4" Content="AlgoSignalPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="400,50,-711.333,-389.667" Click="testButton4"/>
+			<Button x:Name="testButton_5" Content="EmotionPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="550,50,-711.333,-389.667" Click="testButton5"/>
+			<Button x:Name="testButton_6" Content="ErkennungPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="700,50,-711.333,-389.667" Click="testButton6"/>
+			<Button x:Name="testButton_7" Content="Move" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="850,50,-711.333,-389.667" Click="TestButtonMoveCursor"/>
+			<Frame x:Name="myFrame" Content="myFrame" HorizontalAlignment="Left" Height="500" Margin="341,100,-840.667,-762" VerticalAlignment="Top" Width="800" BorderBrush="Black" BorderThickness="1"/>
+		</RelativePanel>
 
 	</Grid>
 </Page>

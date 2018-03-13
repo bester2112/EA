@@ -66,7 +66,7 @@ namespace EA3
             await dialog.ShowAsync();
 
             // Cursor auf Startposition setzen 
-            rootPage.setCursorPositionOnDefault(1500, 1500);
+            rootPage.setCursorPositionOnDefault(800, 500);
 
             // Signal abspielen 
             playSignal();
@@ -161,7 +161,7 @@ namespace EA3
 
             playSignal();
 
-            rootPage.setCursorPositionOnDefault(1500, 1500);
+            rootPage.setCursorPositionOnDefault(500, 500);
             startTime = Environment.TickCount;
         }
 
