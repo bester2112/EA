@@ -165,6 +165,7 @@ namespace EA3
         {
             Signal pSignal = partner.getSignal();
             int time = -1;
+            int strength = -1;
 
             int temp = Math.Abs(signal.getEins() - pSignal.getEins());
             int res = temp / 2;
@@ -177,7 +178,16 @@ namespace EA3
                 time = signal.getTime() + (res * 5);
             }
 
-            Signal childSignal = new Signal(signal.getType(), time);
+            temp = (int)pSignal.getStrength() + (int)signal.getStrength();
+            int mod = temp % 2;
+            strength = temp / 2;
+            if (mod == 1)
+            {
+                Random rand = new Random();
+                strength += rand.Next(0, 2);
+            }
+
+            Signal childSignal = new Signal(signal.getType(), time, (SignalStrength) strength);
             DNA child = new DNA(childSignal);
 
             return child;

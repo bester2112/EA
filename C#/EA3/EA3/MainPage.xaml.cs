@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Windows.Storage.Streams;
 using Windows.Storage.Pickers;
 using Windows.Storage;
+using Windows.UI.Xaml.Media.Imaging;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x407 dokumentiert.
 
@@ -49,33 +50,6 @@ namespace EA3
 
 
         // BLE VARS
-        /*private ObservableCollection<DeviceInformation> BTDevices = new ObservableCollection<DeviceInformation>();
-        private DeviceWatcher deviceWatcher;
-
-        private BluetoothLEDevice CurrentBTDevice { get; set; }
-        private DeviceInformation CurrentBTDeviceInfo { get; set; }
-
-        private BLEAttributeDisplayContainer CurrentLengthService { get; set; }
-        private BLEAttributeDisplayContainer CurrentLengthCharacteristic { get; set; }
-        private BLEAttributeDisplayContainer CurrentModeService { get; set; }
-        private BLEAttributeDisplayContainer CurrentModeCharacteristic { get; set; }
-        private ObservableCollection<BLEAttributeDisplayContainer> currentServiceCollection 
-            = new ObservableCollection<BLEAttributeDisplayContainer>();
-
-        private readonly Guid LENGTH_SERVICE_UUID        = new Guid("713D0000-503E-4C75-BA94-3148F18D941E");
-        private readonly Guid MODE_SERVICE_UUID          = new Guid("813D0000-503E-4C75-BA94-3148F18D941E");
-        private readonly Guid LENGTH_CHARACTERISTIC_UUID = new Guid("713D0003-503E-4C75-BA94-3148F18D941E");
-        private readonly Guid MODE_CHARACTERISTIC_UUID   = new Guid("813D0003-503E-4C75-BA94-3148F18D941E");
-
-        private const Byte MAX_POINTS = 20; // ~ BLE-Buffersize
-
-        private const Byte IA_TACTILE_EOD       = 0xFF; // end of data
-
-        private const Byte IA_TACTILE_MODE_STOP = 0x00;
-
-        private Int16[] lengthSignal = new Int16[MAX_POINTS - 1];
-        private Int16[] frequencies = new Int16[MAX_POINTS - 1];
-        */
         private Int16[] lengthSignal = new Int16[MAX_POINTS - 1];
         private const Byte MAX_POINTS = 20; // ~ BLE-Buffersize
 
@@ -91,7 +65,8 @@ namespace EA3
         private static readonly string START_CHARACTERISTIC_UUID = "813D0003-503E-4C75-BA94-3148F18D941E";
         private static readonly string STRENGTH_CHARACTERISTIC_UUID = "913D0003-503E-4C75-BA94-3148F18D941E";
         private List<DeviceInformation> devices = new List<DeviceInformation>();
-        byte[] bytes;
+        private byte[] bytes;
+        private byte[] strengthBytes;
         //private BLEVisualizer visualizer = new BLEVisualizer();
 
         private DeviceWatcher deviceWatcher;
@@ -111,16 +86,14 @@ namespace EA3
                 coreTitleBar1.ExtendViewIntoTitleBar = true;
             };
 
-            //relativePanelAlgo.
-
-
             var appView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
             appView.FullScreenSystemOverlayMode = FullScreenSystemOverlayMode.Minimal;
 
             initCode();
             setup = new MainProgram();
             user = new Person();
-            
+            deviceConnected();
+
 
             //CoreApplicationViewTitleBar coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
             //coreTitleBar.IsVisibleChanged += OnIsVisibleChanged;
@@ -167,6 +140,12 @@ namespace EA3
             untypedSignal = SignalTyp.NODATA;
         }
 
+        #region previousMenusButtons
+        private void removeElementsButton_Click(object sender, RoutedEventArgs e)
+        {
+            removeStartElements();
+        }
+
         /**
         *** entfernt alle StartElemente und plaziert die neuen Elemente für den Algorithmus.
         **/
@@ -183,6 +162,11 @@ namespace EA3
             */
         }
 
+        private void moveElementsButton_Click(object sender, RoutedEventArgs e)
+        {
+            moveElements();
+        }
+
         private void moveElements()
         {
             borderAlgo.Margin = new Thickness(0,0,0,0);
@@ -197,6 +181,9 @@ namespace EA3
             playSignalButtonAlgo.Margin = new Thickness(387, 41, -1324, -41);
         }
 
+        #endregion
+
+        #region relativePanelStart
         private async void NextSignalButton_Click_1(object sender, RoutedEventArgs e)
         {
             /*MediaElement mediaElement = new MediaElement();
@@ -303,16 +290,9 @@ namespace EA3
             replaySignalButton.IsEnabled = true;
         }
 
-        private void removeElementsButton_Click(object sender, RoutedEventArgs e)
-        {
-            removeStartElements();
-        }
+        #endregion
 
-        private void moveElementsButton_Click(object sender, RoutedEventArgs e)
-        {
-            moveElements();
-        }
-
+        #region radioButtons
         private void radioButtonKurz_Checked(object sender, RoutedEventArgs e)
         {
             untypedSignal = SignalTyp.KURZ;
@@ -352,7 +332,9 @@ namespace EA3
         {
             signalRating = SignalRating.VERYGOOD;
         }
+        #endregion
 
+        #region relativePanelAlgo
         private async void nextButtonAlgo_Click(object sender, RoutedEventArgs e)
         {
             /*MediaElement mediaElement = new MediaElement();
@@ -472,11 +454,12 @@ namespace EA3
             replaySignalButtonAlgo.Content = temp;
             replaySignalButtonAlgo.IsEnabled = true;
         }
+        #endregion
 
 
         private async void connectButton_Click(object sender, RoutedEventArgs e)
         {
-            lock (this)
+            /*lock (this)
             {
                 if (connecting)
                 {
@@ -486,7 +469,7 @@ namespace EA3
                 {
                     connecting = true;
                 }
-            }
+            }*/
             DeviceInformation deviceInfo = GetDeviceByName(DEVICE_NAME);
             if (deviceInfo == null)
             {
@@ -529,6 +512,8 @@ namespace EA3
                                 {
                                     Debug.WriteLine("Length Characteristic found!");
                                     lengthCharacteristic = characteristic;
+                                    connectedImage.Visibility = Visibility.Visible;
+                                    notConnectedImage.Visibility = Visibility.Collapsed;
                                 }
                             }
                         }
@@ -574,36 +559,43 @@ namespace EA3
                 }
 
             }
-            lock (this)
+            /*lock (this)
             {
                 connecting = false;
-            }
+            }*/
 
-            /*
-            if (CurrentBTDeviceInfo != null) // already connected -> disconnect
-            {
-                DisposeCurrentDevice();
-                connectButton.IsEnabled = true;
-                connectButton.Content = "Connect";
-                return;
-            }
-
-            if (listViewDevices.SelectedItem != null && listViewDevices.SelectedItem is DeviceInformation)
-            {
-                CurrentBTDeviceInfo = listViewDevices.SelectedItem as DeviceInformation;
-                //var devInfo = listViewDevices.SelectedItem as DeviceInformation;
-                //Connect(devInfo);
-            }
-            else {
-                return; // do nothing 
-            }
-
-            Connect(CurrentBTDeviceInfo);*/
         }
 
         #region BLE Device discovery
+        public bool deviceConnected()
+        {
+            bool res = false;
+
+            res = TactPlayFound();
+            if (res) // wenn es verbunden ist
+            {
+                connectedImage.Visibility    = Visibility.Visible;
+                notConnectedImage.Visibility = Visibility.Collapsed;
+            }
+            else // wenn es nicht verbunden ist
+            {
+                Popup("Das Armband ist derzeit nicht verbunden, bitte rufen Sie um Hilfe.");
+                connectedImage.Visibility    = Visibility.Collapsed;
+                notConnectedImage.Visibility = Visibility.Visible;
+            }
+
+            return res;
+        }
+
+        private async void Popup(string text)
+        {
+            var dialog = new MessageDialog(text);
+            await dialog.ShowAsync();
+        }
+
         public bool TactPlayFound()
         {
+            devices = new List<DeviceInformation>();
             foreach (DeviceInformation bleDeviceInfo in devices)
             {
                 if (bleDeviceInfo.Name.Equals(DEVICE_NAME))
@@ -689,248 +681,12 @@ namespace EA3
             string hex = BitConverter.ToString(ba);
             return hex.Replace("-", "");
         }
-
-
-
-
-        /*
-        
-        // DONE
-        /// <summary>
-        /// Starts a device watcher that looks for all nearby BT devices (paired or unpaired).
-        /// Attaches event handlers to populate the device collection.
-        /// Folder BluethoothLE in File Scenario1_Discovery.xaml.cs
-        /// </summary>
-        private void StartBleDeviceWatcher()
-        {
-            // Additional properties we would like about the device.
-            string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
-
-            // BT_Code: Currently Bluetooth APIs don't provide a selector to get ALL devices that are both paired and non-paired.
-            string aqsAllBluetoothLEDevices = "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
-
-            deviceWatcher =
-                    DeviceInformation.CreateWatcher(
-                        aqsAllBluetoothLEDevices,
-                        requestedProperties,
-                        DeviceInformationKind.AssociationEndpoint);
-
-            // Register event handlers before starting the watcher.
-            deviceWatcher.Added += DeviceWatcher_Added;
-            deviceWatcher.Updated += DeviceWatcher_Updated;
-            deviceWatcher.Removed += DeviceWatcher_Removed;
-            // falls ich diese noch mal benoetigen sollte
-            // TODO falls noch zeit vorhanden ist, kann man die weiteren methoden noch ergaenzen
-            //deviceWatcher.EnumerationCompleted += DeviceWatcher_EnumerationCompleted;
-            //deviceWatcher.Stopped += DeviceWatcher_Stopped;
-
-            // Start over with an empty collection.
-            BTDevices.Clear();
-
-            // Start the watcher.
-            deviceWatcher.Start();
-        }
-
-        /// Folder BluethoothLE in File Scenario1_Discovery.xaml.cs
-        //DONE
-        private async void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation deviceInfo)
-        {
-
-            // We must update the collection on the UI thread because the collection is databound to a UI element.
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                lock (this)
-                {
-                    Debug.WriteLine(String.Format("Added {0} {1}", deviceInfo.Id, deviceInfo.Name));
-
-                    // Protect against race condition if the task runs after the app stopped the deviceWatcher.
-                    if (sender == deviceWatcher) {
-                        if (deviceInfo.Name != String.Empty && !BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfo.Id)) {
-                            // If device has a friendly name display it immediately.
-                            BTDevices.Add(deviceInfo);
-                        }
-                    }
-                }
-            });
-        }
-
-        /// Folder BluethoothLE in File Scenario1_Discovery.xaml.cs
-        //DONE
-        private async void DeviceWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
-        {
-            // We must update the collection on the UI thread because the collection is databound to a UI element.
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                lock (this)
-                {
-                    Debug.WriteLine(String.Format("Updated {0} {1}", deviceInfoUpdate.Id, " "));
-
-                    // Protect against race condition if the task runs after the app stopped the deviceWatcher.
-                    if (sender == deviceWatcher) {
-                        if (BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id)) {
-                            BTDevices.First<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id).Update(deviceInfoUpdate);
-                        }
-                    }
-                }
-            });
-        }
-
-        /// Folder BluethoothLE in File Scenario1_Discovery.xaml.cs
-        //DONE
-        private async void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
-        {
-            // We must update the collection on the UI thread because the collection is databound to a UI element.
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                lock (this)
-                {
-                    Debug.WriteLine(String.Format("Removed {0} {1}", deviceInfoUpdate.Id,""));
-
-                    // Protect against race condition if the task runs after the app stopped the deviceWatcher.
-                    if (sender == deviceWatcher) {
-                        if (BTDevices.Any<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id)) {
-                            BTDevices.Remove(BTDevices.First<DeviceInformation>(x => x.Id == deviceInfoUpdate.Id));
-                        }
-                    }
-                }
-            });
-        }*/
         #endregion
 
-        /// <summary>
-        ///    Disposes of everything associated with the currently connected device. 
-        /// </summary>
-        /*private void DisposeCurrentDevice()
-        {
-            try
-            {
-                CurrentLengthService = null;
-                CurrentModeService = null;
-                CurrentLengthCharacteristic = null;
-                CurrentModeCharacteristic = null;
-            }
-            catch { }
-
-            CurrentBTDevice?.Dispose();
-            CurrentBTDevice = null;
-            CurrentBTDeviceInfo = null;
-            currentServiceCollection = new ObservableCollection<BLEAttributeDisplayContainer>();
-        }
-
-        /// <summary>
-        ///    Connect to a device. 
-        /// </summary>
-        /// <param name = "dev">
-        ///    The device information instance. 
-        /// </param>
-        private async void Connect(DeviceInformation dev)
-        {
-            connectButton.IsEnabled = false;
-
-            if (CurrentBTDevice != null) // disconnect pressed
-            {
-                DisposeCurrentDevice();
-                return;
-            }
-
-            DisposeCurrentDevice();
-
-            try { CurrentBTDevice     = await BluetoothLEDevice.FromIdAsync(dev.Id); }
-            catch { CurrentBTDeviceInfo = null; }
-
-
-            if (CurrentBTDevice != null)
-            {
-                var gatt = await CurrentBTDevice.GetGattServicesAsync();
-
-                foreach (var service in CurrentBTDevice.GattServices) {
-                    currentServiceCollection.Add(new BLEAttributeDisplayContainer(service));
-                }
-
-                if (GetServices() && GetCharacteristics())
-                {
-                    // geraet ist verbunden
-                }
-                else
-                {
-                    // geraet ist nicht verbunden
-                }
-
-            }
-            else
-            {
-                DisposeCurrentDevice();
-                //CurrentBTDeviceInfo = null;
-            }
-
-            connectButton.Content = "Disconnect";
-            connectButton.IsEnabled = true;
-
-            GetServices();
-            GetCharacteristics();
-        }
-   
-        private bool GetServices()
-        {
-            bool resLENGTH = false;
-            bool resMODE = false;
-
-            if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.service.Uuid == LENGTH_SERVICE_UUID)) {
-                CurrentLengthService = currentServiceCollection.FirstOrDefault<BLEAttributeDisplayContainer>(x => x.service.Uuid.CompareTo(LENGTH_SERVICE_UUID) == 0);
-                resLENGTH = true;
-            } else {
-                CurrentLengthService = null;
-                resLENGTH = false;
-            }
-            
-            if (currentServiceCollection.Any<BLEAttributeDisplayContainer>(x => x.service.Uuid == MODE_SERVICE_UUID)) {
-                CurrentModeService = currentServiceCollection.FirstOrDefault<BLEAttributeDisplayContainer>(x => x.service.Uuid.CompareTo(MODE_SERVICE_UUID) == 0);
-                resMODE = true;
-            } else {
-                CurrentModeService = null;
-                resMODE = false;
-            }
-            return resLENGTH && resMODE;
-        }
-
-        private bool GetCharacteristics()
-        {
-            if (GetServices())
-            {
-                CurrentLengthCharacteristic = GetSingleCharacteristic(LENGTH_CHARACTERISTIC_UUID, CurrentLengthService);
-                CurrentModeCharacteristic   = GetSingleCharacteristic(MODE_CHARACTERISTIC_UUID, CurrentModeService);
-            }
-          
-            return ((CurrentLengthCharacteristic != null) && (CurrentModeCharacteristic != null)); 
-        }
-
-        private BLEAttributeDisplayContainer GetSingleCharacteristic(Guid UUID, BLEAttributeDisplayContainer currentService)
-        {
-            IReadOnlyList<GattCharacteristic> service_characteristics = null;
-
-            try {
-                service_characteristics = currentService.service.GetAllCharacteristics();
-            }
-            catch
-            {
-                return null;
-            }
-
-            List<BLEAttributeDisplayContainer> CharacteristicCollection = new List<BLEAttributeDisplayContainer>();
-
-            // set currentModeCharacteristic variable
-            foreach (GattCharacteristic gattCharacteristic in service_characteristics)
-            {
-                CharacteristicCollection.Add(new BLEAttributeDisplayContainer(gattCharacteristic));
-            }
-
-            var characteristic = CharacteristicCollection.FirstOrDefault<BLEAttributeDisplayContainer> (x => x.characteristic.Uuid.CompareTo(UUID) == 0);
-
-            return characteristic;
-        }*/
+        
 
         // berechnet die Werte der Signale fuer das tactile Geraet.
-        private void calculateSignalsForTactile(int time)
+        private void calculateSignalsForTactile(int time, SignalStrength signalStrength)
         {
             String hexString = "LEER";
             hexString = time.ToString("X");
@@ -962,6 +718,9 @@ namespace EA3
                     Debug.WriteLine("FEHLER : der HexString hat eine Länge von " + hexString.Length + " Zeichen");
                     break;
             }
+
+            strengthBytes = CalculateStrength(signalStrength);
+
             /*
 			if (hexString.Length % 2 != 0) {
                 hexString = "0" + hexString;
@@ -969,29 +728,45 @@ namespace EA3
             byte[] myByteTest = StringToByteArray(hexString + "000000000000000000000000000000000000");
 
 
-            bytes = StringToByteArray(hexString + "000000000000000000000000000000000000");
-            lengthSignal = StringToByteArrayInt16(hexString);
-            int tempZahl = int.Parse(hexString, System.Globalization.NumberStyles.HexNumber);
-            int tempZahl2 = Convert.ToInt32(hexString, 16);
+            Debug.WriteLine(hexString + "000000000000000000000000000000000000");
+            hexString = addMissingZeros(hexString);
+            Debug.WriteLine(hexString);
 
-            String newHex = BitConverter.ToString(myByteTest);
-            Debug.WriteLine(" newHex = " + newHex);
-            newHex.Replace("-", "");
-            Debug.WriteLine(" newHex 2 = " + newHex);
-            newHex = newHex.Replace("-", "");
-            Debug.WriteLine(" newHex 3 = " + newHex);
+            bytes = StringToByteArray(hexString);
+            
+            //lengthSignal = StringToByteArrayInt16(hexString);
+            //int tempZahl = int.Parse(hexString, System.Globalization.NumberStyles.HexNumber);
+            //int tempZahl2 = Convert.ToInt32(hexString, 16);
 
-            int a = (int)((myByteTest[0]) << 8 | (myByteTest[1]));
-            int b = (int)(myByteTest[0] * 256) + (myByteTest[1]);
-            int a2 = a / 4096;
-            int a3 = a / 8192;
+            //String newHex = BitConverter.ToString(myByteTest);
+            //Debug.WriteLine(" newHex = " + newHex);
+            //newHex.Replace("-", "");
+            //Debug.WriteLine(" newHex 2 = " + newHex);
+            //newHex = newHex.Replace("-", "");
+            //Debug.WriteLine(" newHex 3 = " + newHex);
 
-            byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
+            //int a = (int)((myByteTest[0]) << 8 | (myByteTest[1]));
+            //int b = (int)(myByteTest[0] * 256) + (myByteTest[1]);
+            //int a2 = a / 4096;
+            //int a3 = a / 8192;
+
+            //byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
 
             /*for (int i = 0; i < myTestByte.Length; i++)
             {
                 Debug.WriteLine(i + ". Element = " + myTestByte[i]);
             }*/
+        }
+
+        private string addMissingZeros(string hexstring)
+        {
+            string res = hexstring;
+            for (int i = res.Length; i < 40; i++)
+            {
+                res += "0";
+            }
+
+            return res;
         }
         public static Int16[] StringToByteArrayInt16(String hex)
         {
@@ -1013,7 +788,9 @@ namespace EA3
 
         public void playSignalNow(Signal signal) 
         {
-            calculateSignalsForTactile(signal.getTime());
+            
+
+            calculateSignalsForTactile(signal.getTime(), signal.getStrength());
             var writerLength = new Byte[MAX_POINTS];
             var writerMode = new DataWriter();
 
@@ -1022,7 +799,7 @@ namespace EA3
                 writerLength[i] = (Byte)lengthSignal.ElementAt(i);
             }
 
-            byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
+            //byte[] myTestByte = { 0x14, 0x00, 0x24, 0x00, 0x13, 0x00, 0x23, 0x00, 0x12, 0x00, 0x22, 0x00, 0x11, 0x00, 0x21, 0x00, 0x14, 0x00, 0x24, 0x00 };
 
             //foreach (var l in lengthSignal) {
             /*foreach (var l in myTestByte) {
@@ -1052,8 +829,8 @@ namespace EA3
 
         public async void WriteBytes()
         {
-            byte[] startBytes = { 0x55 };
-            byte[] strengthBytes = { 0xFF };
+            //byte[] startBytes = { 0x55 };
+            //byte[] strengthBytes = { 0xFF };
 
             // visualizer.AddValue(bytes);
             if (lengthCharacteristic == null || startCharacteristic == null || strengthCharacteristic == null)
@@ -1071,7 +848,7 @@ namespace EA3
 
             lengthWriter.WriteBytes(bytes);
             strengthWriter.WriteBytes(strengthBytes);
-            startWriter.WriteBytes(startBytes);
+            //startWriter.WriteBytes(startBytes);
 
             GattCommunicationStatus statusLength = await
             lengthCharacteristic.WriteValueAsync(lengthWriter.DetachBuffer()); //TODO catch Exception after disconnect
@@ -1088,6 +865,41 @@ namespace EA3
 
             long endTime = Environment.TickCount;
             Debug.WriteLine(endTime + " Status for " + ByteArrayToString(bytes) + ": " + status + ". Time: " + (endTime - startTime) + " ms");
+        }
+
+        private byte[] CalculateStrength(SignalStrength strength)
+        {
+            byte[] temp = new byte[2];
+            switch (strength)
+            {
+                case SignalStrength.VERYWEAK:
+                    temp[0] = 0x7F;
+                    temp[1] = 0x00;
+                break;
+                case SignalStrength.WEAK:
+                    
+                    temp[0] = 0x9F;
+                    temp[1] = 0x00;
+                break;
+                case SignalStrength.OK:
+                    
+                    temp[0] = 0xBF;
+                    temp[1] = 0x00;
+                break;
+                case SignalStrength.STRONG:                    
+                    temp[0] = 0xDF;
+                    temp[1] = 0x00;
+                break;
+                case SignalStrength.VERYSTRONG:
+                    temp[0] = 0xFF;
+                    temp[1] = 0x00;
+                break;
+                default:
+
+                break;
+            }
+
+            return temp;
         }
 
         private void testButton_Click(object sender, RoutedEventArgs e)
@@ -1194,6 +1006,41 @@ namespace EA3
         private void testButton6(object sender, RoutedEventArgs e)
         {
             myFrame.Navigate(typeof(ErkennungPage));
+        }
+
+        public int[] getMousePosition(string pageType)
+        {
+            int []pos = new int[2];
+
+            switch (pageType)
+            {
+                case "IntroPage":
+                    pos[0] = 100;
+                    pos[1] = 100;
+                break;
+                case "InitSignalPage":
+                    pos[0] = 200;
+                    pos[1] = 200;
+                break;
+                case "AlgoSignalPage":
+                    pos[0] = 500;
+                    pos[1] = 500;
+                break;
+                case "EmotionPage":
+                    pos[0] = 700;
+                    pos[1] = 700;
+                break;
+                case "ErkennungPage":
+                    pos[0] = 900;
+                    pos[1] = 900;
+                break;
+                default:
+                    pos[0] = 1000;
+                    pos[1] = 1000;
+                break;
+            }
+
+            return pos;
         }
 
         public void changeToFrame(Type frameType) 

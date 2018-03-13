@@ -29,6 +29,7 @@ namespace EA3
         public IntroPage()
         {
             this.InitializeComponent();
+            
 
             #region UI Initialisierung 
             FirstLineText.Text = "Angaben zur Person";
@@ -43,7 +44,6 @@ namespace EA3
 
             user = new Person();
             allData = false;
-
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

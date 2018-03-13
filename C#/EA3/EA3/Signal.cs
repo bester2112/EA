@@ -33,31 +33,32 @@ namespace EA3
 
     public enum SignalStrength
     {
-        VERYWEAK,
-        WEAK,
-        OK,
-        STRONG,
-        VERYSTRONG, 
-        NODATA 
+        VERYWEAK = 1,
+        WEAK = 2,
+        OK = 3,
+        STRONG = 4,
+        VERYSTRONG = 5, 
+        NODATA = -1 
     }
 
     public class Signal
     {
-        private SignalTyp type;                 // Typ der vom Programm bestimmt wird 
+        private SignalTyp type;                   // Typ der vom Programm bestimmt wird
+        private SignalStrength strength;           // Stärke des Signals
 
-        private SignalTyp recognizeType;        // Typ der vom Benutzer erkannt wurde
-        private SignalRating rating;            // rating von dem Typ vom Programm, bewertung durch den Benutzer
-        private SignalStrength strength;        // staerke vom Signal, der durch den Benutzer bestimt wurde
-        private int time;                       // Zeit in ms
-        private string signalCode;              // 
-        private char[] cSignalCode;             // 
-        private int iNull;                      // Anzahl der Nullen
-        private int iEins;                      // Anzahl der Einsen
-        private int begin;                      // MinimalZeit fuer den Typ von Signal
-        private int end;                        // MaximalZeit fuer den Typ von Signal
-        private long timeToRecognizeType;       // Zeit die benoetigt wurde um den Signal Typen zu erkennen 
-        private long timeToRecognizeRating;     // Zeit die benoetigt wurde um das Signal zu bewerten 
-        private long timeToRecognizeStrength;   // Zeit die benoetigt wurde um die Stärke zu bewerten
+        private SignalTyp recognizeType;          // Typ der vom Benutzer erkannt wurde
+        private SignalRating rating;              // rating von dem Typ vom Programm, bewertung durch den Benutzer
+        private SignalStrength recognizeStrength; // staerke vom Signal, der durch den Benutzer bestimt wurde
+        private int time;                         // Zeit in ms
+        private string signalCode;                // 
+        private char[] cSignalCode;               // 
+        private int iNull;                        // Anzahl der Nullen
+        private int iEins;                        // Anzahl der Einsen
+        private int begin;                        // MinimalZeit fuer den Typ von Signal
+        private int end;                          // MaximalZeit fuer den Typ von Signal
+        private long timeToRecognizeType;         // Zeit die benoetigt wurde um den Signal Typen zu erkennen 
+        private long timeToRecognizeRating;       // Zeit die benoetigt wurde um das Signal zu bewerten 
+        private long timeToRecognizeStrength;     // Zeit die benoetigt wurde um die Stärke zu bewerten
 
         /**
          * erzeugt ein Signal, dass mit der genannten Zeit
@@ -66,9 +67,10 @@ namespace EA3
         public Signal(int sTime)
         {
             defaultVariables();
-            type = SignalTyp.NODATA;
-            
+
             time = sTime;
+            
+            strength = SignalStrength.VERYSTRONG;
             init();
         }
 
@@ -77,11 +79,15 @@ namespace EA3
          * @param sType Signaltyp 
          * @param sTime Zeit in ms, die sich in dem Intervall des Signaltyps befinden soll
          */
-        public Signal(SignalTyp sType, int sTime)
+        public Signal(SignalTyp sType, int sTime, SignalStrength sStrength)
         {
+            // alle Variablen initialisieren 
             defaultVariables();
-            type = sType;
-            time = sTime;
+
+            // setzen der Variablen 
+            this.type = sType;
+            this.time = sTime;
+            this.strength = sStrength;
             //cSignalCode = new char [(end/5)];
             init();
         }
@@ -92,10 +98,11 @@ namespace EA3
         private void defaultVariables()
         {
             type = SignalTyp.NODATA;
+            strength = SignalStrength.NODATA;
 
             recognizeType = SignalTyp.NODATA;
             rating = SignalRating.NODATA;
-            strength = SignalStrength.NODATA;
+            recognizeStrength = SignalStrength.NODATA;
             time = -1;
             signalCode = "empty";
             iNull = -1;
@@ -210,6 +217,9 @@ namespace EA3
             type = sType;
         }
 
+        /**
+         * setzt den erkannten Typen
+         */
         public void setRecognizeType(SignalTyp  recognizedTyp)
         {
             this.recognizeType = recognizedTyp;
@@ -233,7 +243,7 @@ namespace EA3
         }
 
         /**
-         * 
+         * setzt die Zeit die benötigt wurde um das Signal zu bewerten
          */
         public void setTimeToRecognizeRating(long time)
         {
@@ -241,15 +251,70 @@ namespace EA3
         }
 
         /**
-         * setzt den Typen 
+         * setzt erkannten Stärketypen 
          */
-        public void setRecognizeStrength(SignalStrength strength)
+        public void setRecognizeStrength(SignalStrength str)
         {
-            this.strength = strength;
+            this.recognizeStrength = str;
+            calculateNewStrength();
         }
 
         /**
-         * 
+         * Berrechnet die neue Staerke 
+         */
+        private void calculateNewStrength()
+        {
+            switch (this.recognizeStrength)
+            {
+                case SignalStrength.VERYWEAK:
+                    change(true, 2);
+                break;
+                case SignalStrength.WEAK:
+                    change(true, 1);
+                break;
+                case SignalStrength.OK:
+                    // all is fine
+                break;
+                case SignalStrength.STRONG:
+                    change(false, 1);
+                break;
+                case SignalStrength.VERYSTRONG:
+                    change(false, 2);
+                break;
+                default:
+                    Debug.WriteLine("Error in der calculateNreStrength - Signal.cs Methode");
+                break;
+            }
+        }
+
+        private void change(bool add, int count)
+        {
+            int value = (int) this.strength;
+
+            if (add) // es soll addiert werden 
+            {
+                value += count;
+            }
+            else // es soll subtraiert werden
+            {
+                value -= count;
+            }
+
+            if (value < 1)
+            {
+                value = 1;
+            }
+
+            if (value > 5)
+            {
+                value = 5;
+            }
+
+            this.strength = (SignalStrength) value;
+        }
+
+        /**
+         * setzt die erkannte Zeit die er benötigt hat um die Stärke zu bestimmen zurück
          */
         public void setTimeToRecognizeStrength(long time)
         {
@@ -293,6 +358,14 @@ namespace EA3
         }
 
         /**
+         * gibt die Stärke zurück
+         */
+        public SignalStrength getStrength()
+        {
+            return this.strength;
+        }
+
+        /**
          * gibt die Zeit des Signals von dem Signaltyp zurueck  
          * @return
          */
@@ -331,7 +404,7 @@ namespace EA3
 
             str += "signalTyp, recognizedType, rating, strength, time, iNull, iEins, begin, end, timeToRecognizeType, timeToRecognizeRating, timeToRecognizeStrength" + Environment.NewLine;
 
-            str += string.Format("{0},{1},{2},{3},", this.type.ToString("F"), this.recognizeType.ToString("F"), this.rating.ToString("F"), this.strength.ToString("F"));
+            str += string.Format("{0},{1},{2},{3},", this.type.ToString("F"), this.recognizeType.ToString("F"), this.rating.ToString("F"), this.recognizeStrength.ToString("F"));
             str += string.Format("{0},{1},", this.time, this.iNull);
             str += string.Format("{0},{1},{2},{3},", this.iEins, this.begin, this.end, this.timeToRecognizeType);
             str += string.Format("{0},{1}", this.timeToRecognizeRating, this.timeToRecognizeStrength) + Environment.NewLine;

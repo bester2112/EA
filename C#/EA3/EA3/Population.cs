@@ -27,6 +27,7 @@ namespace EA3
         private int randomIndex;
 
         /**
+         * Dieser Aufruf erstellt auch nur das erste Mal fuer die InitSignalPage eine Population
          * Erstellt eine Population, bei dem die Elemente gleich verteilt sind
          * @param n anzahl der Elemente
          * @param b 
@@ -183,6 +184,7 @@ namespace EA3
         }
 
         /**
+         * Dieser aufruf ist nur für den Algorithmus für den ersten Mal
          * erstelle eine Population mit n Signalen fuer jeden Signaltypen
          * @param n Anzahl zufaelliger Signale
          */
@@ -221,13 +223,13 @@ namespace EA3
                 {
                     case 0:
                         
-                        s = new Signal(SignalTyp.KURZ, getUniqueRandomNumber(ref tempArray, MainProgram.MINKURZTIME, MainProgram.MAXKURZTIME));
+                        s = new Signal(SignalTyp.KURZ, getUniqueRandomNumber(ref tempArray, MainProgram.MINKURZTIME, MainProgram.MAXKURZTIME), getRandomStrength());
                         break;
                     case 1:
-                        s = new Signal(SignalTyp.MITTEL, getUniqueRandomNumber(ref tempArray, MainProgram.MINMITTELTIME, MainProgram.MAXMITTELTIME));
+                        s = new Signal(SignalTyp.MITTEL, getUniqueRandomNumber(ref tempArray, MainProgram.MINMITTELTIME, MainProgram.MAXMITTELTIME), getRandomStrength());
                         break;
                     case 2:
-                        s = new Signal(SignalTyp.LANG, getUniqueRandomNumber(ref tempArray, MainProgram.MINLANGTIME, MainProgram.MAXLANGTIME));
+                        s = new Signal(SignalTyp.LANG, getUniqueRandomNumber(ref tempArray, MainProgram.MINLANGTIME, MainProgram.MAXLANGTIME), getRandomStrength());
                         break;
                     default:
                         Debug.WriteLine("ERROR in Population Konstruktor");
@@ -239,16 +241,16 @@ namespace EA3
 
             // fuege die Grenzen noch in die Population hinzu.
             int j = numOfPopulation /*- (2 * 3)*/;
-            population[0] = new DNA(new Signal(SignalTyp.KURZ, MainProgram.MINKURZTIME));
+            population[0] = new DNA(new Signal(SignalTyp.KURZ, MainProgram.MINKURZTIME, getRandomStrength()));
             j = (numOfPopulation / 3) - 1;
-            population[j] = new DNA(new Signal(SignalTyp.KURZ, MainProgram.MAXKURZTIME));
+            population[j] = new DNA(new Signal(SignalTyp.KURZ, MainProgram.MAXKURZTIME, getRandomStrength()));
             j = (numOfPopulation / 3); // oder nach der vorherigen Operation einfach j++;
-            population[j] = new DNA(new Signal(SignalTyp.MITTEL, MainProgram.MINMITTELTIME));
+            population[j] = new DNA(new Signal(SignalTyp.MITTEL, MainProgram.MINMITTELTIME, getRandomStrength()));
             j = (2 * (numOfPopulation / 3)) - 1;
-            population[j] = new DNA(new Signal(SignalTyp.MITTEL, MainProgram.MAXMITTELTIME));
+            population[j] = new DNA(new Signal(SignalTyp.MITTEL, MainProgram.MAXMITTELTIME, getRandomStrength()));
             j = (2 * (numOfPopulation / 3)); // oder nach der vorherigen Operation einfach j++;
-            population[j] = new DNA(new Signal(SignalTyp.LANG, MainProgram.MINLANGTIME));
-            population[numOfPopulation - 1] = new DNA(new Signal(SignalTyp.LANG, MainProgram.MAXLANGTIME));
+            population[j] = new DNA(new Signal(SignalTyp.LANG, MainProgram.MINLANGTIME, getRandomStrength()));
+            population[numOfPopulation - 1] = new DNA(new Signal(SignalTyp.LANG, MainProgram.MAXLANGTIME, getRandomStrength()));
 
             // Als nächstes Erfolgt die Benutzer Abfrage.
             startArray = new List<int>();
@@ -258,7 +260,7 @@ namespace EA3
             //calculate();
         }
 
-        public int getUniqueRandomNumber(ref List<int> array, int min, int max)
+        private int getUniqueRandomNumber(ref List<int> array, int min, int max)
         {
             bool res = false;
             int value = -1;
@@ -274,6 +276,13 @@ namespace EA3
             } while (!res);
             // TODO testen und gucken, dass es auch wirklich das macht was es soll.
             return value; 
+        }
+
+        private SignalStrength getRandomStrength()
+        {
+            int result = getRandom((int) SignalStrength.VERYWEAK,((int) SignalStrength.VERYSTRONG));
+
+            return (SignalStrength) result;
         }
 
 

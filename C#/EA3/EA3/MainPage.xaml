@@ -27,6 +27,9 @@
 		<RelativePanel x:Name="menuUIButtons" Margin="1200,0,0,0">
 			<ListView x:Name="listViewDevices" HorizontalAlignment="Left" Height="62" Margin="0,35,0,0" VerticalAlignment="Top" Width="124" FocusVisualPrimaryBrush="#FFBD5050" FocusVisualSecondaryBrush="#995A3E3E" Foreground="#FF593F3F"/>
 			<Button x:Name="connectButton" Content="Verbinden" HorizontalAlignment="Left" Height="32" Margin="0,102,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="0.539,2.459" Click="connectButton_Click"/>
+
+			<Image x:Name="connectedImage" Source="Assets/smiley/smiley-VeryGood.png" Height="62,5" Width="62,5" Margin="30,38,-50,-50"/>
+			<Image x:Name="notConnectedImage" Source="Assets/smiley/smiley-VeryMad.png" Height="62,5" Width="62,5" Margin="30,38,-50,-50"/>
 			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="99" Margin="0,35,0,0" VerticalAlignment="Top" Width="124"/>
 		</RelativePanel>
 

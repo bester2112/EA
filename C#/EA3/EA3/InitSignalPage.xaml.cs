@@ -65,15 +65,18 @@ namespace EA3
                 "Sie können das Signal auch noch mal erneut abspielen lassen.");
             await dialog.ShowAsync();
 
-            // Cursor auf Startposition setzen 
-            rootPage.setCursorPositionOnDefault(800, 500);
-
             // Signal abspielen 
             playSignal();
+            // Cursor auf Startposition setzen 
+            int[] temp = rootPage.getMousePosition("InitSignalPage");
+            rootPage.setCursorPositionOnDefault(temp[0], temp[1]); //800, 500);
+
 
             // Starten der Zeit 
             this.startTime = Environment.TickCount;
         }
+
+
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -82,6 +85,8 @@ namespace EA3
         private void Replay(object sender, RoutedEventArgs e)
         {
             // TODO Replay Signal
+            Signal signal = rootPage.setup.getLastSignal();
+            rootPage.playSignalNow(signal); // spielt das aktullle Signal ab.
         }
 
         #region UI RadioButtons
@@ -161,7 +166,9 @@ namespace EA3
 
             playSignal();
 
-            rootPage.setCursorPositionOnDefault(500, 500);
+            // Cursor auf Startposition setzen 
+            int[] temp = rootPage.getMousePosition("InitSignalPage");
+            rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
             startTime = Environment.TickCount;
         }
 

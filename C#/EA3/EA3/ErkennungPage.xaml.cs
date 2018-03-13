@@ -22,14 +22,21 @@ namespace EA3
     /// </summary>
     public sealed partial class ErkennungPage : Page
     {
+        private MainPage rootPage;
         public ErkennungPage()
         {
             this.InitializeComponent();
+            
 
             #region UI Initialisierung 
             FirstLineText.Text = "Erkennung";
             TextBlockFrage.Text = "Was für Signale haben Sie erkannt? (in erkannter Reihenfolge)";
             #endregion
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            rootPage = MainPage.Current;
         }
     }
 }

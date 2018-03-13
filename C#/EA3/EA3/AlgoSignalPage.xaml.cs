@@ -82,7 +82,8 @@ namespace EA3
             await dialog.ShowAsync();
 
             // Cursor auf Startposition setzen 
-            rootPage.setCursorPositionOnDefault(1500, 1500);
+            int[] temp = rootPage.getMousePosition("AlgoSignalPage");
+            rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
 
             // Signal abspielen 
             playSignal();
@@ -99,6 +100,8 @@ namespace EA3
         private void Replay(object sender, RoutedEventArgs e)
         {
             // TODO 
+            Signal signal = rootPage.setup.getLastSignal(); // noch abfragen, ob das Signal vorhanden ist und ich nicht NULL zurueck erhalte 
+            rootPage.playSignalNow(signal); // spielt das aktullle Signal ab.
         }
 
         #region UI Radiobuttons
@@ -248,7 +251,10 @@ namespace EA3
                 
                 playSignal();
 
-                //rootPage.setCursorPositionOnDefault(1500, 1500);
+                // TODO auskommentieren
+                // Cursor auf Startposition setzen 
+                //int[] temp = rootPage.getMousePosition("AlgoSignalPage");
+                //rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
                 //startTime = Environment.TickCount;
             }
         }
