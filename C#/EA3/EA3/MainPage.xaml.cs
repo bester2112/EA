@@ -1105,11 +1105,36 @@ namespace EA3
         public void prepareAlgoForNextGeneration()
         {
             // speicher zuerst die Daten 
-            this.allAlgoPopulations.Add(setup.getAlgoPopulation());
+            //this.allAlgoPopulations.Add(setup.getAlgoPopulation());
             // anschließend ruf die methode die alle Daten wieder auf default setzt.
             setup.prepareForNextGeneration();
             // zähl eine Generation hoch
             countGeneration();
+        }
+
+        public void saveAlgoData()
+        {
+            // speicher zuerst die Daten 
+            this.allAlgoPopulations.Add(setup.getAlgoPopulation());
+        }
+
+        public bool createAlgoDataTextFile()
+        {
+            bool res = false;
+            string algoData = "empty";
+
+            string temp = "";
+            #region Algo Signal
+            temp = "Algorithmus Signal" + Environment.NewLine;
+            temp += line();
+            for (int iX = 0; iX < allAlgoPopulations.Count; iX++)
+            {
+                temp += allAlgoPopulations[iX].createStringAlgoSignal();
+            }
+            temp += line();
+            algoData += temp;
+            #endregion
+            return res;
         }
 
         public bool saveAllData()
@@ -1135,7 +1160,7 @@ namespace EA3
 
             for (int iX = 0; iX < initPopulation.Count; iX++)
             {
-                temp += initPopulation[iX].ToString();
+                temp += initPopulation[iX].createStringInitialSignal();
             }
 
             temp += line();
@@ -1146,7 +1171,7 @@ namespace EA3
             temp += line();
             for (int iX = 0; iX < allAlgoPopulations.Count; iX++)
             {
-                temp += allAlgoPopulations[iX].ToString();
+                temp += allAlgoPopulations[iX].createStringAlgoSignal();
             }
             temp += line();
             allInput += temp;

@@ -398,8 +398,75 @@ namespace EA3
 			return iEins;
 		}*/
 
+        public string SaveAllData()
+        {
+            string str = Environment.NewLine + Environment.NewLine + "Signal: " + Environment.NewLine + Environment.NewLine;
+
+            str += "signalTyp, strength, recognizedType, rating, recognizeStrength, time, iNull, iEins, begin, end, timeToRecognizeType, timeToRecognizeRating, timeToRecognizeStrength" + Environment.NewLine;
+
+            str += string.Format("{0},{1},{2},{3},", this.type.ToString("F"), this.strength.ToString("F"), this.recognizeType.ToString("F"), this.rating.ToString("F"));
+            str += string.Format("{0},{1},{2},", this.recognizeStrength.ToString("F"), this.time, this.iNull);
+            str += string.Format("{0},{1},{2},{3},", this.iEins, this.begin, this.end, this.timeToRecognizeType);
+            str += string.Format("{0},{1}", this.timeToRecognizeRating, this.timeToRecognizeStrength) + Environment.NewLine + Environment.NewLine;
+
+
+            return str;
+        }
+
+        public string createStringInitialSignal()
+        {
+            string str = "";
+            str += "Signal" + Environment.NewLine;
+            str += string.Format(" Type:       {0}", this.type.ToString("F")) + Environment.NewLine;
+            str += string.Format(" Staerke:    {0}", this.strength.ToString("F")) + Environment.NewLine;
+            str += string.Format(" Zeit :      {0}ms", this.time) + Environment.NewLine;
+            str += string.Format(" #Einsen:    {0}", this.iEins) + Environment.NewLine;
+            str += string.Format(" #Nullen:    {0}", this.iNull) + Environment.NewLine;
+            str += string.Format(" Zeit Klick: {0}ms", this.timeToRecognizeType) + Environment.NewLine;
+            return str;
+        }
+
+        public string createStringAlgoSignal()
+        {
+            string str = "";
+
+            str += "signalTyp, strength, recognizedType, rating, recognizeStrength, time, iNull, iEins, begin, end, timeToRecognizeType, timeToRecognizeRating, timeToRecognizeStrength" + Environment.NewLine;
+            //str = "signalTyp, strength, recognizedType, rating, recognizeStrength, time, iNull, iEins, begin, end, timeToRecognizeType, timeToRecognizeRating, timeToRecognizeStrength"
+            //+ "KURZ,STRONG,LANG,OK,OK,50,60,10,50,350,1156,1641,328";
+
+            str += string.Format("{0},{1},{2},{3},", this.type.ToString("F"), this.strength.ToString("F"), this.recognizeType.ToString("F"), this.rating.ToString("F"));
+            str += string.Format("{0},{1},{2},", this.recognizeStrength.ToString("F"), this.time, this.iNull);
+            str += string.Format("{0},{1},{2},{3},", this.iEins, this.begin, this.end, this.timeToRecognizeType);
+            str += string.Format("{0},{1}", this.timeToRecognizeRating, this.timeToRecognizeStrength) + Environment.NewLine + Environment.NewLine;
+
+
+            str += "Signal" + Environment.NewLine;
+
+
+            str += string.Format(" Type:       {0}", this.type.ToString("F")) + Environment.NewLine;
+            str += string.Format(" Staerke:    {0}", this.strength.ToString("F")) + Environment.NewLine;
+            str += string.Format(" Zeit :      {0}ms", this.time) + Environment.NewLine;
+            str += string.Format(" #Einsen:    {0}", this.iEins) + Environment.NewLine;
+            str += string.Format(" #Nullen:    {0}", this.iNull) + Environment.NewLine;
+            str += string.Format(" Zeit Klick: {0}ms", this.timeToRecognizeType) + Environment.NewLine;
+            return str;
+        }
+
         public override string ToString()
         {
+
+            string str = Environment.NewLine + "Signal: " + Environment.NewLine;
+
+            str += "signalTyp, strength, recognizedType, rating, recognizeStrength, time, iNull, iEins, begin, end, timeToRecognizeType, timeToRecognizeRating, timeToRecognizeStrength" + Environment.NewLine;
+
+            str += string.Format("{0},{1},{2},{3},", this.type.ToString("F"), this.strength.ToString("F"), this.recognizeType.ToString("F"), this.rating.ToString("F"));
+            str += string.Format("{0},{1},{2},", this.recognizeStrength.ToString("F"), this.time, this.iNull);
+            str += string.Format("{0},{1},{2},{3},", this.iEins, this.begin, this.end, this.timeToRecognizeType);
+            str += string.Format("{0},{1}", this.timeToRecognizeRating, this.timeToRecognizeStrength) + Environment.NewLine + Environment.NewLine;
+
+
+            return str;
+            /*
             string str = "";
 
             str += "signalTyp, recognizedType, rating, strength, time, iNull, iEins, begin, end, timeToRecognizeType, timeToRecognizeRating, timeToRecognizeStrength" + Environment.NewLine;
@@ -410,7 +477,7 @@ namespace EA3
             str += string.Format("{0},{1}", this.timeToRecognizeRating, this.timeToRecognizeStrength) + Environment.NewLine;
             
 
-            return str;
+            return str;*/
         }
     }
 }

@@ -64,11 +64,12 @@ namespace EA3
         {
             string str = "";
 
-            str += string.Format("{0},{1},", this.age, this.sex) + Environment.NewLine;
-            
+            str += string.Format("Alter : {0}" + Environment.NewLine + "Geschlecht: {1}", this.age, this.sex) + Environment.NewLine;
+
+            str += "Stimmung in der " + Environment.NewLine;
             for (int i = 0; i < this.emotes.Count; i++)
             {
-                str += string.Format("{0},", this.emotes[i].ToString("F"));
+                str += string.Format("{0}. Itteration = {1}", i, this.emotes[i].ToString("F"));
             }
             str += Environment.NewLine;
 

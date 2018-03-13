@@ -280,6 +280,11 @@ namespace EA3
                 var dialog = new MessageDialog("Es wird Anhand Ihrer Eingaben die nächsten Signale erstellt. \n" +
                                                "Bitte warten Sie einen Augenblick.");
 
+                // hier muss es gespeichert werden, vor der berechnung
+                // TODOOOOOOO
+                // WICHTIG
+                rootPage.saveAlgoData();
+
                 rootPage.setup.calculateFitness();
 
                 await dialog.ShowAsync();

@@ -269,17 +269,26 @@ namespace EA3
             signal.setRating(rating);
             signal.setTimeToRecognizeRating(timeRating);
             signal.setRecognizeStrength(signalStrength);
-            signal.setTimeToRecognizeStrength(timeSignal);
+            signal.setTimeToRecognizeStrength(timeStrength);
+        }
+
+        public string createStringForIniialSignal()
+        {
+            return this.signal.createStringInitialSignal();
+        }
+
+        public string createStringForAlgoSignal()
+        {
+            return this.signal.createStringAlgoSignal();
         }
 
         public override string ToString()
         {
             string str = "";
 
-            str += " DNA: " + Environment.NewLine;
-            str += "int inputType, double fitness" + Environment.NewLine;
+            str += Environment.NewLine;// + Environment.NewLine + "DNA: " + Environment.NewLine;
+//            str += "int inputType, double fitness" + Environment.NewLine;
             str += string.Format("{0},{1}", inputType, fitness) + Environment.NewLine;
-            str += " Signal " + Environment.NewLine;
             str += signal.ToString();
 
             return str;

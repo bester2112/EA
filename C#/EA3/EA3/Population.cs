@@ -805,94 +805,118 @@ namespace EA3
         private List<DNA> poolL;            OK
         private List<DNA> pool;             OK
          **/
-        public override string ToString()
+
+        public string createStringInitialSignal()
         {
             string str = "";
 
-            str += "Population: ";
+            str += "Population: " + Environment.NewLine;
 
-            str += "numOfPopulation, startIndex, randomIndex" + Environment.NewLine;
-            str += numOfPopulation + "," + startIndex + "," + randomIndex + Environment.NewLine;
+            str += " Populationsgroesse :" + numOfPopulation + Environment.NewLine;
+
+            // Ausgabe arithmetikMedian
+            str += line();
+            str += " -----> int[] arithmetikMedian" + Environment.NewLine;
+
+            for (int i = 0; i < arithmetikMedian.Length; i++)
+            {
+                str += arithmetikMedian[i].ToString();
+                if (i < arithmetikMedian.Length - 1)
+                {
+                    str += ",";
+                }
+            }
+            str += Environment.NewLine;
+            str += line();
             
-            if (arithmetikMedian != null)
+            // Ausgabe zones 
+            str += " -----> int[] zones" + Environment.NewLine;
+
+            for (int i = 0; i < zones.Length; i++)
             {
-                // Ausgabe arithmetikMedian
-                str += line();
-                str += line();
-                str += " -----> int[] arithmetikMedian" + Environment.NewLine;
-                str += line();
-
-                for (int i = 0; i < arithmetikMedian.Length; i++)
+                str += zones[i].ToString();
+                if (i < zones.Length - 1)
                 {
-                    str += arithmetikMedian[i].ToString();
-                    if (i < arithmetikMedian.Length - 1)
-                    {
-                        str += ",";
-                    }
+                    str += ",";
                 }
-                str += Environment.NewLine;
-                str += line();
             }
+            str += Environment.NewLine;
+            str += line();
 
-            if (zones != null)
+            // Ausgabe startArray
+            str += " -----> List<int> startArray" + Environment.NewLine;
+
+            for (int i = 0; i < startArray.Count; i++)
             {
-                // Ausgabe zones 
-                str += line();
-                str += line();
-                str += " -----> int[] zones" + Environment.NewLine;
-                str += line();
-
-                for (int i = 0; i < zones.Length; i++)
+                str += startArray[i].ToString();
+                if (i < startArray.Count - 1)
                 {
-                    str += zones[i].ToString();
-                    if (i < zones.Length - 1)
-                    {
-                        str += ",";
-                    }
+                    str += ",";
                 }
-                str += Environment.NewLine;
-                str += line();
             }
+            str += Environment.NewLine;
+            str += line();
 
-            if (population != null)
+            // Ausgabe population
+            str += " -----> DNA[] population" + Environment.NewLine;
+
+            for (int i = 0; i < population.Length; i++)
             {
-                // Ausgabe population
-                str += line();
-                str += line();
-                str += " -----> DNA[] population" + Environment.NewLine;
-                str += line();
-
-                for (int i = 0; i < population.Length; i++)
+                str += string.Format(" --- {0}. DNA  population --- " + Environment.NewLine, i);
+                str += population[i].createStringForIniialSignal();
+                if (i < population.Length - 1)
                 {
-                    str += population[i].ToString();
-                    if (i < population.Length - 1)
-                    {
-                        str += ",";
-                    }
+                    str += Environment.NewLine + " --- --- --- " + Environment.NewLine;
                 }
-                str += Environment.NewLine;
-                str += line();
             }
+            str += Environment.NewLine;
+            str += line();
+            
+            return str;
+        }
+        public string createStringAlgoSignal()
+        {
+            string str = "";
 
-            if (startArray != null)
+            str += "Population: " + Environment.NewLine;
+
+            str += " Populationsgroesse :" + numOfPopulation + Environment.NewLine;
+
+            // Ausgabe startArray
+            str += " -----> List<int> startArray" + Environment.NewLine;
+
+            for (int i = 0; i < startArray.Count; i++)
             {
-                // Ausgabe startArray
-                str += line();
-                str += line();
-                str += " -----> List<int> startArray" + Environment.NewLine;
-                str += line();
-
-                for (int i = 0; i < startArray.Count; i++)
+                str += startArray[i].ToString();
+                if (i < startArray.Count - 1)
                 {
-                    str += startArray[i].ToString();
-                    if (i < startArray.Count - 1)
-                    {
-                        str += ",";
-                    }
+                    str += ",";
                 }
-                str += Environment.NewLine;
-                str += line();
             }
+            str += Environment.NewLine;
+            str += line();
+
+            // Ausgabe population
+            str += " -----> DNA[] population" + Environment.NewLine;
+
+            for (int i = 0; i < population.Length; i++)
+            {
+                str += string.Format(" --- {0}. DNA  population --- " + Environment.NewLine, i);
+                str += population[i].createStringForAlgoSignal();
+                if (i < population.Length - 1)
+                {
+                    str += Environment.NewLine + " --- --- --- " + Environment.NewLine;
+                }
+            }
+            str += Environment.NewLine;
+            str += line();
+
+            return str;
+        }
+
+        public string createAlgoPoolString()
+        {
+            string str = "";
 
             if (poolK != null)
             {
@@ -904,10 +928,11 @@ namespace EA3
 
                 for (int i = 0; i < poolK.Count; i++)
                 {
+                    str += string.Format(" --- {0}. List<DNA> poolK --- " + Environment.NewLine, i);
                     str += poolK[i].ToString();
                     if (i < poolK.Count - 1)
                     {
-                        str += ",";
+                        str += Environment.NewLine + " -.- -.- -.-" + Environment.NewLine;
                     }
                 }
                 str += Environment.NewLine;
@@ -924,10 +949,11 @@ namespace EA3
 
                 for (int i = 0; i < poolM.Count; i++)
                 {
+                    str += string.Format(" --- {0}. List<DNA> poolM --- " + Environment.NewLine, i);
                     str += poolM[i].ToString();
                     if (i < poolM.Count - 1)
                     {
-                        str += ",";
+                        str += Environment.NewLine + " ,,, ,,, ,,," + Environment.NewLine;
                     }
                 }
                 str += Environment.NewLine;
@@ -944,36 +970,16 @@ namespace EA3
 
                 for (int i = 0; i < poolL.Count; i++)
                 {
+                    str += string.Format(" --- {0}. List<DNA> poolL --- " + Environment.NewLine, i);
                     str += poolL[i].ToString();
                     if (i < poolL.Count - 1)
                     {
-                        str += ",";
+                        str += Environment.NewLine + " -,- -,- -,- " + Environment.NewLine;
                     }
                 }
                 str += Environment.NewLine;
                 str += line();
             }
-
-            if (pool != null)
-            {
-                // Ausgabe startArray
-                str += line();
-                str += line();
-                str += " -----> List<DNA> pool" + Environment.NewLine;
-                str += line();
-
-                for (int i = 0; i < pool.Count; i++)
-                {
-                    str += pool[i].ToString();
-                    if (i < pool.Count - 1)
-                    {
-                        str += ",";
-                    }
-                }
-                str += Environment.NewLine;
-            }
-            
-            str += line();
 
             return str;
         }
