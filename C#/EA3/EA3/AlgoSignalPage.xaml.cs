@@ -288,7 +288,7 @@ namespace EA3
                 rootPage.setup.calculateFitness();
 
                 await dialog.ShowAsync();
-                await Task.Delay(1000);
+                //await Task.Delay(1000);
 
                 //setup.SaveInFileAlgo();
 

@@ -994,5 +994,128 @@ namespace EA3
             temp = temp + Environment.NewLine;
             return temp;
         }
+
+
+
+        public int[] calculateNewIntervall()
+        {
+            // die ersten beiden sind die Intervallgrenzen
+            // 0,1 für Kurz 
+            // 2,3 für Mittel
+            // 4,5 für Lang
+            int[] res = new int[6];
+            int[] str = new int[6];
+            for (int i = 0; i < res.Length; i += 2)
+            {
+                res[i]     = 1024;
+                res[i + 1] = 0; 
+                str[i]     = (int) SignalStrength.VERYSTRONG;
+                str[i + 1] = (int) SignalStrength.VERYWEAK;
+            }
+
+            for (int i = 0; i < population.Length; i++)
+            {
+                int min = 1024;
+                int max = 0;
+                int minStrength = (int) SignalStrength.VERYSTRONG;
+                int maxStrength = (int) SignalStrength.VERYWEAK;
+                Signal s = population[i].getSignal();
+                int time = s.getTime();
+                int strength = (int) s.getStrength();
+                switch (s.getType())
+                {
+                    case SignalTyp.KURZ:
+                        min = res[0];
+                        max = res[1];
+                        minStrength = str[0];
+                        maxStrength = str[1];
+                        if (strength < minStrength)
+                        {
+                            minStrength = strength;
+                        }
+                        if (strength > maxStrength)
+                        {
+                            maxStrength = strength;
+                        }
+                        if (time < min)
+                        {
+                            min = time;
+                        }
+                        if (time > max)
+                        {
+                            max = time;
+                        }
+                        res[0] = min;
+                        res[1] = max;
+                        str[0] = minStrength;
+                        str[1] = maxStrength;
+                    break;
+                    case SignalTyp.MITTEL:
+                        min = res[2];
+                        max = res[3];
+                        minStrength = str[2];
+                        maxStrength = str[3];
+                        if (strength < minStrength)
+                        {
+                            minStrength = strength;
+                        }
+                        if (strength > maxStrength)
+                        {
+                            maxStrength = strength;
+                        }
+                        if (time < min)
+                        {
+                            min = time;
+                        }
+                        if (time > max)
+                        {
+                            max = time;
+                        }
+                        res[2] = min;
+                        res[3] = max;
+                        str[2] = minStrength;
+                        str[3] = maxStrength;
+                    break;
+                    case SignalTyp.LANG:
+                        min = res[4];
+                        max = res[5];
+                        minStrength = str[4];
+                        maxStrength = str[5];
+                        if (strength < minStrength)
+                        {
+                            minStrength = strength;
+                        }
+                        if (strength > maxStrength)
+                        {
+                            maxStrength = strength;
+                        }
+                        if (time < min)
+                        {
+                            min = time;
+                        }
+                        if (time > max)
+                        {
+                            max = time;
+                        }
+                        res[4] = min;
+                        res[5] = max;
+                        str[4] = minStrength;
+                        str[5] = maxStrength;
+                    break;
+                    default:
+                    break;
+                }
+            }
+
+            int[] temp = new int[12];
+            for (int i = 0; i < res.Length; i++)
+                temp[i] = res[i];
+            for (int i = 6; i < temp.Length; i++)
+                temp[i] = str[i - 6];
+
+            res = temp;
+
+            return res;
+        }
     }
 }

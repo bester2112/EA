@@ -279,7 +279,9 @@ namespace EA3
 
         public string createStringForAlgoSignal()
         {
-            return this.signal.createStringAlgoSignal();
+            string str = string.Format(" Fitness :               {0}", this.fitness) + Environment.NewLine;
+            str += this.signal.createStringAlgoSignal();
+            return str;
         }
 
         public override string ToString()

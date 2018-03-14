@@ -104,15 +104,16 @@ namespace EA3
             rootPage.setEmotion(this.emote);
             // TODO in Reihenfolge aufufen
             int generation = rootPage.getGeneration();
-            if (generation <= 4)
+            if (generation <= 1)//)
             {
                 rootPage.changeToFrame(typeof(AlgoSignalPage));
-                rootPage.saveAllData();
             }
             else
             {
                 rootPage.changeToFrame(typeof(ErkennungPage));
             }
+
+            rootPage.saveAllData();
         }
     }
 }

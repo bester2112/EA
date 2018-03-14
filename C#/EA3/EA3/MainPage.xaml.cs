@@ -47,6 +47,8 @@ namespace EA3
         private List<Population> initPopulation = new List<Population>();
         private static readonly int MAX_POPULATION = 5;
         private List<Population> allAlgoPopulations = new List<Population>();
+        private List<int[]> rangeTime = new List<int[]>();
+        private new List<int[]> rangeStrength = new List<int[]>();
 
 
         // BLE VARS
@@ -915,15 +917,33 @@ namespace EA3
         }
 
         FileOpenPicker picker = new FileOpenPicker();
+        StorageFile result;
+        public void selectFolder(object sender, RoutedEventArgs e)
+        {
+            pickFile();
+        }
 
-        public async void testWritingFile2222(string input)
+        private async void pickFile()
         {
             picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
             picker.ViewMode = PickerViewMode.List;
             picker.FileTypeFilter.Add(".txt");
 
             // Show picker enabling user to pick one file.
-            StorageFile result = await picker.PickSingleFileAsync();
+            result = await picker.PickSingleFileAsync();
+        }
+
+        public async void testWritingFile2222(string input)
+        {
+            if(result == null)
+            {
+                picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+                picker.ViewMode = PickerViewMode.List;
+                picker.FileTypeFilter.Add(".txt");
+
+                // Show picker enabling user to pick one file.
+                result = await picker.PickSingleFileAsync();
+            }
 
             if (result != null)
             {
@@ -1116,6 +1136,7 @@ namespace EA3
         {
             // speicher zuerst die Daten 
             this.allAlgoPopulations.Add(setup.getAlgoPopulation());
+            calculateNewZones();
         }
 
         public bool createAlgoDataTextFile()
@@ -1137,42 +1158,72 @@ namespace EA3
             return res;
         }
 
+        bool firstTimeWritten = false;
         public bool saveAllData()
         {
             bool res = false;
             string allInput = "empty";
-
-            // erstelle den String 
-            #region create String
-            #region Angaben zur Person und Emotion
-            string temp = "Angaben zur Person" + Environment.NewLine;
-            temp += line();
-
-            temp += this.user.ToString();
-
-            temp += line();
-            allInput = temp;
-            #endregion
-            #region Init Signal
-            temp = "";
-            temp = "Init Signal" + Environment.NewLine;
-            temp += line();
-
-            for (int iX = 0; iX < initPopulation.Count; iX++)
+            string temp = "";
+            if (!firstTimeWritten)
             {
-                temp += initPopulation[iX].createStringInitialSignal();
-            }
+                firstTimeWritten = true;
+                // erstelle den String 
+                #region create String
+                #region Angaben zur Person und Emotion
+                temp = "Angaben zur Person" + Environment.NewLine;
+                temp += line();
 
-            temp += line();
-            allInput += temp;
-            #endregion
+                temp += this.user.ToString();
+
+                temp += line();
+                allInput = temp;
+                #endregion
+                #region Init Signal
+                temp = "";
+                temp = "Init Signal" + Environment.NewLine;
+                temp += line();
+                for (int iX = 0; iX < initPopulation.Count; iX++)
+                {
+                    temp += initPopulation[iX].createStringInitialSignal();
+                }
+
+                temp += line();
+                allInput += temp;
+                #endregion
+            }
+            
             #region Algo Signal
             temp = "Algorithmus Signal" + Environment.NewLine;
             temp += line();
-            for (int iX = 0; iX < allAlgoPopulations.Count; iX++)
+            temp += "Emotion: " + this.user.getEmotion()[generation - 1] + Environment.NewLine;
+            temp += line();
+            temp += "Grenzen: " + Environment.NewLine;
+            for(int i = 0; i < 6; i += 2)
             {
-                temp += allAlgoPopulations[iX].createStringAlgoSignal();
+                if (i == 0)
+                {
+                    temp += " Kurz: " + Environment.NewLine;
+                }
+                else if (i == 2)
+                {
+                   temp += " Mittel: " + Environment.NewLine;
+                }
+                else if (i == 4)
+                {
+                    temp += " Lang: " + Environment.NewLine;
+                }
+                temp += string.Format("  Beginn :   {0}ms", this.rangeTime[generation - 1][i]) + Environment.NewLine;
+                temp += string.Format("  Ende   :   {0}ms", this.rangeTime[generation - 1][i + 1]) + Environment.NewLine;
+                temp += string.Format("  Min    :   {0}", ((SignalStrength) this.rangeStrength[generation - 1][i]).ToString("F")) + Environment.NewLine;
+                temp += string.Format("  Max    :   {0}", ((SignalStrength)this.rangeStrength[generation - 1][i + 1]).ToString("F")) + Environment.NewLine;
+                temp += string.Format("{0},{1},{2},{3}", this.rangeTime[generation - 1][i],
+                    this.rangeTime[generation - 1][i + 1], ((SignalStrength)this.rangeStrength[generation - 1][i]).ToString("F"),
+                    ((SignalStrength)this.rangeStrength[generation - 1][i + 1]).ToString("F")) + Environment.NewLine;
             }
+            temp += line();
+
+            temp += allAlgoPopulations[generation - 1].createStringAlgoSignal();
+            
             temp += line();
             allInput += temp;
             #endregion
@@ -1191,6 +1242,24 @@ namespace EA3
             return res; 
         }
 
+        public void calculateNewZones()
+        {
+            Population lastPopulatioin = setup.getAlgoPopulation();
+            int[] newS = lastPopulatioin.calculateNewIntervall();
+            int[] newZone = new int[6];
+            int[] newStr  = new int[6];
+            for (int i = 0; i < 6; i++)
+            {
+                newZone[i] = newS[i];
+            }
+            for (int i = 6; i < 12; i++)
+            {
+                newStr[i - 6] = newS[i]; 
+            }
+            this.rangeTime.Add(newZone);
+            this.rangeStrength.Add(newStr);
+        }
+
         private string line()
         {
             string temp = "";
@@ -1199,6 +1268,15 @@ namespace EA3
                 temp = temp + "*";
             }
             temp = temp + Environment.NewLine;
+            return temp;
+        }
+        
+        public List<int[]> getZones()
+        {
+            List<int[]> temp = new List<int[]>();
+            temp.Add(this.rangeTime[this.generation - 1]);
+            temp.Add(this.rangeStrength[this.generation - 1]);
+
             return temp;
         }
     }

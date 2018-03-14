@@ -99,7 +99,6 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="BLE.cs" />
-    <Compile Include="ContainerClass.cs" />
     <Compile Include="DNA.cs" />
     <Compile Include="EmotionPage.xaml.cs">
       <DependentUpon>EmotionPage.xaml</DependentUpon>
@@ -117,6 +116,7 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainProgram.cs" />
+    <Compile Include="Muster.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="Population.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

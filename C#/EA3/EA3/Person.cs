@@ -39,6 +39,11 @@ namespace EA3
         {
             return this.age;
         }
+
+        public List<Emotion> getEmotion()
+        {
+            return this.emotes;
+        }
         #endregion
 
         #region setter

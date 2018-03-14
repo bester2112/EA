@@ -8,7 +8,8 @@
     mc:Ignorable="d">
 
 	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-		<RelativePanel x:Name="relativePanelStart" Margin="0,-350,0,0"> <!--  remove the margin to see it -->
+		<RelativePanel x:Name="relativePanelStart" Margin="0,-350,0,0">
+			<!--  remove the margin to see it -->
 			<Border x:Name="borderStart" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="323" VerticalAlignment="Top" Width="571"/>
 			<TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="54,40,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="171" Width="327" FontSize="11"/>
 			<Button x:Name="NextSignalButton" Content="Next" HorizontalAlignment="Left" Margin="417,89,0,0" VerticalAlignment="Top" Click="NextSignalButton_Click_1" RenderTransformOrigin="0.492,0.616" Width="128"/>
@@ -26,14 +27,16 @@
 
 		<RelativePanel x:Name="menuUIButtons" Margin="1200,0,0,0">
 			<ListView x:Name="listViewDevices" HorizontalAlignment="Left" Height="62" Margin="0,35,0,0" VerticalAlignment="Top" Width="124" FocusVisualPrimaryBrush="#FFBD5050" FocusVisualSecondaryBrush="#995A3E3E" Foreground="#FF593F3F"/>
-			<Button x:Name="connectButton" Content="Verbinden" HorizontalAlignment="Left" Height="32" Margin="0,102,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="0.539,2.459" Click="connectButton_Click"/>
+			<Button x:Name="connectButton" Content="Verbinden" HorizontalAlignment="Left" Height="32" Margin="0,102,0,0" VerticalAlignment="Top" Width="131" RenderTransformOrigin="0.539,2.459" Click="connectButton_Click"/>
+			<Button x:Name="chooseFile" Content="Datei Auswählen" HorizontalAlignment="Left" Height="32" Margin="0,140,-7,0" VerticalAlignment="Top" Width="131" RenderTransformOrigin="0.539,2.459" Click="selectFolder" />
 
-			<Image x:Name="connectedImage" Source="Assets/smiley/smiley-VeryGood.png" Height="62,5" Width="62,5" Margin="30,38,-50,-50"/>
-			<Image x:Name="notConnectedImage" Source="Assets/smiley/smiley-VeryMad.png" Height="62,5" Width="62,5" Margin="30,38,-50,-50"/>
-			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="99" Margin="0,35,0,0" VerticalAlignment="Top" Width="124"/>
+			<Image x:Name="connectedImage" Source="Assets/smiley/smiley-VeryGood.png" Height="62,5" Width="62,5" Margin="34,38,-54,-50"/>
+			<Image x:Name="notConnectedImage" Source="Assets/smiley/smiley-VeryMad.png" Height="62,5" Width="62,5" Margin="34,38,-54,-50"/>
+			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="138" Margin="0,35,-7,-38.333" VerticalAlignment="Top" Width="131"/>
 		</RelativePanel>
 
-		<RelativePanel x:Name="relativePanelAlgo" Margin="0,-350,0,0">  <!--  remove the margin to see it -->
+		<RelativePanel x:Name="relativePanelAlgo" Margin="0,-350,0,0">
+			<!--  remove the margin to see it -->
 			<Border x:Name="borderAlgo" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="323" VerticalAlignment="Top" Width="571" Margin="843,0,0,0"/>
 			<TextBlock x:Name="textBlockAlgo" HorizontalAlignment="Left" Height="171" Margin="870,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="327" FontSize="11">
                 <Run Text="Das Folgende Signal ist ein Kurzes Signal , "/>

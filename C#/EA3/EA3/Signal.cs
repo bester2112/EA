@@ -43,23 +43,31 @@ namespace EA3
 
     public class Signal
     {
-        private SignalTyp type;                   // Typ der vom Programm bestimmt wird
-        private SignalStrength strength;           // Stärke des Signals
+        private int time;                            // Zeit in ms
+        private SignalTyp type;                      // Typ der vom Programm bestimmt wird
+        private SignalStrength strength;             // Stärke des Signals
+        private SignalStrength strengthBeforeChange; // Stärke vor der Berechnung
 
-        private SignalTyp recognizeType;          // Typ der vom Benutzer erkannt wurde
-        private SignalRating rating;              // rating von dem Typ vom Programm, bewertung durch den Benutzer
-        private SignalStrength recognizeStrength; // staerke vom Signal, der durch den Benutzer bestimt wurde
-        private int time;                         // Zeit in ms
-        private string signalCode;                // 
-        private char[] cSignalCode;               // 
-        private int iNull;                        // Anzahl der Nullen
-        private int iEins;                        // Anzahl der Einsen
-        private int begin;                        // MinimalZeit fuer den Typ von Signal
-        private int end;                          // MaximalZeit fuer den Typ von Signal
-        private long timeToRecognizeType;         // Zeit die benoetigt wurde um den Signal Typen zu erkennen 
-        private long timeToRecognizeRating;       // Zeit die benoetigt wurde um das Signal zu bewerten 
-        private long timeToRecognizeStrength;     // Zeit die benoetigt wurde um die Stärke zu bewerten
+        private SignalTyp recognizeType;             // Typ der vom Benutzer erkannt wurde
+        private SignalRating rating;                 // rating von dem Typ vom Programm, bewertung durch den Benutzer
+        private SignalStrength recognizeStrength;    // staerke vom Signal, der durch den Benutzer bestimt wurde
+        private string signalCode;                   // 
+        private char[] cSignalCode;                  // 
+        private int iNull;                           // Anzahl der Nullen
+        private int iEins;                           // Anzahl der Einsen
+        private int begin;                           // MinimalZeit fuer den Typ von Signal
+        private int end;                             // MaximalZeit fuer den Typ von Signal
+        private long timeToRecognizeType;            // Zeit die benoetigt wurde um den Signal Typen zu erkennen 
+        private long timeToRecognizeRating;          // Zeit die benoetigt wurde um das Signal zu bewerten 
+        private long timeToRecognizeStrength;        // Zeit die benoetigt wurde um die Stärke zu bewerten
 
+        /**
+         * erstelle ein leeres Signal Objekt
+         */
+        public Signal()
+        {
+            defaultVariables();
+        }
         /**
          * erzeugt ein Signal, dass mit der genannten Zeit
          * @param sTime Zeit in ms
@@ -90,6 +98,25 @@ namespace EA3
             this.strength = sStrength;
             //cSignalCode = new char [(end/5)];
             init();
+        }
+
+        /**
+         * Dieser Konstruktor ist extra fuer den letzten Schritt (erkennungs Page gedacht)
+         **/
+        public Signal(SignalTyp type, int sTime, SignalStrength strength, int begin, int end)
+        {
+            defaultVariables();
+
+            // setzen der Variablen 
+            this.type = type;
+            this.time = sTime;
+            this.strength = strength;
+            this.begin = begin;
+            this.end = end;
+
+            // init beinhaltet noch eine right Time Methode die ich nicht benoetige daher die einzelnen Aufrufe.
+            calculate();
+            createString();
         }
 
         /**
@@ -309,7 +336,7 @@ namespace EA3
             {
                 value = 5;
             }
-
+            this.strengthBeforeChange = this.strength;
             this.strength = (SignalStrength) value;
         }
 
@@ -417,12 +444,14 @@ namespace EA3
         {
             string str = "";
             str += "Signal" + Environment.NewLine;
+            str += string.Format(" Zeit :      {0}ms", this.time) + Environment.NewLine;
             str += string.Format(" Type:       {0}", this.type.ToString("F")) + Environment.NewLine;
             str += string.Format(" Staerke:    {0}", this.strength.ToString("F")) + Environment.NewLine;
-            str += string.Format(" Zeit :      {0}ms", this.time) + Environment.NewLine;
             str += string.Format(" #Einsen:    {0}", this.iEins) + Environment.NewLine;
             str += string.Format(" #Nullen:    {0}", this.iNull) + Environment.NewLine;
             str += string.Format(" Zeit Klick: {0}ms", this.timeToRecognizeType) + Environment.NewLine;
+            str += string.Format(" {0},{1},{2},{3},{4},{5}", this.time, this.type.ToString("F"),
+                this.strength.ToString("F"), this.iEins, this.iNull, this.timeToRecognizeType) + Environment.NewLine;
             return str;
         }
 
@@ -430,25 +459,25 @@ namespace EA3
         {
             string str = "";
 
-            str += "signalTyp, strength, recognizedType, rating, recognizeStrength, time, iNull, iEins, begin, end, timeToRecognizeType, timeToRecognizeRating, timeToRecognizeStrength" + Environment.NewLine;
-            //str = "signalTyp, strength, recognizedType, rating, recognizeStrength, time, iNull, iEins, begin, end, timeToRecognizeType, timeToRecognizeRating, timeToRecognizeStrength"
-            //+ "KURZ,STRONG,LANG,OK,OK,50,60,10,50,350,1156,1641,328";
-
-            str += string.Format("{0},{1},{2},{3},", this.type.ToString("F"), this.strength.ToString("F"), this.recognizeType.ToString("F"), this.rating.ToString("F"));
-            str += string.Format("{0},{1},{2},", this.recognizeStrength.ToString("F"), this.time, this.iNull);
-            str += string.Format("{0},{1},{2},{3},", this.iEins, this.begin, this.end, this.timeToRecognizeType);
-            str += string.Format("{0},{1}", this.timeToRecognizeRating, this.timeToRecognizeStrength) + Environment.NewLine + Environment.NewLine;
-
-
             str += "Signal" + Environment.NewLine;
-
-
-            str += string.Format(" Type:       {0}", this.type.ToString("F")) + Environment.NewLine;
-            str += string.Format(" Staerke:    {0}", this.strength.ToString("F")) + Environment.NewLine;
-            str += string.Format(" Zeit :      {0}ms", this.time) + Environment.NewLine;
-            str += string.Format(" #Einsen:    {0}", this.iEins) + Environment.NewLine;
-            str += string.Format(" #Nullen:    {0}", this.iNull) + Environment.NewLine;
-            str += string.Format(" Zeit Klick: {0}ms", this.timeToRecognizeType) + Environment.NewLine;
+            
+            str += string.Format(" Zeit :                  {0}ms", this.time) + Environment.NewLine;
+            str += string.Format(" Type:                   {0}", this.type.ToString("F")) + Environment.NewLine;
+            str += string.Format(" Erkannten Type:         {0}", this.recognizeType.ToString("F")) + Environment.NewLine;
+            str += string.Format(" Zeit Erkennen Type:     {0}", this.timeToRecognizeType) + Environment.NewLine;
+            str += string.Format(" Rating:                 {0}", this.rating) + Environment.NewLine;
+            str += string.Format(" Zeit Erkennen Rating:   {0}", this.timeToRecognizeRating) + Environment.NewLine;
+            str += string.Format(" Neue Staerke:           {0}", this.strength.ToString("F")) + Environment.NewLine;
+            str += string.Format(" Alte Staerke:           {0}", this.strengthBeforeChange.ToString("F")) + Environment.NewLine;
+            str += string.Format(" Staerke war für ihn zu: {0}", this.recognizeStrength.ToString("F")) + Environment.NewLine;
+            str += string.Format(" Zeit Erkennen Staerke:  {0}", this.timeToRecognizeStrength) + Environment.NewLine;
+            str += string.Format(" #Einsen:                {0}", this.iEins) + Environment.NewLine;
+            str += string.Format(" #Nullen:                {0}", this.iNull) + Environment.NewLine;
+            str += string.Format(" Beginn:                 {0}", this.begin) + Environment.NewLine;
+            str += string.Format(" end:                    {0}", this.end) + Environment.NewLine;
+            str += string.Format(" {0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}", this.time, this.type.ToString("F"), this.recognizeType.ToString("F"),
+                this.timeToRecognizeType, this.rating, this.timeToRecognizeRating, this.strength.ToString("F"), this.strengthBeforeChange.ToString("F"),
+                this.recognizeStrength.ToString("F"), this.timeToRecognizeStrength, this.iEins, this.iNull, this.begin, this.end) + Environment.NewLine;
             return str;
         }
 
