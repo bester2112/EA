@@ -35,6 +35,9 @@ namespace EA3
         private int index;
         private List<Signal> signalList;
 
+        private int musterTime;
+        private string[] replayStrings;
+
         public ErkennungPage()
         {
             this.InitializeComponent();
@@ -65,17 +68,21 @@ namespace EA3
 
             countButtonClicks = 0;
             index = 0;
+            musterTime = 0;
+            replayStrings = new string[2];
             signalList = new List<Signal>();
             listListSignal = new List<List<Signal>>();
             sList = new List<SignalTyp>();
             allSignalList = new List<List<SignalTyp>>();
             sTime = new List<long>();
+
             // Cursor auf Startposition setzen 
             int[] temp = rootPage.getMousePosition("ErkennungPage");
             rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
 
             createMuster(); // erstelle Muster
-            string tmp = createString(); // erstelle aus den ersten Muster jetzt einen String, fuer das Abspielen des Signals
+            string[] tmp = createString(); // erstelle aus den ersten Muster jetzt einen String, fuer das Abspielen des Signals
+
             playSignal(tmp); // Signal abspielen
 
             // Warte eine Zeit, bis das Signal abgespielt wurde
@@ -96,19 +103,74 @@ namespace EA3
             signalList = listListSignal[index];
         }
 
-        public void playSignal(string tmp)
+        /**
+         * tmp[0] = Muster Hex Zeit String
+         * tmp[1] = Muster Hex Staerke String
+         */
+        public void playSignal(string[] tmp)
         {
-            
-            // warte, bis das Signal abgespielt worden ist. 
-            // addiere alle zeiten zusammen
-
+            // das hier passiert in der playMuster Methode:
+            // die beiden Strings werden jetzt in der rootPage umgewandelt
+            // umwandeln in byte[] (Arrays)
+            // Nach dem Umwandeln, ruft man die PlayMethode auf.
+            rootPage.playMuster(tmp);
+            replayStrings = tmp;
         }
 
-        public string createString()
+        private void Replay(object sender, RoutedEventArgs e)
+        {
+            rootPage.playMuster(replayStrings);
+        }
+
+        public string[] createString()
         {
             // erstelle den String / Hex, der benötigt wird um das Signal abzuspielen
-            string res = "";
-                // TODO gehe hier die Liste mit den 10 signalen durch und erstelle den String von den Zeiten & einen weiteren fuer die Staerke
+            string []res = new string[2];
+            int[] tempTime = new int[10];
+            int[] tempStrength = new int[10];
+            string hexTimeString = "";
+            string hexStrengthString = "";
+            musterTime = 0;
+            // TODO gehe hier die Liste mit den 10 signalen durch und erstelle den String von den Zeiten & einen weiteren fuer die Staerke
+            for (int i = 0; i < signalList.Count; i++)
+            {
+                Signal s = signalList[i];
+                //s.getTime(), s.getStrength()
+                tempTime[i] = s.getTime();
+                tempStrength[i] = (int) s.getStrength();
+
+                musterTime += tempTime[i];
+
+                int modus;
+                if ((i % 2) == 0)
+                {
+                    modus = 1; // signal 
+                }
+                else
+                {
+                    modus = 2; // pause 
+                } 
+
+                hexTimeString += rootPage.timeToHexString(tempTime[i], modus);
+
+                hexStrengthString += rootPage.strengthToHexString(tempStrength[i], modus);
+
+                /*
+                //                         Signal----  Pause-----  
+                byte    tempOfTesting[] = {0x14, 0x00, 0xFF, 0x00, 
+                //                         Signal----  Pause-----
+                                           0x13, 0x00, 0x23, 0x00, 
+                //                         Signal----  Pause-----
+                                           0x12, 0x00, 0x22, 0x00, 
+                //                         Signal----  Pause-----
+                                           0x11, 0x00, 0x21, 0x00, 
+                //                         Signal----  Pause-----
+                                           0x14, 0x00, 0x24, 0x00};*/
+                                           
+            }
+            res[0] = hexTimeString;
+            res[1] = hexStrengthString;
+
             return res;
         }
         
@@ -123,19 +185,26 @@ namespace EA3
         }
        
         // bestaetige die Eingabe
-        private void CommitButton_Click(object sender, RoutedEventArgs e)
+        private async void CommitButton_Click(object sender, RoutedEventArgs e)
         {
             activateComittButton();
             //es gespeichert (usw werden)
 
             countButtonClicks = 0;
             index++;
+            if (index == listListSignal.Count)
+            {
+                var dialog = new MessageDialog("Die Studie ist erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
+                await dialog.ShowAsync();
+            }
             signalList = listListSignal[index];
+
+            string[] tmp = createString(); // erstelle aus den Muster jetzt einen String, fuer das Abspielen des Signals
+            playSignal(tmp); // Signal abspielen
 
             allSignalList.Add(sList);
             sList = new List<SignalTyp>();
             printOnScreen();
-
         }
 
         // Hilfsmethode, die Buttons wieder aktiviert
@@ -235,6 +304,5 @@ namespace EA3
             return res;
         }
         #endregion
-
     }
 }

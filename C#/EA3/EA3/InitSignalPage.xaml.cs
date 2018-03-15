@@ -82,6 +82,7 @@ namespace EA3
         {
             rootPage = MainPage.Current;
         }
+
         private void Replay(object sender, RoutedEventArgs e)
         {
             // TODO Replay Signal

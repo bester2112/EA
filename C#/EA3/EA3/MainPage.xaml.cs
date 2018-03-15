@@ -694,32 +694,7 @@ namespace EA3
             hexString = time.ToString("X");
             Debug.WriteLine("Test ausgabe HEX STRING " + hexString);
 
-            switch (hexString.Length)
-            {
-                case 0:
-                    Debug.WriteLine("FEHLER: Der HexString in der calculateSignalsForTactile()  Methode ist leer");
-                    hexString = "0000"; // es wird ein Signal mit nur nullen übertragen
-                    break;
-                case 1:
-                    Debug.WriteLine("Der Hexstring hat nur eine Länge von max 9");
-                    hexString = "000" + hexString;
-                    break;
-                case 2:
-                    Debug.WriteLine("der HexString hat eine Länge von 2 Zeichen");
-                    hexString = "00" + hexString;
-                    break;
-                case 3:
-                    Debug.WriteLine("der Hexstring hat eine Länge von 3 Zeichen");
-                    hexString = "0" + hexString;
-                    break;
-                case 4:
-                    Debug.WriteLine("der HexString hat eine länge von 4 Zeichen");
-                    hexString = "" + hexString;
-                    break;
-                default:
-                    Debug.WriteLine("FEHLER : der HexString hat eine Länge von " + hexString.Length + " Zeichen");
-                    break;
-            }
+            hexString = timeToHexString(time, 0); //  versuch auf 1 zu ändern ///////////////////////////////////////////////  TODO
 
             strengthBytes = CalculateStrength(signalStrength);
 
@@ -758,6 +733,43 @@ namespace EA3
             {
                 Debug.WriteLine(i + ". Element = " + myTestByte[i]);
             }*/
+        }
+
+        public string timeToHexString(int time, int modus)
+        {
+            // modus 1   => signal
+            // modus 2   => pause
+            string hexString = time.ToString("X");
+
+            switch (hexString.Length)
+            {
+                case 0:
+                    Debug.WriteLine("FEHLER: Der HexString in der calculateSignalsForTactile()  Methode ist leer");
+                    hexString = modus + "000"; //"0000"; // es wird ein Signal mit nur nullen übertragen
+                    
+                    break;
+                case 1:
+                    Debug.WriteLine("Der Hexstring hat nur eine Länge von max 9");
+                    hexString = modus + "00" + hexString; //"000" + hexString;
+                    break;
+                case 2:
+                    Debug.WriteLine("der HexString hat eine Länge von 2 Zeichen");
+                    hexString = modus + "0" + hexString; //"00" + hexString;
+                    break;
+                case 3:
+                    Debug.WriteLine("der Hexstring hat eine Länge von 3 Zeichen");
+                    hexString = modus + hexString; //"0" + hexString;
+                    break;
+                case 4:
+                    Debug.WriteLine("der HexString hat eine länge von 4 Zeichen");
+                    hexString = "" + hexString;
+                    break;
+                default:
+                    Debug.WriteLine("FEHLER : der HexString hat eine Länge von " + hexString.Length + " Zeichen");
+                    break;
+            }
+
+            return hexString;
         }
 
         private string addMissingZeros(string hexstring)
@@ -829,6 +841,33 @@ namespace EA3
             }
         }
 
+        /*
+         * signalAndStrengthHexString[0] = Muster Hex Zeit String
+         * signalAndStrengthHexString[1] = Muster Hex Staerke String
+         */
+        public void playMuster(string[] signalAndStrengthHexString)
+        {
+            createByteForMuster(signalAndStrengthHexString);
+            // send values to tactile device
+            try
+            {
+                WriteBytes();
+            }
+            catch
+            {
+                Debug.WriteLine("Something went wrong by sending BLE DATA !!!!!!!");
+            }
+        }
+        
+        public void createByteForMuster(string[] tmp)
+        {
+            byte[] myByteTime = StringToByteArray(tmp[0]);
+            byte[] myByteStrength = StringToByteArray(tmp[1]);
+
+            bytes = myByteTime;
+            strengthBytes = myByteStrength;
+        }
+
         public async void WriteBytes()
         {
             //byte[] startBytes = { 0x55 };
@@ -869,6 +908,45 @@ namespace EA3
             Debug.WriteLine(endTime + " Status for " + ByteArrayToString(bytes) + ": " + status + ". Time: " + (endTime - startTime) + " ms");
         }
 
+        public string strengthToHexString(int strength, int modus)
+        {
+            string hexString = "";
+
+            if (modus == 2) // wenn eine Pause ist, ist die Stärke gleich 0 
+            {
+                hexString = "0000";
+            }
+            else
+            {
+                switch (strength)
+                {
+                    case (int)SignalStrength.VERYWEAK:
+                        hexString = "7FFF";
+                        break;
+                    case (int)SignalStrength.WEAK:
+                        hexString = "9FFF";
+                        break;
+                    case (int)SignalStrength.OK:
+                        hexString = "BFFF";
+                        break;
+                    case (int)SignalStrength.STRONG:
+                        hexString = "DFFF";
+                        break;
+                    case (int)SignalStrength.VERYSTRONG:
+                        hexString = "FFFF";
+                        break;
+                    default:
+                        Debug.WriteLine("Es gibt einen Fehler in der strengthToHexStringMethode() !!! ");
+                        break;
+                }
+            }
+
+            return hexString;
+        }
+
+        /**
+         * diese methode ist fuer die Berechnung von den normalen Signalen.
+         */
         private byte[] CalculateStrength(SignalStrength strength)
         {
             byte[] temp = new byte[2];

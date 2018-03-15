@@ -441,7 +441,7 @@ boolean calculateSignalLength() {
     }
     
     lengthOfSignal[index] = res1;
-    signalType[index] = lengthOfSignal[index] / 4096; // ergebniss ist 1 fuer Signal oder 2 fuer Pause
+    signalType[index] = lengthOfSignal[index] / 4096; // ergebniss ist 1 fuer Signal oder 2 fuer Pause 0x1XXX oder 0x2XXX
     index++;
 
     if (PRINT) {

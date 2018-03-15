@@ -29,6 +29,10 @@
 					</StackPanel>
 				</StackPanel>
 			</StackPanel>
+
+			<Button x:Name="ButtonReplay" Margin="657,-83,0,0" Height="43" Width="43" Background="White" Click="Replay">
+				<Image Source="Assets/replay-512-512.png" Stretch="UniformToFill" Height="43" VerticalAlignment="Top" Margin="-11,-8.333,-8.667,-6.667"/>
+			</Button>
 		</StackPanel>
 	</Grid>
 </Page>
