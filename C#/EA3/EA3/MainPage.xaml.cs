@@ -771,6 +771,11 @@ namespace EA3
 
             return hexString;
         }
+        public String AddPadding(string hexString)
+        {
+            return addMissingZeros(hexString);
+        }
+
 
         private string addMissingZeros(string hexstring)
         {

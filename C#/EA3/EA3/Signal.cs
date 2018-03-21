@@ -15,10 +15,10 @@ namespace EA3
      */
     public enum SignalTyp
     {
-        KURZ,
-        MITTEL,
-        LANG,
-        NODATA
+        KURZ = 1,
+        MITTEL = 2,
+        LANG = 3,
+        NODATA = -1
     }
 
     public enum SignalRating
@@ -242,6 +242,22 @@ namespace EA3
         public void setType(SignalTyp sType)
         {
             type = sType;
+        }
+
+        /**
+         * setzt die Zeit 
+         */
+        public void setTime(int time)
+        {
+            this.time = time;
+        }
+
+        /**
+         * setzt die Stärke
+         */
+        public void setStrength(SignalStrength str)
+        {
+            this.strength = str;
         }
 
         /**

@@ -45,6 +45,7 @@ namespace EA3
             // Erklärungstext aufrufen und Zeit starten
             initialize();
 
+            // UI Initialisierung
             #region UI Initialisierung 
             FirstLineText.Text = "Erkennung";
             TextBlockFrage.Text = "Was für Signale haben Sie erkannt? (in erkannter Reihenfolge)";
@@ -66,6 +67,7 @@ namespace EA3
                 + "   'L' für Lang");
             await dialog.ShowAsync();
 
+            // Variablen Initialisierung 
             countButtonClicks = 0;
             index = 0;
             musterTime = 0;
@@ -79,6 +81,13 @@ namespace EA3
             // Cursor auf Startposition setzen 
             int[] temp = rootPage.getMousePosition("ErkennungPage");
             rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
+            
+            // TODO 1. erstelle 2 mal einen Pool 
+            // TODO 2. ziehe in zufälliger Zeihenfolge ein Signal aus dem Pool 
+            // bzw erstelle einen Pool der in gegebener Reihenfolge die gleichen Signale hat (standardwerte / generiert) 
+            // danach nehme nach einander zufällig die Signale aus dem Pool in die 2 neuen Pools 
+            // DONE Median berechnet : es soll der Mittelwert genommen werden und nicht der intervallbereich um die Signale zu erzeugen, d.h. es gibt nur einen mittel / kurz / langen wert das gleiche bei der stärke
+            // es soll dann auswählbar sein, ob das zuerst die normalen signale alle abgespielt werden können, dann die generierten / andersrum oder gemischt
 
             createMuster(); // erstelle Muster
             string[] tmp = createString(); // erstelle aus den ersten Muster jetzt einen String, fuer das Abspielen des Signals
@@ -89,6 +98,7 @@ namespace EA3
 
             // verstecken des Commit buttons
             commitButton.Visibility = Visibility.Collapsed;
+            pressedButtonText.Text = "";
 
             // Starten der Zeit 
             this.startTime = Environment.TickCount;
@@ -100,6 +110,9 @@ namespace EA3
             List<int[]> temp = rootPage.getZones();
             m = new Muster(temp[0], temp[1]);
             listListSignal = m.getListOfMuster();
+
+            listListSignal = m.getListStandard();
+
             signalList = listListSignal[index];
         }
 
@@ -168,8 +181,8 @@ namespace EA3
                                            0x14, 0x00, 0x24, 0x00};*/
                                            
             }
-            res[0] = hexTimeString;
-            res[1] = hexStrengthString;
+            res[0] = rootPage.AddPadding(hexTimeString);
+            res[1] = rootPage.AddPadding(hexStrengthString);
 
             return res;
         }
@@ -246,7 +259,7 @@ namespace EA3
             sTime.Add(tempTime - this.startTime);
             printOnScreen();
 
-            if (countButtonClicks < 5)
+            if (countButtonClicks < (signalList.Count/2))//5)
             {
                 // Wenn es kleiner als 5 Zeichen ist, dann soll erst noch weiter bewertet werden
                 commitButton.Visibility = Visibility.Collapsed;
