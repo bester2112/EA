@@ -27,6 +27,7 @@
 
 #define STUPID_EDGE_CASE      0
 int internalIndex;
+int internalIndexStrength;
 
 // Anlegen des Vibrationsmotors
 Adafruit_TLC59711 tlc = Adafruit_TLC59711(NUM_TLC59711, LED_PIN, DATA_PIN);
@@ -357,9 +358,9 @@ void startVibration() {
   for (int index = 0; index < NUM_TLC59711; index++) {
     uint8_t channel = actor[index];
     
-    tlc.setPWM(channel, vibrationStrength);
-    tlc.setPWM(channel + 1, vibrationStrength);
-    tlc.setPWM(channel + 2, vibrationStrength);
+    tlc.setPWM(channel, strengthOfSignal[internalIndexStrength]);//vibrationStrength);
+    tlc.setPWM(channel + 1, strengthOfSignal[internalIndexStrength]);//vibrationStrength);
+    tlc.setPWM(channel + 2, strengthOfSignal[internalIndexStrength]);//vibrationStrength);
   }
   tlc.write(); // WICHTIG: Zum Bus schreiben!
 }
@@ -446,7 +447,7 @@ boolean calculateSignalLength() {
     lengthOfSignal[index] = res1;
     
     if (i % 2 == 0) {
-      int cStrength = (currentStrength[i] * 256); 
+      int cStrength = ((currentStrength[i] * 256) + 255); // XY * 100 + FF = XY00 + FF = XYFF
       strengthOfSignal[index] = cStrength;
     }
     
@@ -496,6 +497,7 @@ void playSignal() { // TODO
   stopVibration();
   delay(lengthOfSignal[internalIndex]);
   internalIndex++; // Pause wurde abgespielt index muss jetzt hochgezaehlt werden
+  internalIndexStrength += 2;
 }
 
 void run() {
@@ -507,6 +509,7 @@ void run() {
     memcpy(currentStrength, nextStrength, TXRX_BUF_LEN * sizeof(byte));
       
     internalIndex = 0;
+	internalIndexStrength = 0;
     
     if (PRINT) {
       Serial.print("RUN: ");
