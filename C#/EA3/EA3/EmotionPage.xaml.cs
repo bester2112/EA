@@ -32,7 +32,7 @@ namespace EA3
 
             #region UI Initialisierung 
             FirstLineText.Text = "Stimmung Bewerten";
-            TextBlockFrage.Text = "Wie gelangweilt sind Sie ?";
+            TextBlockFrage.Text = "Bitte bewerten Sie Ihre Stimmung"; // "Wie gelangweilt sind Sie ?";
             #endregion
         }
     

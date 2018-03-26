@@ -11,7 +11,7 @@ namespace EA3
     {
         private static readonly int POPULATION_SIZE = 20;
         private static readonly int MAXSIGNAL = 10;
-        private static readonly int PAUSE1 = 100;
+        private static readonly int PAUSEEND = 100;
         private static readonly int PAUSE2 = 200;
 
         private static readonly int KURZSTANDARD = 150;
@@ -22,9 +22,15 @@ namespace EA3
         private static readonly SignalStrength MITTELSTRENGTH = SignalStrength.STRONG;
         private static readonly SignalStrength LANGSTRENGTH = SignalStrength.STRONG;
 
-        private List<List<Signal>> listOfMuster;
-        private List<List<Signal>> listOfMusterStandard;
-        private List<List<Signal>> listOfMusterGeneriert;
+        private List<List<Signal>> listOfMuster3;
+        private List<List<Signal>> listOfMusterStandard3;
+        private List<List<Signal>> listOfMusterGeneriert3;
+        private List<List<Signal>> listOfMuster4;
+        private List<List<Signal>> listOfMusterStandard4;
+        private List<List<Signal>> listOfMusterGeneriert4;
+        private List<List<Signal>> listOfMuster5;
+        private List<List<Signal>> listOfMusterStandard5;
+        private List<List<Signal>> listOfMusterGeneriert5;
         private List<int> indexStandard = new List<int>();
         private List<int> indexGeneriert = new List<int>();
         private int[] KTime;
@@ -44,9 +50,15 @@ namespace EA3
         public Muster(int[] timeZone, int[] strongZone)
         {
             // definition von Pools / Listen von Mustern
-            listOfMuster = new List<List<Signal>>();
-            listOfMusterStandard = new List<List<Signal>>();
-            listOfMusterGeneriert = new List<List<Signal>>();
+            listOfMuster3 = new List<List<Signal>>();
+            listOfMusterStandard3 = new List<List<Signal>>();
+            listOfMusterGeneriert3 = new List<List<Signal>>();
+            listOfMuster4 = new List<List<Signal>>();
+            listOfMusterStandard4 = new List<List<Signal>>();
+            listOfMusterGeneriert4 = new List<List<Signal>>();
+            listOfMuster5 = new List<List<Signal>>();
+            listOfMusterStandard5 = new List<List<Signal>>();
+            listOfMusterGeneriert5 = new List<List<Signal>>();
 
             // inizialisert die Variablen und setzt den wert der uebergeben wurde
             initialize(timeZone, strongZone);
@@ -54,9 +66,15 @@ namespace EA3
             // erstelle eine Population von den Signalen.
             createCollection();
             // kopiere jetzt in zufälliger Reihenfolge, Elemente in den Standard Pool hinein.
-            copyIntoStandardPool();
+            listOfMusterStandard3 = copyIntoStandardPool(listOfMuster3);
+            listOfMusterStandard4 = copyIntoStandardPool(listOfMuster4);
+            listOfMusterStandard5 = copyIntoStandardPool(listOfMuster5);
+            //copyIntoStandardPool();
+
             // kopiere jetzt in zufälliger Reihenfolge, Elemente in den Generierten Pool hinein.
-            copyIntoGeneriertPool();
+            listOfMusterGeneriert3 = copyIntoGeneriertPool(listOfMuster3);
+            listOfMusterGeneriert4 = copyIntoGeneriertPool(listOfMuster4);
+            listOfMusterGeneriert5 = copyIntoGeneriertPool(listOfMuster5);
 
             // 
             //createRandomMuster(POPULATION_SIZE); // createRandomMuster
@@ -100,20 +118,189 @@ namespace EA3
         // erzeuge eine Sammlung von Mustern 
         private void createCollection()
         {
-            for (int typeA = 1; typeA < 4; typeA++)
+            int kurz = (int)  SignalTyp.KURZ;
+            int mittel = (int) SignalTyp.MITTEL;
+            int lang = (int) SignalTyp.LANG;
+
+            int pauseKurz1   = 100;
+            int pauseKurz2   = 200;
+            int pauseMittel1 = 100;
+            int pauseMittel2 = 200;
+            int pauseMittel3 = 300;
+            int pauseLang1   = 100;
+            int pauseLang2   = 200;
+            int pauseLang3   = 300;
+            int pauseLang4   = 400;
+
+            #region definition Muster mit 3 signalen
+            listOfMuster3.Add(generateSignals(kurz, kurz, kurz, pauseKurz1, pauseKurz1));
+            listOfMuster3.Add(generateSignals(kurz, mittel, mittel, pauseKurz1, pauseKurz2));
+            listOfMuster3.Add(generateSignals(kurz, mittel, kurz, pauseKurz2, pauseKurz2));
+            listOfMuster3.Add(generateSignals(kurz, lang, lang, pauseKurz1, pauseKurz2));
+            listOfMuster3.Add(generateSignals(kurz, lang, kurz, pauseKurz2, pauseKurz2));
+
+            listOfMuster3.Add(generateSignals(mittel, mittel, mittel, pauseKurz1, pauseKurz1));
+            listOfMuster3.Add(generateSignals(mittel, kurz, kurz, pauseKurz1, pauseKurz2));
+            listOfMuster3.Add(generateSignals(mittel, kurz, mittel, pauseKurz2, pauseKurz2));
+            listOfMuster3.Add(generateSignals(mittel, lang, lang, pauseKurz1, pauseKurz2));
+            listOfMuster3.Add(generateSignals(mittel, lang, kurz, pauseKurz2, pauseKurz2));
+
+            listOfMuster3.Add(generateSignals(lang, lang, lang, pauseKurz1, pauseKurz1));
+            listOfMuster3.Add(generateSignals(lang, kurz, kurz, pauseKurz1, pauseKurz2));
+            listOfMuster3.Add(generateSignals(lang, kurz, lang, pauseKurz2, pauseKurz2));
+            listOfMuster3.Add(generateSignals(lang, mittel, mittel, pauseKurz1, pauseKurz2));
+            listOfMuster3.Add(generateSignals(lang, mittel, kurz, pauseKurz2, pauseKurz2));
+            #endregion
+
+            #region definition Muster mit 4 Signalen
+            listOfMuster4.Add(generateSignals(kurz, kurz, kurz, kurz, pauseMittel1, pauseMittel1, pauseMittel1));
+            listOfMuster4.Add(generateSignals(kurz, mittel, kurz, mittel, pauseMittel1, pauseMittel3, pauseMittel2));
+            listOfMuster4.Add(generateSignals(kurz, mittel, mittel, mittel, pauseMittel3, pauseMittel1, pauseMittel2));
+            listOfMuster4.Add(generateSignals(kurz, lang, mittel, kurz, pauseMittel1, pauseMittel3, pauseMittel2));
+            listOfMuster4.Add(generateSignals(kurz, lang, lang, kurz, pauseMittel3, pauseMittel1, pauseMittel2));
+
+            listOfMuster4.Add(generateSignals(mittel, mittel, mittel, mittel, pauseMittel1, pauseMittel1, pauseMittel1));
+            listOfMuster4.Add(generateSignals(mittel, lang, kurz, lang, pauseMittel1, pauseMittel3, pauseMittel2));
+            listOfMuster4.Add(generateSignals(mittel, kurz, kurz, mittel, pauseMittel1, pauseMittel2, pauseMittel1));
+            listOfMuster4.Add(generateSignals(mittel, lang, kurz, lang, pauseMittel1, pauseMittel1, pauseMittel2));
+            listOfMuster4.Add(generateSignals(mittel, lang, lang, mittel, pauseMittel1, pauseMittel2, pauseMittel3));
+
+            listOfMuster4.Add(generateSignals(lang, lang, lang, lang, pauseMittel1, pauseMittel1, pauseMittel1));
+            listOfMuster4.Add(generateSignals(lang, kurz, mittel, kurz, pauseMittel1, pauseMittel2, pauseMittel3));
+            listOfMuster4.Add(generateSignals(lang, kurz, lang, kurz, pauseMittel3, pauseMittel2, pauseMittel1));
+            listOfMuster4.Add(generateSignals(lang, mittel, lang, lang, pauseMittel1, pauseMittel2, pauseMittel3));
+            listOfMuster4.Add(generateSignals(lang, mittel, kurz, mittel, pauseMittel2, pauseMittel3, pauseMittel1));
+            #endregion
+
+            #region definition Muster mit 5 Signalen
+            listOfMuster5.Add(generateSignals(kurz, kurz, kurz, kurz, kurz, pauseLang1, pauseLang1, pauseLang1, pauseLang1));
+            listOfMuster5.Add(generateSignals(kurz, mittel, lang, kurz, mittel, pauseLang2, pauseLang1, pauseLang4, pauseLang3));
+            listOfMuster5.Add(generateSignals(kurz, mittel, lang, mittel, kurz, pauseLang3, pauseLang2, pauseLang1, pauseLang1));
+            listOfMuster5.Add(generateSignals(kurz, lang, lang, mittel, kurz, pauseLang2, pauseLang1, pauseLang4, pauseLang3));
+            listOfMuster5.Add(generateSignals(kurz, lang, lang, mittel, lang, pauseLang1, pauseLang2, pauseLang3, pauseLang1));
+
+            listOfMuster5.Add(generateSignals(mittel, mittel, mittel, mittel, mittel, pauseLang1, pauseLang1, pauseLang1, pauseLang1));
+            listOfMuster5.Add(generateSignals(mittel, mittel, kurz, lang, lang, pauseLang1, pauseLang2, pauseLang3, pauseLang1));
+            listOfMuster5.Add(generateSignals(mittel, kurz, mittel, kurz, lang, pauseLang3, pauseLang2, pauseLang4, pauseLang1));
+            listOfMuster5.Add(generateSignals(mittel, lang, kurz, lang, mittel,  pauseLang1, pauseLang2, pauseLang1, pauseLang2));
+            listOfMuster5.Add(generateSignals(mittel, kurz, lang, lang, mittel, pauseLang3, pauseLang1, pauseLang4, pauseLang1));
+
+            listOfMuster5.Add(generateSignals(lang, lang, lang, lang, lang, pauseLang1, pauseLang1, pauseLang1, pauseLang1));
+            listOfMuster5.Add(generateSignals(lang, kurz, mittel, lang, kurz, pauseLang1, pauseLang4, pauseLang2, pauseLang1));
+            listOfMuster5.Add(generateSignals(lang, kurz, mittel, lang, kurz, pauseLang2, pauseLang1, pauseLang3, pauseLang2));
+            listOfMuster5.Add(generateSignals(lang, mittel, lang, kurz, lang, pauseLang2, pauseLang4, pauseLang2, pauseLang4));
+            listOfMuster5.Add(generateSignals(lang, mittel, mittel, lang, lang, pauseLang1, pauseLang3, pauseLang4, pauseLang1));
+            #endregion
+
+            /*for (int typeA = 1; typeA < 4; typeA++)
             {
                 for (int typeB = 1; typeB < 4; typeB++)
                 {
                     for (int typeC = 1; typeC < 4; typeC++)
                     {
+                        
                         Debug.WriteLine("{0},{1},{2}", (SignalTyp)typeA, (SignalTyp)typeB, (SignalTyp)typeC);
                         listOfMuster.Add(generateSignals(typeA,typeB,typeC));
                     }
                 }
-            }
+            }*/
         }
 
-        private List<Signal> generateSignals(int typeA, int typeB, int typeC)
+
+        // Diese methode erstellt Muster mit 5 Signalen
+        private List<Signal> generateSignals(int typeA, int typeB, int typeC, int typeD, int typeE, int pause1, int pause2, int pause3, int pause4)
+        {
+            List<Signal> signalsAndPause = new List<Signal>();
+            Signal s = new Signal();
+
+            // geriere Signal von dem Typ A und füge es in die Liste hinzu
+            s = generateSignal(typeA);
+            signalsAndPause.Add(s);
+
+            // generiere Pause nach dem Typen A und füge es in die Liste hinzu
+            s = geratePause(pause1);
+            signalsAndPause.Add(s);
+            
+            // geriere Signal von dem Typ B und füge es in die Liste hinzu
+            s = generateSignal(typeB);
+            signalsAndPause.Add(s);
+
+            // generiere Pause nach dem Typen B und füge es in die Liste hinzu
+            s = geratePause(pause2);
+            signalsAndPause.Add(s);
+            
+            // geriere Signal von dem Typ C und füge es in die Liste hinzu
+            s = generateSignal(typeC);
+            signalsAndPause.Add(s);
+
+            // generiere Pause nach dem Typen C und füge es in die Liste hinzu
+            s = geratePause(pause3);
+            signalsAndPause.Add(s);
+
+            // geriere Signal von dem Typ D und füge es in die Liste hinzu
+            s = generateSignal(typeD);
+            signalsAndPause.Add(s);
+
+            // generiere Pause nach dem Typen D und füge es in die Liste hinzu
+            s = geratePause(pause4);
+            signalsAndPause.Add(s);
+
+            // geriere Signal von dem Typ E und füge es in die Liste hinzu
+            s = generateSignal(typeE);
+            signalsAndPause.Add(s);
+
+            // generiere Pause nach dem Typen E und füge es in die Liste hinzu
+            s = geratePause(PAUSEEND);
+            signalsAndPause.Add(s);
+
+            return signalsAndPause;
+        }
+
+
+        // Diese Methode erstellt Muster mit 4 Signalen
+        private List<Signal> generateSignals(int typeA, int typeB, int typeC, int typeD, int pause1, int pause2, int pause3)
+        {
+            List<Signal> signalsAndPause = new List<Signal>();
+            Signal s = new Signal();
+
+            // geriere Signal von dem Typ A und füge es in die Liste hinzu
+            s = generateSignal(typeA);
+            signalsAndPause.Add(s);
+
+            // generiere Pause nach dem Typen A und füge es in die Liste hinzu
+            s = geratePause(pause1);
+            signalsAndPause.Add(s);
+            
+            // geriere Signal von dem Typ B und füge es in die Liste hinzu
+            s = generateSignal(typeB);
+            signalsAndPause.Add(s);
+
+            // generiere Pause nach dem Typen B und füge es in die Liste hinzu
+            s = geratePause(pause2);
+            signalsAndPause.Add(s);
+            
+            // geriere Signal von dem Typ C und füge es in die Liste hinzu
+            s = generateSignal(typeC);
+            signalsAndPause.Add(s);
+
+            // generiere Pause nach dem Typen C und füge es in die Liste hinzu
+            s = geratePause(pause3);
+            signalsAndPause.Add(s);
+
+            // geriere Signal von dem Typ D und füge es in die Liste hinzu
+            s = generateSignal(typeD);
+            signalsAndPause.Add(s);
+
+            // generiere Pause nach dem Typen D und füge es in die Liste hinzu
+            s = geratePause(PAUSEEND);
+            signalsAndPause.Add(s);
+
+            return signalsAndPause;
+        }
+
+
+        // Diese Methode erstellt Muster mit 3 Signalen
+        private List<Signal> generateSignals(int typeA, int typeB, int typeC, int pause1, int pause2)
         {
             // Initialisierung
             List<Signal> signalsAndPause = new List<Signal>();
@@ -124,7 +311,7 @@ namespace EA3
             signalsAndPause.Add(s);
 
             // generiere Pause nach dem Typen A und füge es in die Liste hinzu
-            s = geratePause(PAUSE1);
+            s = geratePause(pause1);
             signalsAndPause.Add(s);
 
 
@@ -133,7 +320,7 @@ namespace EA3
             signalsAndPause.Add(s);
 
             // generiere Pause nach dem Typen B und füge es in die Liste hinzu
-            s = geratePause(PAUSE1);
+            s = geratePause(pause2);
             signalsAndPause.Add(s);
 
 
@@ -142,7 +329,7 @@ namespace EA3
             signalsAndPause.Add(s);
 
             // generiere Pause nach dem Typen C und füge es in die Liste hinzu
-            s = geratePause(PAUSE1);
+            s = geratePause(PAUSEEND);
             signalsAndPause.Add(s);
             
 
@@ -185,32 +372,36 @@ namespace EA3
         }
 
         // diese Methode kopiert die Signale aus dem listOfMuster in zufälliger Reihenfolge heraus und fügt diese dann in die Standard liste hinein.
-        private void copyIntoStandardPool()
+        private List<List<Signal>> copyIntoStandardPool(List<List<Signal>> listMuster)
         {
             int randomIndex = -1;
             int startIndex = 0;
+            List<List<Signal>> standardMuster = new List<List<Signal>>();
+
             do
             {
                 // gehe das Array zufaellig durch und frage nach (daher die grenzen 0 bis n-1)
-                randomIndex = getRandom(0, (listOfMuster.Count - 1));
+                randomIndex = getRandom(0, (listMuster.Count - 1));
                 if (!indexStandard.Contains(randomIndex))
                 {
                     // füge das Element in die Liste hinzu
                     indexStandard.Add(randomIndex);
 
                     // lese das noch nicht genommene element aus der Liste 
-                    List<Signal> l = new List<Signal>(listOfMuster[randomIndex]);
+                    List<Signal> l = new List<Signal>(listMuster[randomIndex]);
                     // setze die Werte für die Standard werte
                     List<Signal> c = setAllValuesStandard(l);
                     // füge es in der neuen Liste hinzu
-                    listOfMusterStandard.Add(c);
+                    standardMuster.Add(c);
 
                     // erhöhe den Index
                     startIndex++;
                 }
                 // es muss überprüft werden, dass man nicht über die Anzahl der Elemente drauf zugreift, sonst endet man in der While Schleife 
                 // und man kommt nicht mehr raus.
-            } while (startIndex != listOfMuster.Count);
+            } while (startIndex != listMuster.Count);
+
+            return standardMuster;
         }
 
         // setzt alle Signale der Liste mit Standardwerten
@@ -256,32 +447,36 @@ namespace EA3
         }
 
         // diese Methode kopiert die Signale aus dem listOfMuster in zufälliger Reihenfolge heraus und fügt diese dann in die Standard liste hinein.
-        private void copyIntoGeneriertPool()
+        private List<List<Signal>> copyIntoGeneriertPool(List<List<Signal>> listMuster)
         {
             int randomIndex = -1;
             int startIndex = 0;
+
+            List<List<Signal>> genMuster = new List<List<Signal>>();
             do
             {
                 // gehe das Array zufaellig durch und frage nach (daher die grenzen 0 bis n-1)
-                randomIndex = getRandom(0, (listOfMuster.Count - 1));
+                randomIndex = getRandom(0, (listMuster.Count - 1));
                 if (!indexGeneriert.Contains(randomIndex))
                 {
                     // füge das Element in die Liste hinzu
                     indexGeneriert.Add(randomIndex);
 
                     // lese das noch nicht genommene element aus der Liste 
-                    List<Signal> l = new List<Signal>(listOfMuster[randomIndex]);
+                    List<Signal> l = new List<Signal>(listMuster[randomIndex]);
                     // setze die Werte für die Standard werte
                     List<Signal> c = setAllValuesGeneriert(l);
                     // füge es in der neuen Liste hinzu
-                    listOfMusterGeneriert.Add(c);
+                    genMuster.Add(c);
 
                     // erhöhe den Index
                     startIndex++;
                 }
                 // es muss überprüft werden, dass man nicht über die Anzahl der Elemente drauf zugreift, sonst endet man in der While Schleife 
                 // und man kommt nicht mehr raus.
-            } while (startIndex != listOfMuster.Count);
+            } while (startIndex != listMuster.Count);
+
+            return genMuster;
         }
 
         // setzt alle Signale der Liste mit Generierten Werten
@@ -328,6 +523,7 @@ namespace EA3
             return newList;
         }
 
+        /*
         private void createRandomMuster(int iN)
         {
             for (int i = 0; i < iN; i++)
@@ -364,7 +560,7 @@ namespace EA3
                 fiveSignalsAndPause.Add(s);
             }
             listOfMuster.Add(fiveSignalsAndPause);
-        }
+        }*/
 
         private SignalTyp getRandomType()
         {
@@ -390,19 +586,43 @@ namespace EA3
             return res;
         }
 
-        public List<List<Signal>> getListOfMuster()
+        public List<List<Signal>> getListOfMuster3()
         {
-            return this.listOfMuster;
+            return this.listOfMuster3;
+        }
+        public List<List<Signal>> getListOfMuster4()
+        {
+            return this.listOfMuster4;
+        }
+        public List<List<Signal>> getListOfMuster5()
+        {
+            return this.listOfMuster5;
         }
 
-        public List<List<Signal>> getListStandard()
+        public List<List<Signal>> getListStandard3()
         {
-            return this.listOfMusterStandard;
+            return this.listOfMusterStandard3;
+        }
+        public List<List<Signal>> getListStandard4()
+        {
+            return this.listOfMusterStandard4;
+        }
+        public List<List<Signal>> getListStandard5()
+        {
+            return this.listOfMusterStandard5;
         }
 
-        public List<List<Signal>> getListGeneriert()
+        public List<List<Signal>> getListGeneriert3()
         {
-            return this.listOfMusterGeneriert;
+            return this.listOfMusterGeneriert3;
+        }
+        public List<List<Signal>> getListGeneriert4()
+        {
+            return this.listOfMusterGeneriert4;
+        }
+        public List<List<Signal>> getListGeneriert5()
+        {
+            return this.listOfMusterGeneriert5;
         }
     }
 }
