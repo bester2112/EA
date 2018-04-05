@@ -38,6 +38,9 @@ namespace EA3
             TextBlockWoman.Text = "Weiblich";
             TextBlockSex.Text = "Geschlecht";
             TextBlockAge.Text = "Alter";
+            TextBlockMusic.Text = "Sind Sie musikalisch?";
+            TextBlockMusicYes.Text = "Ja";
+            TextBlockMusicNo.Text = "Nein";
 
             ButtonConfirm.Content = "Bestätigen";
             #endregion 
@@ -55,6 +58,7 @@ namespace EA3
         {
             bool sex = false;
             bool age = false;
+            bool musically = false;
             if ((Boolean) RadioButtonMale.IsChecked)
             {
                 RadioButtonMale.IsChecked = false;
@@ -67,28 +71,41 @@ namespace EA3
                 user.setGender(Gender.WOMAN);
                 sex = true;
             }
-            else
-            {
-                var dialog = new MessageDialog("Bitte geben Sie auch Ihr Geschlecht an");
-                await dialog.ShowAsync();
-            }
 
-            int userAge = Int32.Parse(TextBoxAge.Text);
+            int userAge = -1;
+            string s = TextBoxAge.Text;
+            if (s != "")
+            {
+                userAge = Int32.Parse(TextBoxAge.Text);
+            }
             if (userAge > 0 && userAge <= 100)
             {
                 user.setAge(userAge);
                 age = true;
-            } 
-            else
-            {
-                age = false;
-                var dialog = new MessageDialog("Bitte geben Sie auch Ihr Alter an");
-                await dialog.ShowAsync();
             }
 
-            if (age && sex)
+            if ((Boolean) RadioButtonMusicYes.IsChecked)
+            {
+                RadioButtonMusicYes.IsChecked = false;
+                musically = true;
+                user.setMusically(musically);
+            }
+            else if ((Boolean) RadioButtonMusicNo.IsChecked)
+            {
+                RadioButtonMusicNo.IsChecked = false;
+                musically = true;
+                user.setMusically(!musically);
+            }
+
+            if (age && sex && musically)
             {
                 allData = true;
+            }
+            else
+            {
+                musically = false;
+                var dialog = new MessageDialog("Bitte beantworten Sie alle Fragen");
+                await dialog.ShowAsync();
             }
 
             if (allData)
@@ -99,7 +116,7 @@ namespace EA3
                 // Daten werden in der rootpage gespeichert
                 rootPage.setPerson(user);
                 // Frame wird zu InitSignalPage gewechelt
-                rootPage.changeToFrame(typeof(InitSignalPage));
+                rootPage.changeToFrame(typeof(IntroPage2));
                 
             }
         }

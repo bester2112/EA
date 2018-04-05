@@ -1093,6 +1093,11 @@ namespace EA3
         {
             myFrame.Navigate(typeof(IntroPage));
         }
+        
+        private void testButton_21(object sender, RoutedEventArgs e)
+        {
+            myFrame.Navigate(typeof(IntroPage2));
+        }
 
         private void testButton3(object sender, RoutedEventArgs e)
         {
@@ -1174,9 +1179,19 @@ namespace EA3
 
         public void setPerson(Person person)
         {
-            this.user = person; 
+            this.user = person;
             Debug.WriteLine("TEST TEST TEST");
-            Debug.WriteLine("this User =  " + user.getAge() + " " + user.getGender());
+            Debug.WriteLine("this User =  " + user.getAge() + " " + user.getGender() + " musikalisch ? " + user.isMusically());
+        }
+
+        public void setOtherPersonValues(bool usedTactil, bool usedWatch, bool playedGames)
+        {
+            this.user.setTactile(usedTactil);
+            this.user.setWatch(usedWatch);
+            this.user.setGames(playedGames);
+
+            Debug.WriteLine("TEST TEST TEST");
+            Debug.WriteLine("this user =  used Tactile ? " + user.usedTactile() + " ; used Watch ? " + user.usedWatch() + " ; played Games ? " + user.isMusically());
         }
 
         public void setEmotion(Emotion emote)

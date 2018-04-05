@@ -13,12 +13,20 @@ namespace EA3
     {
         private int age;
         private Gender sex;
+        private bool musically;
+        private bool tactile;
+        private bool watch;
+        private bool games;
         private List<Emotion> emotes;
 
         public Person()
         {
             this.age = -1;
             this.sex = Gender.NA;
+            this.musically = false;
+            this.tactile = false;
+            this.watch = false;
+            this.games = false;
             emotes = new List<Emotion>();
         }
 
@@ -44,6 +52,26 @@ namespace EA3
         {
             return this.emotes;
         }
+
+        public bool isMusically()
+        {
+            return this.musically;
+        }
+
+        public bool playedGames()
+        {
+            return this.games;
+        }
+
+        public bool usedTactile()
+        {
+            return this.tactile;
+        }
+
+        public bool usedWatch()
+        {
+            return this.watch;
+        }
         #endregion
 
         #region setter
@@ -55,6 +83,24 @@ namespace EA3
         public void setAge(int age)
         {
             this.age = age;
+        }
+
+        public void setMusically(bool musically)
+        {
+            this.musically = musically;
+        }
+
+        public void setTactile(bool usedTactile)
+        {
+            this.tactile = usedTactile;
+        }
+        public void setWatch(bool usedWatch)
+        {
+            this.watch = usedWatch;
+        }
+        public void setGames(bool playedGames)
+        {
+            this.games = playedGames;
         }
         #endregion
 

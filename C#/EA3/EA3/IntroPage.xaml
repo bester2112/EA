@@ -11,7 +11,12 @@
 		<StackPanel Margin="50,50,50,50">
 			<TextBlock x:Name="FirstLineText" Text="TextBlock"/>
 
-			<StackPanel Height="200" Margin="50,50,50,50">
+			<StackPanel Height="221" Margin="50,50,50,50">
+				<StackPanel Height="75" Margin="0,0,0,0">
+					<TextBlock x:Name="TextBlockAge" Text="Alter" Padding="50,10,0,0" Margin="0,0,0,0"/>
+					<TextBox x:Name="TextBoxAge" Margin="300,-26,180,0" KeyDown="TextBoxAge_KeyDown"/>
+					<!-- -26 -->
+				</StackPanel>
 				<StackPanel Height="75" Margin="0,0,0,0">
 					<TextBlock x:Name="TextBlockMan" Text="Männlich" Padding="280,0,0,0" Margin="0,0,0,0"/>
 					<TextBlock x:Name="TextBlockWoman" Text="Weiblich" Padding="380,0,0,0" Margin="0,-20,0,0"/>
@@ -19,14 +24,16 @@
 					<RadioButton x:Name="RadioButtonMale" Width="50" Margin="300,-25,0,0"/>
 					<RadioButton x:Name="RadioButtonWoman" Width="50" Margin="400,-32,0,0"/>
 				</StackPanel>
-
 				<StackPanel Height="75" Margin="0,0,0,0">
-					<TextBlock x:Name="TextBlockAge" Text="Alter" Padding="50,0,0,0" Margin="0,0,0,0"/>
-					<TextBox x:Name="TextBoxAge" Margin="300,-26,180,0" KeyDown="TextBoxAge_KeyDown"/>
-					<!-- -26 -->
+					<TextBlock x:Name="TextBlockMusicYes" Text="Ja" Padding="303,0,0,0" Margin="0,0,0,0"/>
+					<TextBlock x:Name="TextBlockMusicNo" Text="Nein" Padding="393,0,0,0" Margin="0,-20,0,0"/>
+					<TextBlock x:Name="TextBlockMusic" Text="Sind Sie musikalisch ?" Padding="50,0,0,0" Margin="0,0,0,0"/>
+					<RadioButton x:Name="RadioButtonMusicYes" Width="50" Margin="300,-25,0,0"/>
+					<RadioButton x:Name="RadioButtonMusicNo" Width="50" Margin="400,-32,0,0"/>
 				</StackPanel>
+				
 			</StackPanel>
-			<Button x:Name="ButtonConfirm" Content="Bestätigen" Margin="600,0,0,0" Click="Confirm" />
+			<Button x:Name="ButtonConfirm" Content="Bestätigen" Margin="600,15,0,0" Click="Confirm" />
 		</StackPanel>
 	</Grid>
 </Page>

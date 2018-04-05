@@ -55,13 +55,14 @@
 
 		<RelativePanel Margin="0,0,0,0">
 			<Button x:Name="testButton" Content="Button" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="65" Margin="1000,50,0,-291" Click="testButton_Click" />
-			<Button x:Name="testButton_2" Content="IntroPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="100,50,-711.333,-390" Click="testButton2"/>
+			<Button x:Name="testButton_2" Content="IntroPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="93" Margin="34,50,-125.667,-82" Click="testButton2"/>
 			<Button x:Name="testButton_3" Content="InitSignalPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="250,50,-711.333,-389.667" Click="testButton3"/>
 			<Button x:Name="testButton_4" Content="AlgoSignalPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="400,50,-711.333,-389.667" Click="testButton4"/>
 			<Button x:Name="testButton_5" Content="EmotionPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="550,50,-711.333,-389.667" Click="testButton5"/>
 			<Button x:Name="testButton_6" Content="ErkennungPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="700,50,-711.333,-389.667" Click="testButton6"/>
 			<Button x:Name="testButton_7" Content="Move" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="850,50,-711.333,-389.667" Click="TestButtonMoveCursor"/>
 			<Frame x:Name="myFrame" Content="myFrame" HorizontalAlignment="Left" Height="500" Margin="341,100,-840.667,-762" VerticalAlignment="Top" Width="800" BorderBrush="Black" BorderThickness="1"/>
+			<Button x:Name="testButton_21_Copy" Content="IntroPage 2" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="97" Margin="143,50,-238.667,-82" Click="testButton_21" />
 		</RelativePanel>
 
 	</Grid>
