@@ -38,7 +38,7 @@ namespace EA3
             TextBlockWoman.Text = "Weiblich";
             TextBlockSex.Text = "Geschlecht";
             TextBlockAge.Text = "Alter";
-            TextBlockMusic.Text = "Sind Sie musikalisch?";
+            TextBlockMusic.Text = "Empfinden Sie sich als musikalisch?";
             TextBlockMusicYes.Text = "Ja";
             TextBlockMusicNo.Text = "Nein";
 
@@ -69,6 +69,12 @@ namespace EA3
             {
                 RadioButtonWoman.IsChecked = false;
                 user.setGender(Gender.WOMAN);
+                sex = true;
+            }
+            else if ((Boolean) RadioButtonNA.IsChecked)
+            {
+                RadioButtonNA.IsChecked = false;
+                user.setGender(Gender.NOINPUT);
                 sex = true;
             }
 

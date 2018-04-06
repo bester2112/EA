@@ -31,8 +31,12 @@ namespace EA3
         private List<List<Signal>> listOfMuster5;
         private List<List<Signal>> listOfMusterStandard5;
         private List<List<Signal>> listOfMusterGeneriert5;
-        private List<int> indexStandard = new List<int>();
-        private List<int> indexGeneriert = new List<int>();
+        private List<int> indexStandard3 = new List<int>();
+        private List<int> indexStandard4 = new List<int>();
+        private List<int> indexStandard5 = new List<int>();
+        private List<int> indexGeneriert3 = new List<int>();
+        private List<int> indexGeneriert4 = new List<int>();
+        private List<int> indexGeneriert5 = new List<int>();
         private int[] KTime;
         private int[] MTime;
         private int[] LTime;
@@ -66,15 +70,15 @@ namespace EA3
             // erstelle eine Population von den Signalen.
             createCollection();
             // kopiere jetzt in zufälliger Reihenfolge, Elemente in den Standard Pool hinein.
-            listOfMusterStandard3 = copyIntoStandardPool(listOfMuster3);
-            listOfMusterStandard4 = copyIntoStandardPool(listOfMuster4);
-            listOfMusterStandard5 = copyIntoStandardPool(listOfMuster5);
+            listOfMusterStandard3 = copyIntoStandardPool(listOfMuster3, ref indexStandard3);
+            listOfMusterStandard4 = copyIntoStandardPool(listOfMuster4, ref indexStandard4);
+            listOfMusterStandard5 = copyIntoStandardPool(listOfMuster5, ref indexStandard5);
             //copyIntoStandardPool();
 
             // kopiere jetzt in zufälliger Reihenfolge, Elemente in den Generierten Pool hinein.
-            listOfMusterGeneriert3 = copyIntoGeneriertPool(listOfMuster3);
-            listOfMusterGeneriert4 = copyIntoGeneriertPool(listOfMuster4);
-            listOfMusterGeneriert5 = copyIntoGeneriertPool(listOfMuster5);
+            listOfMusterGeneriert3 = copyIntoGeneriertPool(listOfMuster3, ref indexGeneriert3);
+            listOfMusterGeneriert4 = copyIntoGeneriertPool(listOfMuster4, ref indexGeneriert4);
+            listOfMusterGeneriert5 = copyIntoGeneriertPool(listOfMuster5, ref indexGeneriert5);
 
             // 
             //createRandomMuster(POPULATION_SIZE); // createRandomMuster
@@ -372,7 +376,7 @@ namespace EA3
         }
 
         // diese Methode kopiert die Signale aus dem listOfMuster in zufälliger Reihenfolge heraus und fügt diese dann in die Standard liste hinein.
-        private List<List<Signal>> copyIntoStandardPool(List<List<Signal>> listMuster)
+        private List<List<Signal>> copyIntoStandardPool(List<List<Signal>> listMuster, ref List<int> indexStandard)
         {
             int randomIndex = -1;
             int startIndex = 0;
@@ -447,7 +451,7 @@ namespace EA3
         }
 
         // diese Methode kopiert die Signale aus dem listOfMuster in zufälliger Reihenfolge heraus und fügt diese dann in die Standard liste hinein.
-        private List<List<Signal>> copyIntoGeneriertPool(List<List<Signal>> listMuster)
+        private List<List<Signal>> copyIntoGeneriertPool(List<List<Signal>> listMuster, ref List<int> indexGeneriert)
         {
             int randomIndex = -1;
             int startIndex = 0;

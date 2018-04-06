@@ -14,22 +14,24 @@
 			<StackPanel Height="221" Margin="50,50,50,50">
 				<StackPanel Height="75" Margin="0,0,0,0">
 					<TextBlock x:Name="TextBlockAge" Text="Alter" Padding="50,10,0,0" Margin="0,0,0,0"/>
-					<TextBox x:Name="TextBoxAge" Margin="300,-26,180,0" KeyDown="TextBoxAge_KeyDown"/>
+					<TextBox x:Name="TextBoxAge" Margin="400,-26,80,0" KeyDown="TextBoxAge_KeyDown"/>
 					<!-- -26 -->
 				</StackPanel>
 				<StackPanel Height="75" Margin="0,0,0,0">
-					<TextBlock x:Name="TextBlockMan" Text="Männlich" Padding="280,0,0,0" Margin="0,0,0,0"/>
-					<TextBlock x:Name="TextBlockWoman" Text="Weiblich" Padding="380,0,0,0" Margin="0,-20,0,0"/>
+					<TextBlock x:Name="TextBlockMan" Text="Männlich" Padding="330,0,0,0" Margin="0,0,0,0"/>
+					<TextBlock x:Name="TextBlockWoman" Text="Weiblich" Padding="430,0,0,0" Margin="0,-20,0,0"/>
+					<TextBlock x:Name="TextBlockNA" Text="N.A." Padding="546,0,0,0" Margin="0,-20,0,0"/>
 					<TextBlock x:Name="TextBlockSex" Text="Geschlecht" Padding="50,0,0,0" />
-					<RadioButton x:Name="RadioButtonMale" Width="50" Margin="300,-25,0,0"/>
-					<RadioButton x:Name="RadioButtonWoman" Width="50" Margin="400,-32,0,0"/>
+					<RadioButton x:Name="RadioButtonMale" Width="50" Margin="350,-25,0,0"/>
+					<RadioButton x:Name="RadioButtonWoman" Width="50" Margin="450,-32,0,0"/>
+					<RadioButton x:Name="RadioButtonNA" Width="50" Margin="550,-32,0,0"/>
 				</StackPanel>
 				<StackPanel Height="75" Margin="0,0,0,0">
-					<TextBlock x:Name="TextBlockMusicYes" Text="Ja" Padding="303,0,0,0" Margin="0,0,0,0"/>
-					<TextBlock x:Name="TextBlockMusicNo" Text="Nein" Padding="393,0,0,0" Margin="0,-20,0,0"/>
-					<TextBlock x:Name="TextBlockMusic" Text="Sind Sie musikalisch ?" Padding="50,0,0,0" Margin="0,0,0,0"/>
-					<RadioButton x:Name="RadioButtonMusicYes" Width="50" Margin="300,-25,0,0"/>
-					<RadioButton x:Name="RadioButtonMusicNo" Width="50" Margin="400,-32,0,0"/>
+					<TextBlock x:Name="TextBlockMusicYes" Text="Ja" Padding="453,0,0,0" Margin="0,0,0,0"/>
+					<TextBlock x:Name="TextBlockMusicNo" Text="Nein" Padding="543,0,0,0" Margin="0,-20,0,0"/>
+					<TextBlock x:Name="TextBlockMusic" Text="Empfinden Sie sich als musikalisch ?" Padding="50,0,0,0" Margin="0,0,0,0"/>
+					<RadioButton x:Name="RadioButtonMusicYes" Width="50" Margin="450,-25,0,0"/>
+					<RadioButton x:Name="RadioButtonMusicNo" Width="50" Margin="550,-32,0,0"/>
 				</StackPanel>
 				
 			</StackPanel>

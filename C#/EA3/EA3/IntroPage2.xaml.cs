@@ -42,7 +42,7 @@ namespace EA3
             TextBlockTaktil.Text = "Haben Sie Erfahrungen mit Taktilen Geräten ?";
             TextBlockTaktilYes.Text = "Ja";
             TextBlockTaktilNo.Text = "Nein";
-            TextBlockClock.Text = "Haben Sie schon einmal eine Pulsuhr / Smartwatch verwendet ?";
+            TextBlockClock.Text = "Haben Sie schon einmal eine Smart watch verwendet ?";
             TextBlockClockYes.Text = "Ja";
             TextBlockClockNo.Text = "Nein";
 

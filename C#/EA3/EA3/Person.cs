@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace EA3
 {
-    public enum Gender { MAN, WOMAN, NA };
+    public enum Gender { MAN, WOMAN, NA, NOINPUT };
     public enum Emotion { VERYMAD, MAD, OK, GOOD, VERYGOOD, NA };
     public class Person
     {

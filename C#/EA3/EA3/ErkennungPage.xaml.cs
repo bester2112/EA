@@ -120,8 +120,8 @@ namespace EA3
             int[] temp2 = new int[6];
             for (int i = 0; i < 6; i+=2)
             {
-                temp2[i] = 0;
-                temp2[i+1] = 1000;
+                temp2[i] = 100 * (i+ 1);
+                temp2[i+1] = 200 * (i+1);
             }
             temp.Add(temp2);
 
@@ -136,6 +136,8 @@ namespace EA3
 
             m = new Muster(temp[0], temp[1]);
             // TODO
+            listListSignal = m.getListGeneriert3();
+            
             //listListSignal = m.getListOfMuster();
 
             //listListSignal = m.getListStandard();
