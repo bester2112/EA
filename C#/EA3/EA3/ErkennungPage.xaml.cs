@@ -135,9 +135,10 @@ namespace EA3
             // ENDE TODO
 
             m = new Muster(temp[0], temp[1]);
-            listListSignal = m.getListOfMuster();
+            // TODO
+            //listListSignal = m.getListOfMuster();
 
-            listListSignal = m.getListStandard();
+            //listListSignal = m.getListStandard();
 
             signalList = listListSignal[index];
         }
