@@ -107,7 +107,33 @@ namespace EA3
         // erzeugt eine Liste Von mehreren Mustern
         private void createMuster()
         {
-            List<int[]> temp = rootPage.getZones();
+            List<int[]> temp = new List<int[]>();
+            //TODO DIESE ZEILE MUSS NACH DEM LÖSCHEN WIEDER REIN
+            // temp = rootPage.getZones();
+
+            if (rootPage.getGeneration() != 0)
+            {
+                temp = rootPage.getZones();
+            }
+            
+            //TODO DELETE HARD FIX NUR ZUM ZEIGEN 
+            int[] temp2 = new int[6];
+            for (int i = 0; i < 6; i+=2)
+            {
+                temp2[i] = 0;
+                temp2[i+1] = 1000;
+            }
+            temp.Add(temp2);
+
+            int[] temp3 = new int[6];
+            for (int i = 0; i < 6; i += 2)
+            {
+                temp3[i] = 1;
+                temp3[i + 1] = 5;
+            }
+            temp.Add(temp3);
+            // ENDE TODO
+
             m = new Muster(temp[0], temp[1]);
             listListSignal = m.getListOfMuster();
 
