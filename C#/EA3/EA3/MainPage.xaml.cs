@@ -978,7 +978,7 @@ namespace EA3
                 case SignalStrength.VERYSTRONG:
                     temp[0] = 0xFF;
                     temp[1] = 0x00;
-                break;
+                    break;
                 default:
 
                 break;
@@ -993,8 +993,18 @@ namespace EA3
 
             //setup.testWritingFile();
             //setup.newSaveInFileinCSharp();
-            testWritingFile2222("");
+            //testWritingFile2222("");
             //testWritingFile222();
+            
+            string time     = "1032";
+            string strength = "7FFF";
+
+            string[] temp = new string[2];
+            temp[0] = time;
+            temp[1] = strength;
+
+            playMuster(temp);
+
 
             testButton.Content = "TestButton DONE!";
         }
@@ -1051,7 +1061,7 @@ namespace EA3
             }
         }
 
-        public void testWritingFile222()
+        /*public void testWritingFile222()
         {
 
             string pathDir = Path.GetDirectoryName(@"c:") + "c:\\settings";
@@ -1087,7 +1097,7 @@ namespace EA3
                     Console.WriteLine(line);
                 }
             }
-        }
+        }*/
 
         private void testButton2(object sender, RoutedEventArgs e)
         {

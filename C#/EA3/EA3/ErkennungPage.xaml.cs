@@ -39,7 +39,7 @@ namespace EA3
         private List<SignalTyp> sList;
         private List<List<SignalTyp>> allSignalList;
         private List<long> sTime;
-        private int index;
+        //private int index;
         private List<Signal> signalList;
         private String genOrStan;
 
@@ -77,7 +77,7 @@ namespace EA3
 
             // Variablen Initialisierung 
             countButtonClicks = 0;
-            index = 0;
+            //index = 0;
             indexStandard = 0;
             indexGenetic = 0;
             musterTime = 0;
@@ -131,24 +131,26 @@ namespace EA3
             {
                 temp = rootPage.getZones();
             }
-            
-            //TODO DELETE HARD FIX NUR ZUM ZEIGEN 
-            int[] temp2 = new int[6];
-            for (int i = 0; i < 6; i+=2)
+            else
             {
-                temp2[i] = 100 * (i+ 1);
-                temp2[i+1] = 200 * (i+1);
-            }
-            temp.Add(temp2);
+                //TODO DELETE HARD FIX NUR ZUM ZEIGEN 
+                int[] temp2 = new int[6];
+                for (int i = 0; i < 6; i += 2)
+                {
+                    temp2[i] = 100 * (i + 1);
+                    temp2[i + 1] = 200 * (i + 1);
+                }
+                temp.Add(temp2);
 
-            int[] temp3 = new int[6];
-            for (int i = 0; i < 6; i += 2)
-            {
-                temp3[i] = 1;
-                temp3[i + 1] = 5;
+                int[] temp3 = new int[6];
+                for (int i = 0; i < 6; i += 2)
+                {
+                    temp3[i] = 1;
+                    temp3[i + 1] = 5;
+                }
+                temp.Add(temp3);
+                // ENDE TODO
             }
-            temp.Add(temp3);
-            // ENDE TODO
 
             m = new Muster(temp[0], temp[1]);
             // TODO
@@ -161,7 +163,7 @@ namespace EA3
             // get next Signal
             nextSignal();
 
-            // die nächste zeile wird durch nextSignal() ausgeführt
+            // die nächste Zeile wird durch nextSignal() ausgeführt
             //signalList = geneticMuster[indexGenetic];
         }
 
@@ -215,6 +217,7 @@ namespace EA3
             }
         }
 
+        // überprüft, ob noch muster vorhanden sind, die noch nicht abgefragt wurden
         public bool nextSignalIsAvailable()
         {
             bool res = true;
@@ -244,6 +247,8 @@ namespace EA3
             rootPage.playMuster(replayStrings);
         }
 
+
+        // erstellt einen String für die aus der stärke und der zeit
         public string[] createString()
         {
             // erstelle den String / Hex, der benötigt wird um das Signal abzuspielen
@@ -258,9 +263,10 @@ namespace EA3
             {
                 Signal s = signalList[i];
                 //s.getTime(), s.getStrength()
-                tempTime[i] = s.getTime();
-                tempStrength[i] = (int) s.getStrength();
 
+                tempTime[i] = s.getTime();
+                tempStrength[i] = (int)s.getStrength();
+                
                 musterTime += tempTime[i];
 
                 int modus;
@@ -307,19 +313,19 @@ namespace EA3
         }
        
         // bestaetige die Eingabe
-        private async void CommitButton_Click(object sender, RoutedEventArgs e)
+        private void CommitButton_Click(object sender, RoutedEventArgs e)
         {
             activateComittButton();
             //es gespeichert (usw werden)
 
             countButtonClicks = 0;
-            // TODO3567
-            index++;
+            // DONE3567 
+            /*index++;
             if (index == listListSignal.Count)
             {
                 var dialog = new MessageDialog("Die Studie ist erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
                 await dialog.ShowAsync();
-            }
+            }*/
 
             // TODO678 zuerst muss gespeichert werden, was 
 

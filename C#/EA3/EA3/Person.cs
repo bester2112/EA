@@ -116,6 +116,8 @@ namespace EA3
             string str = "";
 
             str += string.Format("Alter : {0}" + Environment.NewLine + "Geschlecht: {1}", this.age, this.sex) + Environment.NewLine;
+            str += string.Format("Musikalisch ? = {0}" + Environment.NewLine + "spielt Spiele ? = {1}" + Environment.NewLine + 
+                                 "used Watch ? = {2}" + Environment.NewLine + "used tactile ? = {3}", this.musically, this.games, this.watch, this.tactile);
 
             str += "Stimmung in der " + Environment.NewLine;
             for (int i = 0; i < this.emotes.Count; i++)

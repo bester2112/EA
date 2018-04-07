@@ -37,7 +37,7 @@ namespace EA3
         WEAK = 2,
         OK = 3,
         STRONG = 4,
-        VERYSTRONG = 5, 
+        VERYSTRONG = 5,
         NODATA = -1 
     }
 
