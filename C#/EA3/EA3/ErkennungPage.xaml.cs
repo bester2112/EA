@@ -25,7 +25,14 @@ namespace EA3
     public sealed partial class ErkennungPage : Page
     {
         private Muster m;
-        List<List<Signal>> listListSignal;
+        private List<List<Signal>> listListSignal;
+        private List<List<Signal>> standardMuster;
+        private List<List<Signal>> geneticMuster;
+        private List<List<Signal>> allMusterList;
+        private List<String> allGenORStandList;
+        private int indexStandard;
+        private int selectedMuster;
+        private int indexGenetic;
         private MainPage rootPage;
         private long startTime;
         private int countButtonClicks;
@@ -34,6 +41,7 @@ namespace EA3
         private List<long> sTime;
         private int index;
         private List<Signal> signalList;
+        private String genOrStan;
 
         private int musterTime;
         private string[] replayStrings;
@@ -70,12 +78,20 @@ namespace EA3
             // Variablen Initialisierung 
             countButtonClicks = 0;
             index = 0;
+            indexStandard = 0;
+            indexGenetic = 0;
             musterTime = 0;
             replayStrings = new string[2];
             signalList = new List<Signal>();
             listListSignal = new List<List<Signal>>();
+            standardMuster = new List<List<Signal>>();
+            geneticMuster = new List<List<Signal>>();
+            selectedMuster = 0;
+
             sList = new List<SignalTyp>();
             allSignalList = new List<List<SignalTyp>>();
+            allMusterList = new List<List<Signal>>();
+            allGenORStandList = new List<String>();
             sTime = new List<long>();
 
             // Cursor auf Startposition setzen 
@@ -136,13 +152,77 @@ namespace EA3
 
             m = new Muster(temp[0], temp[1]);
             // TODO
-            listListSignal = m.getListGeneriert3();
-            
-            //listListSignal = m.getListOfMuster();
+            //listListSignal = m.getListGeneriert3();
+            // lade die 3er Muster / die Muster sind schon zufällig verteilt.
+            geneticMuster = m.getListGeneriert3();
+            standardMuster = m.getListStandard3();
+            selectedMuster = 3;
 
-            //listListSignal = m.getListStandard();
+            // get next Signal
+            nextSignal();
 
-            signalList = listListSignal[index];
+            // die nächste zeile wird durch nextSignal() ausgeführt
+            //signalList = geneticMuster[indexGenetic];
+        }
+
+        public async void nextSignal()
+        {
+            if (nextSignalIsAvailable())
+            {
+                // wenn es verfügbar ist, dann soll ein nächstes Signal genommen werden.
+                if (indexGenetic <= indexStandard)
+                {
+                    signalList = geneticMuster[indexGenetic];
+                    genOrStan = "Standard";
+                    indexGenetic++;
+                }
+                else // indexGenetic > indexStandard
+                {
+                    signalList = standardMuster[indexStandard];
+                    genOrStan = "Genetisch";
+                    indexStandard++;
+                }
+            }              
+            else
+            {
+                // ansonsten muss das nächste paar gewählt werden also 4er / 5er 
+                switch (selectedMuster)
+                {
+                    case 3:
+                        // alle 3er Muster wurden schon abgearbeitet. 
+                        geneticMuster = m.getListGeneriert4();
+                        standardMuster = m.getListStandard4();
+                        selectedMuster = 4;
+                        break;
+                    case 4:
+                        // alle 4er Muster wurden schon abgearbeitet
+                        geneticMuster = m.getListGeneriert5();
+                        standardMuster = m.getListStandard5();
+                        selectedMuster = 5;
+                        break;
+                    case 5:
+                        // alle 5er Muster sind abgearbeitet worden,
+                        // TODO Mache das, was gemacht werden soll, wenn alles fertig ist
+                        var dialog = new MessageDialog("Die Studie ist erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
+                        await dialog.ShowAsync();
+                        break;
+                    default:
+                        Debug.WriteLine("fehler in der nextSignal() ErrinnerungsPage.cs Methode \n");
+                        break;
+                }
+                indexGenetic  = 0;
+                indexStandard = 0;
+            }
+        }
+
+        public bool nextSignalIsAvailable()
+        {
+            bool res = true;
+            if (indexGenetic == indexStandard && indexStandard == geneticMuster.Count) // testen vllt Capacity - 1
+            {
+                res = false;
+            }
+            return res;
         }
 
         /**
@@ -233,17 +313,26 @@ namespace EA3
             //es gespeichert (usw werden)
 
             countButtonClicks = 0;
+            // TODO3567
             index++;
             if (index == listListSignal.Count)
             {
                 var dialog = new MessageDialog("Die Studie ist erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
                 await dialog.ShowAsync();
             }
-            signalList = listListSignal[index];
+
+            // TODO678 zuerst muss gespeichert werden, was 
+
+            nextSignal();
+            // die nächste Zeile wird mit der Zeile obendrüber ersetzt
+            //signalList = listListSignal[index];
 
             string[] tmp = createString(); // erstelle aus den Muster jetzt einen String, fuer das Abspielen des Signals
             playSignal(tmp); // Signal abspielen
 
+            // TODO4137 hier müssen noch alle anderen Parameter gespeichert werden 
+            allGenORStandList.Add(genOrStan);
+            allMusterList.Add(signalList);
             allSignalList.Add(sList);
             sList = new List<SignalTyp>();
             printOnScreen();
