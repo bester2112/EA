@@ -1030,6 +1030,11 @@ namespace EA3
             result = await picker.PickSingleFileAsync();
         }
 
+        public void saveErkennungsData(string data)
+        {
+            testWritingFile2222(data); 
+        }
+
         public async void testWritingFile2222(string input)
         {
             if(result == null)
@@ -1270,39 +1275,50 @@ namespace EA3
             return res;
         }
 
+        public void saveAllPersonData()
+        {
+            string temp = "";
+            #region Angaben zur Person und Emotion
+            temp = "Angaben zur Person" + Environment.NewLine;
+            temp += line();
+
+            temp += this.user.ToString();
+
+            temp += line();
+            testWritingFile2222(temp);
+            #endregion
+        }
+
+        public void saveInitSignal()
+        {
+            #region Init Signal
+            string temp = "";
+            temp = "Init Signal" + Environment.NewLine;
+            temp += line();
+            for (int iX = 0; iX < initPopulation.Count; iX++)
+            {
+                temp += initPopulation[iX].createStringInitialSignal();
+            }
+
+            temp += line();
+            testWritingFile2222(temp);
+            #endregion
+        }
+
         bool firstTimeWritten = false;
         public bool saveAllData()
         {
             bool res = false;
             string allInput = "empty";
             string temp = "";
+            #region create String
+            /*
             if (!firstTimeWritten)
             {
                 firstTimeWritten = true;
                 // erstelle den String 
                 #region create String
-                #region Angaben zur Person und Emotion
-                temp = "Angaben zur Person" + Environment.NewLine;
-                temp += line();
-
-                temp += this.user.ToString();
-
-                temp += line();
-                allInput = temp;
-                #endregion
-                #region Init Signal
-                temp = "";
-                temp = "Init Signal" + Environment.NewLine;
-                temp += line();
-                for (int iX = 0; iX < initPopulation.Count; iX++)
-                {
-                    temp += initPopulation[iX].createStringInitialSignal();
-                }
-
-                temp += line();
-                allInput += temp;
-                #endregion
-            }
+            }*/
             
             #region Algo Signal
             temp = "Algorithmus Signal" + Environment.NewLine;

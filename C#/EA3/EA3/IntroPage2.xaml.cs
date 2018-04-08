@@ -118,6 +118,7 @@ namespace EA3
 
                 // Daten werden in der rootpage gespeichert
                 rootPage.setOtherPersonValues(this.usedTactil, this.usedWatch, this.playedGames);
+                rootPage.saveAllPersonData();
                 // Frame wird zu InitSignalPage gewechelt
                 rootPage.changeToFrame(typeof(InitSignalPage));
 

@@ -57,6 +57,8 @@ namespace EA3
 
         private long startTime;                         // ist die Startzeit von der Zeitmessung der Bewertung vom Benuter
 
+        private int totalMuster;                        // speichert, wie viele Muster bisher abgespielt wurden.
+
         public ErkennungPage()
         {
             this.InitializeComponent();
@@ -87,28 +89,42 @@ namespace EA3
             await dialog.ShowAsync();
 
             // Variablen Initialisierung 
-            countButtonClicks = 0;
-            indexStandard = 0;
-            indexGenetic = 0;
-            musterTime = 0;
-            replayStrings = new string[2];
-            signalList = new List<Signal>();
             standardMuster = new List<List<Signal>>();
+            indexStandard = 0;
+
             geneticMuster = new List<List<Signal>>();
-            selectedMuster = 0;
-            countReplays = 0;
-            allReplays = new List<int>();
+            indexGenetic = 0;
+
+            signalList = new List<Signal>();
+            allMusterList = new List<List<Signal>>();
 
             sList = new List<SignalTyp>();
-            allMusterList = new List<List<Signal>>();
+            allSignalList = new List<List<SignalTyp>>();
 
             sTime = new List<long>();
             allTimeList = new List<List<long>>();
 
-            allSignalList = new List<List<SignalTyp>>();
+            genOrStan = "MUHH";
             allGenORStandList = new List<String>();
 
+            countReplays = 0;
+            allReplays = new List<int>();
 
+            replayStrings = new string[2];
+
+            selectedMuster = 0;
+            countButtonClicks = 0;
+
+            musterTime = 0;
+
+
+            commitButton.Visibility = Visibility.Collapsed;
+            ButtonKurz.Visibility = Visibility.Collapsed;
+            ButtonMittel.Visibility = Visibility.Collapsed;
+            ButtonLang.Visibility = Visibility.Collapsed;
+            clearButton.Visibility = Visibility.Collapsed;
+            pressedButtonText.Text = "Bitte Warten ... ";
+            
             // Cursor auf Startposition setzen 
             int[] temp = rootPage.getMousePosition("ErkennungPage");
             rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
@@ -128,8 +144,11 @@ namespace EA3
             // Warte eine Zeit, bis das Signal abgespielt wurde
 
             // verstecken des Commit buttons
-            commitButton.Visibility = Visibility.Collapsed;
             pressedButtonText.Text = "";
+            ButtonKurz.Visibility = Visibility.Visible;
+            ButtonMittel.Visibility = Visibility.Visible;
+            ButtonLang.Visibility = Visibility.Visible;
+            clearButton.Visibility = Visibility.Visible;
 
             // Starten der Zeit 
             this.startTime = Environment.TickCount;
@@ -182,13 +201,13 @@ namespace EA3
                 if (indexGenetic <= indexStandard)
                 {
                     signalList = geneticMuster[indexGenetic];
-                    genOrStan = "Standard";
+                    genOrStan = "Genetisch";
                     indexGenetic++;
                 }
                 else // indexGenetic > indexStandard
                 {
                     signalList = standardMuster[indexStandard];
-                    genOrStan = "Genetisch";
+                    genOrStan = "Standard";
                     indexStandard++;
                 }
             }              
@@ -218,6 +237,7 @@ namespace EA3
                         // TODO Mache das, was gemacht werden soll, wenn alles fertig ist
                         var dialog = new MessageDialog("Die Studie ist nach der folgenden Bewertung erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
                         await dialog.ShowAsync();
+                        printEverything();
                         break;
                     default:
                         Debug.WriteLine("fehler in der nextSignal() ErrinnerungsPage.cs Methode \n");
@@ -336,7 +356,7 @@ namespace EA3
             playMuster();
         }
 
-        private void playMuster()
+        private async void playMuster()
         {
             // Hole Signal das nächste Signal
             nextSignal();
@@ -345,7 +365,15 @@ namespace EA3
             string[] tmp = createString(); // erstelle aus den ersten Muster jetzt einen String, fuer das Abspielen des Signals
 
             // Spiele Muster ab
-            playSignal(tmp); // Signal abspielen
+            if (totalMuster <= 90)
+            {
+                playSignal(tmp); // Signal abspielen
+            }
+            else
+            {
+                Debug.WriteLine("BLA");
+            }
+            totalMuster++;
 
             // Speicher Daten vom Muster
             // Eingabe von der letzten Vibration speichern
@@ -357,12 +385,32 @@ namespace EA3
             sList = new List<SignalTyp>();
             sTime = new List<long>();
 
+            if (totalMuster > 90)
+            {
+                var dialog = new MessageDialog("Die Studie ist nach der folgenden Bewertung erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
+                await dialog.ShowAsync();
+
+                disableAllButtons();
+                string allDataString = printEverything();
+                saveAllData(allDataString);
+                return;
+            }
+
             // Variablen für die nächste Vibration speichern
             allGenORStandList.Add(genOrStan);
             allMusterList.Add(signalList);
 
             this.startTime = Environment.TickCount;
             printOnScreen();
+        }
+
+        private void disableAllButtons()
+        {
+            ButtonKurz.Visibility = Visibility.Collapsed;
+            ButtonMittel.Visibility = Visibility.Collapsed;
+            ButtonLang.Visibility = Visibility.Collapsed;
+            commitButton.Visibility = Visibility.Collapsed;
+            clearButton.Visibility = Visibility.Collapsed;
         }
 
         private void playMusterOnceForInit()
@@ -375,6 +423,7 @@ namespace EA3
 
             // Spiele Muster ab
             playSignal(tmp); // Signal abspielen
+            totalMuster++; // zählt den counter hoch 
 
             // Speicher Daten vom Muster
             allGenORStandList.Add(genOrStan);
@@ -392,6 +441,73 @@ namespace EA3
             ButtonKurz.Visibility = Visibility.Visible;
             ButtonMittel.Visibility = Visibility.Visible;
             ButtonLang.Visibility = Visibility.Visible;
+        }
+
+
+        private string printEverything()
+        {
+            string str = "";
+
+            str += "ERKENNUNG" + Environment.NewLine;
+            for (int i = 0; i < 90; i++)
+            {
+                str += "---------" + Environment.NewLine;
+                str += string.Format(" --- {0}.Erkennungs  Muster-- -", i) + Environment.NewLine;
+
+                string compromised = "";
+                string sallMusterString = "";
+                string pauseTimeTemp = "";
+                List<Signal> sTemp = allMusterList[i];
+                string tempComp = "";
+                for (int j = 0; j < sTemp.Count; j++)
+                {
+                    if (j%2 == 0)
+                    {
+                        sallMusterString += string.Format("{0} ", sTemp[j].getType());
+                        compromised += string.Format("{0},", sTemp[j].getType());
+                    }
+                    else
+                    {
+                        pauseTimeTemp += string.Format("  {0}.         :        {1}ms", (j + 1),
+                                                        sTemp[j].getTime()) + Environment.NewLine;
+                        tempComp += string.Format("{0},",sTemp[j].getTime());
+                    }
+                }
+
+                string sallSignalString = "";
+                List<SignalTyp> sTypTemp = allSignalList[i];
+                for (int j = 0; j < sTypTemp.Count; j++)
+                {
+                    sallSignalString += string.Format("{0} ", sTypTemp[j].ToString("F"));
+                    compromised += string.Format("{0},", sTypTemp[j].ToString("F"));
+                }
+
+                string sallTimeString = "";
+                List<long> sTimeTemp = allTimeList[i];
+                str += string.Format(" Zeit benötigt : ") + Environment.NewLine;
+                for (int j = 0; j < sTimeTemp.Count; j++)
+                {
+                    sallTimeString += string.Format("  {0}.         :        {1}ms", (j + 1), sTimeTemp[j]) + Environment.NewLine;
+                    compromised += string.Format("{0},", sTimeTemp[j]);
+                }
+
+                str += string.Format(" Muster Typ :         {0}", this.allGenORStandList[i]) + Environment.NewLine;
+                str += string.Format(" Muster abgespielt :  {0}", sallMusterString) + Environment.NewLine;
+                str += string.Format(" Muster erkannt :     {0}", sallSignalString) + Environment.NewLine;
+                str += string.Format("{0}", sallTimeString);
+                str += string.Format(" #Replays:            {0}", this.allReplays[i]) + Environment.NewLine;
+
+                compromised += tempComp;
+
+                str += string.Format("{0},{1}{2}", this.allGenORStandList[i], compromised, this.allReplays[i]) + Environment.NewLine;
+            }
+            
+            return str;
+        }
+
+        private void saveAllData(string data)
+        {
+            rootPage.saveErkennungsData(data);
         }
 
 

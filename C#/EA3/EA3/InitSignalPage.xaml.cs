@@ -141,6 +141,7 @@ namespace EA3
                     await dialog.ShowAsync();
 
                     rootPage.saveInitPopulationBeforeNextStep();
+                    rootPage.saveInitSignal();
 
                     // Frame wird zu AlgoSignalPage gewechelt
                     rootPage.changeToFrame(typeof(AlgoSignalPage));
