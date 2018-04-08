@@ -24,27 +24,37 @@ namespace EA3
     /// </summary>
     public sealed partial class ErkennungPage : Page
     {
-        private Muster m;
-        private List<List<Signal>> listListSignal;
-        private List<List<Signal>> standardMuster;
-        private List<List<Signal>> geneticMuster;
-        private List<List<Signal>> allMusterList;
-        private List<String> allGenORStandList;
-        private int indexStandard;
-        private int selectedMuster;
-        private int indexGenetic;
-        private MainPage rootPage;
-        private long startTime;
-        private int countButtonClicks;
-        private List<SignalTyp> sList;
-        private List<List<SignalTyp>> allSignalList;
-        private List<long> sTime;
-        //private int index;
-        private List<Signal> signalList;
-        private String genOrStan;
+        private MainPage rootPage;                      // referenz zur StartSeite
+        private Muster m;                               // Objekt das alle Muster generiert (usw)
 
-        private int musterTime;
-        private string[] replayStrings;
+        private List<List<Signal>> standardMuster;      // beinhaltet alle Muster von den Standartisierten Signalen
+        private int indexStandard;                      // Indexvariable für standardMuster 
+
+        private List<List<Signal>> geneticMuster;       // beinhaltet alle Muster von den generierten Signalen
+        private int indexGenetic;                       // Indexvariable für geneticMuster 
+
+        private List<Signal> signalList;                // ist das aktuell abgespielte Muster; es wird aus der standardMuster- oder geneticMuster-Liste genommen
+        private List<List<Signal>> allMusterList;       // diese Liste beinhaltet alle Muster die abgefragt werden, d.h. alle in der reihenfolge, wie sie abgefragt wurden
+
+        private List<SignalTyp> sList;                  // speichert die Eingabe, (K, M, L)-Reihenfolge, was der Benutzer erkannt hat.
+        private List<List<SignalTyp>> allSignalList;    // speichert für jedes Muster, was der Benutzer als Muster erkannt hat.
+        
+        private String genOrStan;                       // String, das speichert, ob ein generalisiertes oder standardtisiertes Muster aktuell abgespielt wird
+        private List<String> allGenORStandList;         // die Liste speichert, was für ein Typ von Signal abgespielt wurde (ein generiertes oder ein standardtisiertes Muster)
+        
+        private int countReplays;                       // gibt die Anzahl an, wie oft der Replay Button gedrückt wurde.
+        private List<int> allReplays;                   // speichert für jedes abgespielte Muster, wie oft Replay gedrückt wurde
+
+        private string[] replayStrings;                 // speichert den Hex String von Time und Strength, wird verwendet um ohne neuberechnung ein Signal erneut abzuspielen.
+
+        private int selectedMuster;                     // gibt an, wie viele Signale aktuell in dem Muster vorhanden sind.
+        private int countButtonClicks;                  // gibt an, wie oft eine Eingabe pro Muster getätigt werden kann (Kurz, Mittel, Lang Button druck) 
+
+        private long startTime;                         // 
+        private List<long> sTime;                       // 
+
+        private int musterTime;                         // 
+        
 
         public ErkennungPage()
         {
@@ -77,20 +87,22 @@ namespace EA3
 
             // Variablen Initialisierung 
             countButtonClicks = 0;
-            //index = 0;
             indexStandard = 0;
             indexGenetic = 0;
             musterTime = 0;
             replayStrings = new string[2];
             signalList = new List<Signal>();
-            listListSignal = new List<List<Signal>>();
             standardMuster = new List<List<Signal>>();
             geneticMuster = new List<List<Signal>>();
             selectedMuster = 0;
+            countReplays = 0;
+            allReplays = new List<int>();
+
 
             sList = new List<SignalTyp>();
-            allSignalList = new List<List<SignalTyp>>();
             allMusterList = new List<List<Signal>>();
+
+            allSignalList = new List<List<SignalTyp>>();
             allGenORStandList = new List<String>();
             sTime = new List<long>();
 
@@ -98,17 +110,17 @@ namespace EA3
             int[] temp = rootPage.getMousePosition("ErkennungPage");
             rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
             
-            // TODO 1. erstelle 2 mal einen Pool 
-            // TODO 2. ziehe in zufälliger Zeihenfolge ein Signal aus dem Pool 
+            // DONE 1. erstelle 2 mal einen Pool 
+            // DONE 2. ziehe in zufälliger Zeihenfolge ein Signal aus dem Pool 
             // bzw erstelle einen Pool der in gegebener Reihenfolge die gleichen Signale hat (standardwerte / generiert) 
             // danach nehme nach einander zufällig die Signale aus dem Pool in die 2 neuen Pools 
             // DONE Median berechnet : es soll der Mittelwert genommen werden und nicht der intervallbereich um die Signale zu erzeugen, d.h. es gibt nur einen mittel / kurz / langen wert das gleiche bei der stärke
             // es soll dann auswählbar sein, ob das zuerst die normalen signale alle abgespielt werden können, dann die generierten / andersrum oder gemischt
 
+            // Muster wurden erzeugt
             createMuster(); // erstelle Muster
-            string[] tmp = createString(); // erstelle aus den ersten Muster jetzt einen String, fuer das Abspielen des Signals
 
-            playSignal(tmp); // Signal abspielen
+            playMuster();
 
             // Warte eine Zeit, bis das Signal abgespielt wurde
 
@@ -118,13 +130,14 @@ namespace EA3
 
             // Starten der Zeit 
             this.startTime = Environment.TickCount;
+
         }
 
         // erzeugt eine Liste Von mehreren Mustern
         private void createMuster()
         {
             List<int[]> temp = new List<int[]>();
-            //TODO DIESE ZEILE MUSS NACH DEM LÖSCHEN WIEDER REIN
+            //DONE DIESE ZEILE MUSS NACH DEM LÖSCHEN WIEDER REIN
             // temp = rootPage.getZones();
 
             if (rootPage.getGeneration() != 0)
@@ -133,7 +146,8 @@ namespace EA3
             }
             else
             {
-                //TODO DELETE HARD FIX NUR ZUM ZEIGEN 
+                //TODO DELETE HARD FIX NUR ZUM ZEIGEN  
+                // DIESER CODE WIRD NICHT AUSGEFÜHRT, IN DER EIGENTLICHEN STUDIE
                 int[] temp2 = new int[6];
                 for (int i = 0; i < 6; i += 2)
                 {
@@ -153,18 +167,12 @@ namespace EA3
             }
 
             m = new Muster(temp[0], temp[1]);
-            // TODO
-            //listListSignal = m.getListGeneriert3();
+
             // lade die 3er Muster / die Muster sind schon zufällig verteilt.
             geneticMuster = m.getListGeneriert3();
             standardMuster = m.getListStandard3();
             selectedMuster = 3;
 
-            // get next Signal
-            nextSignal();
-
-            // die nächste Zeile wird durch nextSignal() ausgeführt
-            //signalList = geneticMuster[indexGenetic];
         }
 
         public async void nextSignal()
@@ -245,6 +253,7 @@ namespace EA3
         private void Replay(object sender, RoutedEventArgs e)
         {
             rootPage.playMuster(replayStrings);
+            countReplays++;
         }
 
 
@@ -319,24 +328,37 @@ namespace EA3
             //es gespeichert (usw werden)
 
             countButtonClicks = 0;
-            // DONE3567 
-            /*index++;
-            if (index == listListSignal.Count)
-            {
-                var dialog = new MessageDialog("Die Studie ist erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
-                await dialog.ShowAsync();
-            }*/
 
+            playMuster();
             // TODO678 zuerst muss gespeichert werden, was 
-
+            /*
             nextSignal();
-            // die nächste Zeile wird mit der Zeile obendrüber ersetzt
-            //signalList = listListSignal[index];
 
             string[] tmp = createString(); // erstelle aus den Muster jetzt einen String, fuer das Abspielen des Signals
             playSignal(tmp); // Signal abspielen
 
             // TODO4137 hier müssen noch alle anderen Parameter gespeichert werden 
+            allGenORStandList.Add(genOrStan);
+            allMusterList.Add(signalList);
+            allSignalList.Add(sList);
+            sList = new List<SignalTyp>();
+            printOnScreen();*/
+        }
+
+        void playMuster()
+        {
+            // Hole Signal das nächste Signal
+            nextSignal();
+
+            // erzeuge einen String vom Muster
+            string[] tmp = createString(); // erstelle aus den ersten Muster jetzt einen String, fuer das Abspielen des Signals
+
+            // Spiele Muster ab
+            playSignal(tmp); // Signal abspielen
+
+            // Speicher Daten vom Muster
+            allReplays.Add(countReplays);
+            countReplays = 0;
             allGenORStandList.Add(genOrStan);
             allMusterList.Add(signalList);
             allSignalList.Add(sList);

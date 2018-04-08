@@ -60,10 +60,10 @@ namespace EA3
         private async void initialize()
         {
             // Erklärung darstellen
-            var dialog = new MessageDialog("Es wird Ihnen jetzt nacheinander Signale (einmalig) abgespielt, " +
-                "wenn Sie das Signal bewertet haben wird Ihnen das nächste Signal abgespielt. " +
-                "Sie können das Signal auch noch mal erneut abspielen lassen.");
-            await dialog.ShowAsync();
+            //var dialog = new MessageDialog("Es wird Ihnen jetzt nacheinander Signale (einmalig) abgespielt, " +
+            //    "wenn Sie das Signal bewertet haben wird Ihnen das nächste Signal abgespielt. " +
+            //    "Sie können das Signal auch noch mal erneut abspielen lassen.");
+            //await dialog.ShowAsync();
 
             // Signal abspielen 
             playSignal();
@@ -134,7 +134,7 @@ namespace EA3
                     // Es kann jetzt die Berechnung der Grenzen für Kurz, Mittel und Lang erfolgen.
                     // Der Benutzer hat alle Daten korrekt eingegeben und die Berechnung ist erfolgt und nun kann der Algorithmus Starten
                     var dialog = new MessageDialog("Ihre Eingabe wurde erfolgreich evaluiert\n" +
-                                                 "Bitte drücken Sie auf den Knopf 'Schritt 2' um mit den Programm fortzufahren.");
+                                                   "Bitte drücken Sie auf den 'Bestätigen' um mit den Programm fortzufahren.");
                     await dialog.ShowAsync();
 
                     rootPage.saveInitPopulationBeforeNextStep();
@@ -147,7 +147,7 @@ namespace EA3
                     // Der Benutzer hat Eingabe Falsch Evaluiert und es sind keine validen Daten herausgekommen, mit
                     // dem das Programm weiter rechnen kann.
                     var dialog = new MessageDialog("Ihre Daten die Sie eingegeben haben sind leider zu sehr verfälscht.\n" +
-                                                 "Sie müssen die Daten erneut eingeben ");
+                                                   "Sie müssen die Daten erneut eingeben ");
                     await dialog.ShowAsync();
                     // falls ein Fehler aufgetreten ist, wird nach der Fehlermeldung die playSignal Methode erneut ausgeführt, da es keinen Ausloeser / Event mehr gibt um einen Signal zu starten.
 
