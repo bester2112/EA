@@ -84,14 +84,14 @@ namespace EA3
             return onceMore <= numOfPopulation;
         }
 
-        public void saveSignalType(SignalTyp signal, long time)
+        public void saveSignalType(SignalTyp signal, long time, int countReplay)
         {
-            population[randomIndex].setSignalType(signal, time);
+            population[randomIndex].setSignalType(signal, time, countReplay);
         }
 
-        public void saveSignalAlgo(SignalTyp signaltyp, SignalRating rating, SignalStrength signalStrength, long timeSignal, long timeRating, long timeStrength)
+        public void saveSignalAlgo(SignalTyp signaltyp, SignalRating rating, SignalStrength signalStrength, long timeSignal, long timeRating, long timeStrength, int countReplay)
         {
-            population[randomIndex].setSignalAlgo(signaltyp, rating, signalStrength, timeSignal, timeRating, timeStrength);
+            population[randomIndex].setSignalAlgo(signaltyp, rating, signalStrength, timeSignal, timeRating, timeStrength, countReplay);
         }
 
         public void saveSignalRating(SignalRating rating)
@@ -871,7 +871,7 @@ namespace EA3
             }
             str += Environment.NewLine;
             str += line();
-            
+
             return str;
         }
         public string createStringAlgoSignal()

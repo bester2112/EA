@@ -38,7 +38,10 @@ namespace EA3
 
         private List<SignalTyp> sList;                  // speichert die Eingabe, (K, M, L)-Reihenfolge, was der Benutzer erkannt hat.
         private List<List<SignalTyp>> allSignalList;    // speichert für jedes Muster, was der Benutzer als Muster erkannt hat.
-        
+
+        private List<long> sTime;                       // speichert die  Zeit, die für die Eingabe benötigt wurde, was der Benutzer erkannt hat.
+        private List<List<long>> allTimeList;           // speichert für jedes Muster die Zeit, in der der Benutzer das Muster erkannt hat.
+
         private String genOrStan;                       // String, das speichert, ob ein generalisiertes oder standardtisiertes Muster aktuell abgespielt wird
         private List<String> allGenORStandList;         // die Liste speichert, was für ein Typ von Signal abgespielt wurde (ein generiertes oder ein standardtisiertes Muster)
         
@@ -50,11 +53,9 @@ namespace EA3
         private int selectedMuster;                     // gibt an, wie viele Signale aktuell in dem Muster vorhanden sind.
         private int countButtonClicks;                  // gibt an, wie oft eine Eingabe pro Muster getätigt werden kann (Kurz, Mittel, Lang Button druck) 
 
-        private long startTime;                         // 
-        private List<long> sTime;                       // 
-
         private int musterTime;                         // 
-        
+
+        private long startTime;                         // ist die Startzeit von der Zeitmessung der Bewertung vom Benuter
 
         public ErkennungPage()
         {
@@ -98,13 +99,15 @@ namespace EA3
             countReplays = 0;
             allReplays = new List<int>();
 
-
             sList = new List<SignalTyp>();
             allMusterList = new List<List<Signal>>();
 
+            sTime = new List<long>();
+            allTimeList = new List<List<long>>();
+
             allSignalList = new List<List<SignalTyp>>();
             allGenORStandList = new List<String>();
-            sTime = new List<long>();
+
 
             // Cursor auf Startposition setzen 
             int[] temp = rootPage.getMousePosition("ErkennungPage");
@@ -120,7 +123,7 @@ namespace EA3
             // Muster wurden erzeugt
             createMuster(); // erstelle Muster
 
-            playMuster();
+            playMusterOnceForInit();
 
             // Warte eine Zeit, bis das Signal abgespielt wurde
 
@@ -130,15 +133,12 @@ namespace EA3
 
             // Starten der Zeit 
             this.startTime = Environment.TickCount;
-
         }
 
         // erzeugt eine Liste Von mehreren Mustern
         private void createMuster()
         {
             List<int[]> temp = new List<int[]>();
-            //DONE DIESE ZEILE MUSS NACH DEM LÖSCHEN WIEDER REIN
-            // temp = rootPage.getZones();
 
             if (rootPage.getGeneration() != 0)
             {
@@ -172,7 +172,6 @@ namespace EA3
             geneticMuster = m.getListGeneriert3();
             standardMuster = m.getListStandard3();
             selectedMuster = 3;
-
         }
 
         public async void nextSignal()
@@ -203,17 +202,21 @@ namespace EA3
                         geneticMuster = m.getListGeneriert4();
                         standardMuster = m.getListStandard4();
                         selectedMuster = 4;
+                        var dialog4 = new MessageDialog("Nach dem nächsten Signal werden Muster mit 4 Signale abgespielt." + Environment.NewLine);
+                        await dialog4.ShowAsync();
                         break;
                     case 4:
                         // alle 4er Muster wurden schon abgearbeitet
                         geneticMuster = m.getListGeneriert5();
                         standardMuster = m.getListStandard5();
                         selectedMuster = 5;
+                        var dialog5 = new MessageDialog("Nach dem nächsten Signal werden Muster mit 5 Signale abgespielt." + Environment.NewLine);
+                        await dialog5.ShowAsync();
                         break;
                     case 5:
                         // alle 5er Muster sind abgearbeitet worden,
                         // TODO Mache das, was gemacht werden soll, wenn alles fertig ist
-                        var dialog = new MessageDialog("Die Studie ist erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
+                        var dialog = new MessageDialog("Die Studie ist nach der folgenden Bewertung erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
                         await dialog.ShowAsync();
                         break;
                     default:
@@ -315,6 +318,7 @@ namespace EA3
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
             sList = new List<SignalTyp>();
+            sTime = new List<long>();
             countButtonClicks = 0;
             printOnScreen();
 
@@ -330,22 +334,9 @@ namespace EA3
             countButtonClicks = 0;
 
             playMuster();
-            // TODO678 zuerst muss gespeichert werden, was 
-            /*
-            nextSignal();
-
-            string[] tmp = createString(); // erstelle aus den Muster jetzt einen String, fuer das Abspielen des Signals
-            playSignal(tmp); // Signal abspielen
-
-            // TODO4137 hier müssen noch alle anderen Parameter gespeichert werden 
-            allGenORStandList.Add(genOrStan);
-            allMusterList.Add(signalList);
-            allSignalList.Add(sList);
-            sList = new List<SignalTyp>();
-            printOnScreen();*/
         }
 
-        void playMuster()
+        private void playMuster()
         {
             // Hole Signal das nächste Signal
             nextSignal();
@@ -361,8 +352,29 @@ namespace EA3
             countReplays = 0;
             allGenORStandList.Add(genOrStan);
             allMusterList.Add(signalList);
+            allTimeList.Add(sTime);
             allSignalList.Add(sList);
             sList = new List<SignalTyp>();
+            sTime = new List<long>();
+            this.startTime = Environment.TickCount;
+            printOnScreen();
+        }
+
+        private void playMusterOnceForInit()
+        {
+            // Hole Signal das nächste Signal
+            nextSignal();
+
+            // erzeuge einen String vom Muster
+            string[] tmp = createString(); // erstelle aus den ersten Muster jetzt einen String, fuer das Abspielen des Signals
+
+            // Spiele Muster ab
+            playSignal(tmp); // Signal abspielen
+
+            // Speicher Daten vom Muster
+            allGenORStandList.Add(genOrStan);
+            allMusterList.Add(signalList);
+            this.startTime = Environment.TickCount;
             printOnScreen();
         }
 

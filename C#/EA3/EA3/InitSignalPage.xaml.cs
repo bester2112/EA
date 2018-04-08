@@ -32,6 +32,7 @@ namespace EA3
         private long startTime;
         private long endTime;
         private List<long> times;
+        private int countReplay;
         
 
         public InitSignalPage()
@@ -41,6 +42,7 @@ namespace EA3
             // Variablen initialisieren
             untypedSignal = SignalTyp.NODATA;
             times = new List<long>();
+            countReplay = 0;
 
             // Erklärungstext aufrufen und Zeit starten
             initialize();
@@ -60,10 +62,10 @@ namespace EA3
         private async void initialize()
         {
             // Erklärung darstellen
-            //var dialog = new MessageDialog("Es wird Ihnen jetzt nacheinander Signale (einmalig) abgespielt, " +
-            //    "wenn Sie das Signal bewertet haben wird Ihnen das nächste Signal abgespielt. " +
-            //    "Sie können das Signal auch noch mal erneut abspielen lassen.");
-            //await dialog.ShowAsync();
+            var dialog = new MessageDialog("Es wird Ihnen jetzt nacheinander Signale (einmalig) abgespielt, " +
+                "wenn Sie das Signal bewertet haben wird Ihnen das nächste Signal abgespielt. " +
+                "Sie können das Signal auch noch mal erneut abspielen lassen.");
+            await dialog.ShowAsync();
 
             // Signal abspielen 
             playSignal();
@@ -88,6 +90,7 @@ namespace EA3
             // TODO Replay Signal
             Signal signal = rootPage.setup.getLastSignal();
             rootPage.playSignalNow(signal); // spielt das aktullle Signal ab.
+            countReplay++;
         }
 
         #region UI RadioButtons
@@ -176,8 +179,9 @@ namespace EA3
         private async void evaluateClick()
         {
             // speicher den Zustand und die Zeit die benötigt wurde um das Signal zu erkennen
-            rootPage.setup.saveSignalTyp(untypedSignal, this.endTime - this.startTime);
-            
+            rootPage.setup.saveSignalTyp(untypedSignal, this.endTime - this.startTime, countReplay);
+            countReplay = 0;
+
 
             // kurzes Delay (in ms)
             await Task.Delay(400);

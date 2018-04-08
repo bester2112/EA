@@ -40,6 +40,7 @@ namespace EA3
         private bool bType;
         private bool bRating;
         private bool bStrength;
+        private int countReplay;
 
 
         public AlgoSignalPage()
@@ -73,6 +74,7 @@ namespace EA3
             diffTimeSignal   = -1;
             diffTimeRating   = -1;
             diffTimeStrength = -1;
+            countReplay      = 0;
         }
 
         private async void initialize()
@@ -102,6 +104,7 @@ namespace EA3
             // TODO 
             Signal signal = rootPage.setup.getLastSignal(); // noch abfragen, ob das Signal vorhanden ist und ich nicht NULL zurueck erhalte 
             rootPage.playSignalNow(signal); // spielt das aktullle Signal ab.
+            countReplay++;
         }
 
         #region UI Radiobuttons
@@ -309,7 +312,7 @@ namespace EA3
             /*  untypedSignal,  signalRating,   signalStrength
              *  diffTimeSignal, diffTimeRating, diffTimeStrength
              */
-            rootPage.setup.saveSignalAlgo(untypedSignal,  signalRating, signalStrength, diffTimeSignal, diffTimeRating, diffTimeStrength);
+            rootPage.setup.saveSignalAlgo(untypedSignal,  signalRating, signalStrength, diffTimeSignal, diffTimeRating, diffTimeStrength, countReplay);
 
             // kurzes Delay (in ms)
             await Task.Delay(400);

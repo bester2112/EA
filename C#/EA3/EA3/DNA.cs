@@ -251,10 +251,11 @@ namespace EA3
             return inputType;
         }*/
 
-        public void setSignalType(SignalTyp signalTyp, long time)
+        public void setSignalType(SignalTyp signalTyp, long time, int countReplay)
         {
             signal.setType(signalTyp);
             signal.setTimeToRecognizeType(time);
+            signal.setReplayInitSignal(countReplay);
         }
 
         public void setSignalRating(SignalRating rating)
@@ -262,7 +263,7 @@ namespace EA3
             signal.setRating(rating);
         }
 
-        public void setSignalAlgo(SignalTyp signalTyp, SignalRating rating, SignalStrength signalStrength, long timeSignal, long timeRating, long timeStrength)
+        public void setSignalAlgo(SignalTyp signalTyp, SignalRating rating, SignalStrength signalStrength, long timeSignal, long timeRating, long timeStrength, int countReplay)
         {
             signal.setRecognizeType(signalTyp);
             signal.setTimeToRecognizeType(timeSignal);
@@ -270,6 +271,7 @@ namespace EA3
             signal.setTimeToRecognizeRating(timeRating);
             signal.setRecognizeStrength(signalStrength);
             signal.setTimeToRecognizeStrength(timeStrength);
+            signal.setAlgoCountReplay(countReplay);
         }
 
         public string createStringForIniialSignal()

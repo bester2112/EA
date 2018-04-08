@@ -61,6 +61,9 @@ namespace EA3
         private long timeToRecognizeRating;          // Zeit die benoetigt wurde um das Signal zu bewerten 
         private long timeToRecognizeStrength;        // Zeit die benoetigt wurde um die Stärke zu bewerten
 
+        private int replayCountInitSignalPage;       // replay Counter in InitSignalPage
+        private int replayCountAlgoPage;             // replay Counter in AlgoSignalPage
+
         /**
          * erstelle ein leeres Signal Objekt
          */
@@ -139,6 +142,9 @@ namespace EA3
             timeToRecognizeType = -1;
             timeToRecognizeRating = -1;
             timeToRecognizeStrength = -1;
+
+            replayCountInitSignalPage = -1;
+            replayCountAlgoPage = -1;
         }
 
         /**
@@ -300,6 +306,19 @@ namespace EA3
         {
             this.recognizeStrength = str;
             calculateNewStrength();
+        }
+
+        /**
+         * setzt counter von InitSignal methode
+         */
+        public void setReplayInitSignal(int signalInitReplayCounter)
+        {
+            this.replayCountInitSignalPage = signalInitReplayCounter;
+        }
+
+        public void setAlgoCountReplay(int countReplay)
+        {
+            this.replayCountAlgoPage = countReplay;
         }
 
         /**
@@ -466,8 +485,9 @@ namespace EA3
             str += string.Format(" #Einsen:    {0}", this.iEins) + Environment.NewLine;
             str += string.Format(" #Nullen:    {0}", this.iNull) + Environment.NewLine;
             str += string.Format(" Zeit Klick: {0}ms", this.timeToRecognizeType) + Environment.NewLine;
-            str += string.Format(" {0},{1},{2},{3},{4},{5}", this.time, this.type.ToString("F"),
-                this.strength.ToString("F"), this.iEins, this.iNull, this.timeToRecognizeType) + Environment.NewLine;
+            str += string.Format(" Replay:     {0} mal", this.replayCountInitSignalPage) + Environment.NewLine;
+            str += string.Format(" {0},{1},{2},{3},{4},{5},{6}", this.time, this.type.ToString("F"),
+                this.strength.ToString("F"), this.iEins, this.iNull, this.timeToRecognizeType, this.replayCountInitSignalPage) + Environment.NewLine;
             return str;
         }
 
@@ -491,9 +511,10 @@ namespace EA3
             str += string.Format(" #Nullen:                {0}", this.iNull) + Environment.NewLine;
             str += string.Format(" Beginn:                 {0}", this.begin) + Environment.NewLine;
             str += string.Format(" end:                    {0}", this.end) + Environment.NewLine;
-            str += string.Format(" {0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}", this.time, this.type.ToString("F"), this.recognizeType.ToString("F"),
+            str += string.Format(" Replay:                 {0}", this.replayCountAlgoPage) + Environment.NewLine;
+            str += string.Format(" {0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}{14}", this.time, this.type.ToString("F"), this.recognizeType.ToString("F"),
                 this.timeToRecognizeType, this.rating, this.timeToRecognizeRating, this.strength.ToString("F"), this.strengthBeforeChange.ToString("F"),
-                this.recognizeStrength.ToString("F"), this.timeToRecognizeStrength, this.iEins, this.iNull, this.begin, this.end) + Environment.NewLine;
+                this.recognizeStrength.ToString("F"), this.timeToRecognizeStrength, this.iEins, this.iNull, this.begin, this.end, this.replayCountAlgoPage) + Environment.NewLine;
             return str;
         }
 

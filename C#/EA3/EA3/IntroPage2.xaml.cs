@@ -113,8 +113,8 @@ namespace EA3
 
             if (allData)
             {
-                //var dialog = new MessageDialog("Danke Für Ihre Eingabe, Sie werden jetzt mit dem nächsten Schritt fortfahren");
-                //await dialog.ShowAsync();
+                var dialog = new MessageDialog("Danke Für Ihre Eingabe, Sie werden jetzt mit dem nächsten Schritt fortfahren");
+                await dialog.ShowAsync();
 
                 // Daten werden in der rootpage gespeichert
                 rootPage.setOtherPersonValues(this.usedTactil, this.usedWatch, this.playedGames);

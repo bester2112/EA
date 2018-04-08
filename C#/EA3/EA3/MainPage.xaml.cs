@@ -134,6 +134,10 @@ namespace EA3
             QueryDevices();
 
             DataContext = this;
+
+            // Starte die Hauptseite 
+            myFrame.Navigate(typeof(IntroPage));
+            hideMenuButtons();
         }
         
 
@@ -204,7 +208,7 @@ namespace EA3
             }
             else
             {
-                setup.saveSignalTyp(untypedSignal, 0);
+                setup.saveSignalTyp(untypedSignal, 0, 0);
                 switch (untypedSignal)
                 {
                     case SignalTyp.KURZ:
@@ -1386,6 +1390,41 @@ namespace EA3
             temp.Add(this.rangeStrength[this.generation - 1]);
 
             return temp;
+        }
+
+        bool visibleButtons = false;
+        private void checkBoxHideButtons_Checked(object sender, RoutedEventArgs e)
+        {
+            hideMenuButtons();
+        }
+
+        private void hideMenuButtons()
+        {
+            if (!visibleButtons)
+            {
+                visibleButtons = true;
+                testButton.Visibility = Visibility.Collapsed;
+                testButton_2.Visibility = Visibility.Collapsed;
+                testButton_3.Visibility = Visibility.Collapsed;
+                testButton_4.Visibility = Visibility.Collapsed;
+                testButton_5.Visibility = Visibility.Collapsed;
+                testButton_6.Visibility = Visibility.Collapsed;
+                testButton_7.Visibility = Visibility.Collapsed;
+                testButton_21_Copy.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                visibleButtons = false;
+                testButton.Visibility = Visibility.Visible;
+                testButton_2.Visibility = Visibility.Visible;
+                testButton_3.Visibility = Visibility.Visible;
+                testButton_4.Visibility = Visibility.Visible;
+                testButton_5.Visibility = Visibility.Visible;
+                testButton_6.Visibility = Visibility.Visible;
+                testButton_7.Visibility = Visibility.Visible;
+                testButton_21_Copy.Visibility = Visibility.Visible;
+            }
+
         }
     }
 }

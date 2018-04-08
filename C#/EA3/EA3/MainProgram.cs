@@ -265,15 +265,15 @@ namespace EA3
         }
 
         // diese Methode liefert das speichert den näachsten Signaltypen und die Zeit die benötigt wurde um es zu erkennen
-        public void saveSignalTyp(SignalTyp signalTyp, long time)
+        public void saveSignalTyp(SignalTyp signalTyp, long time, int countReplay)
         {
-            p.saveSignalType(signalTyp, time);
+            p.saveSignalType(signalTyp, time, countReplay);
         }
 
         public void saveSignalAlgo(SignalTyp untypedSignal, SignalRating signalRating, SignalStrength signalStrength,
-                                   long timeSignal, long timeRating, long timeStrength)
+                                   long timeSignal, long timeRating, long timeStrength, int countReplay)
         {
-            pAlgo.saveSignalAlgo(untypedSignal, signalRating, signalStrength, timeSignal, timeRating, timeStrength);
+            pAlgo.saveSignalAlgo(untypedSignal, signalRating, signalStrength, timeSignal, timeRating, timeStrength, countReplay);
         }
 
         public void saveSignalRating(SignalRating signalRating)
