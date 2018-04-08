@@ -348,14 +348,19 @@ namespace EA3
             playSignal(tmp); // Signal abspielen
 
             // Speicher Daten vom Muster
+            // Eingabe von der letzten Vibration speichern
             allReplays.Add(countReplays);
-            countReplays = 0;
-            allGenORStandList.Add(genOrStan);
-            allMusterList.Add(signalList);
             allTimeList.Add(sTime);
             allSignalList.Add(sList);
+            // und anschließend Variablen auf 0 setzen 
+            countReplays = 0;
             sList = new List<SignalTyp>();
             sTime = new List<long>();
+
+            // Variablen für die nächste Vibration speichern
+            allGenORStandList.Add(genOrStan);
+            allMusterList.Add(signalList);
+
             this.startTime = Environment.TickCount;
             printOnScreen();
         }
