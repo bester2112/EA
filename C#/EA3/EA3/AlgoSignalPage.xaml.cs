@@ -55,7 +55,7 @@ namespace EA3
             #region UI Initialisierung 
             FirstLineText.Text = "Bitte bewerten Sie das Signal.";
             TextBlockFrage1.Text = "Was für einen Signaltypen haben Sie erkannt?";
-            TextBlockFrage2.Text = "Wie gut haben Sie das Signal als X Signal erkannt?";
+            TextBlockFrage2.Text = "Wie gut haben Sie das Signal erkannt?";
             TextBlockFrage3.Text = "Wie empfanden Sie die Stärke des Signals?";
             #endregion
         }
@@ -80,7 +80,8 @@ namespace EA3
         private async void initialize()
         {
             // Erklärung darstellen
-            var dialog = new MessageDialog("Im Folgenden werden Für Sie Personalisierte Signale gespielt. Bitte beantworten Sie die folgende Fragen.");
+            var dialog = new MessageDialog("Im Folgenden werden Für Sie Personalisierte Signale gespielt. "
+                + Environment.NewLine + "Bitte beantworten Sie die folgende Fragen.");
             await dialog.ShowAsync();
 
             // Cursor auf Startposition setzen 
@@ -256,8 +257,8 @@ namespace EA3
 
                 // TODO auskommentieren
                 // Cursor auf Startposition setzen 
-                //int[] temp = rootPage.getMousePosition("AlgoSignalPage");
-                //rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
+                int[] temp = rootPage.getMousePosition("AlgoSignalPage");
+                rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
                 //startTime = Environment.TickCount;
             }
         }

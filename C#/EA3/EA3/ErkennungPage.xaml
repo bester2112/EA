@@ -18,7 +18,7 @@
 					<TextBlock x:Name="TextBlockFrage" Text="Frage" Padding="0,0,0,0" Margin="0,0,0,0"/>
 					<TextBlock Text="" Padding="0,0,0,0" Margin="0,0,0,0"/>
 					<StackPanel Height="75" Margin="90,0,0,0">
-						<TextBlock x:Name="pressedButtonText" Text="K - M - L - K - L" Height="28" Margin="35,0,44,0" FontSize="22" />
+						<TextBlock x:Name="pressedButtonText" Text="K - M - L - K - L" Height="28" Margin="35,0,0,0" FontSize="22" />
 						<Button x:Name="ButtonKurz" Content="K" Height="33" Width="33" Margin="0,10,0,0" Click="ButtonKurz_Click"/>
 						<Button x:Name="ButtonMittel" Content="M" Height="33" Width="33" Margin="90,-33,0,0" Click="ButtonMittel_Click"/>
 						<Button x:Name="ButtonLang" Content="L" Height="33" Width="33" Margin="180,-33,0,0" Click="ButtonLang_Click"/>

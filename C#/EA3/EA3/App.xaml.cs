@@ -40,12 +40,12 @@ namespace EA3
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             // TODO (entfernen wenn nicht mehr benoetigt wird)
-#if DEBUG 
+/*#if DEBUG 
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 this.DebugSettings.EnableFrameRateCounter = true;
             }
-# endif
+# endif*/
             // END TODO 
             Frame rootFrame = Window.Current.Content as Frame;
 

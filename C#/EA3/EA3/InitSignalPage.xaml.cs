@@ -169,6 +169,9 @@ namespace EA3
                 evaluateClick();
             }
 
+            //hideUI(true);
+            //hideUI(false);
+
             playSignal();
 
             // Cursor auf Startposition setzen 
@@ -176,6 +179,25 @@ namespace EA3
             rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
             startTime = Environment.TickCount;
         }
+
+        /*private async void hideUI(bool res)
+        {
+            if (res)
+            {
+                RadioButtonKurz.Visibility = Visibility.Collapsed;
+                RadioButtonMittel.Visibility = Visibility.Collapsed;
+                RadioButtonLang.Visibility = Visibility.Collapsed;
+
+                await Task.Delay(100);
+
+            }
+            else
+            {
+                RadioButtonKurz.Visibility = Visibility.Visible;
+                RadioButtonMittel.Visibility = Visibility.Visible;
+                RadioButtonLang.Visibility = Visibility.Visible;
+            }
+        }*/
 
         private async void evaluateClick()
         {

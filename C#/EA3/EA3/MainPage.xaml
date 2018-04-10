@@ -62,7 +62,7 @@
 			<Button x:Name="testButton_5" Content="EmotionPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="550,50,-711.333,-389.667" Click="testButton5"/>
 			<Button x:Name="testButton_6" Content="ErkennungPage" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="700,50,-711.333,-389.667" Click="testButton6"/>
 			<Button x:Name="testButton_7" Content="Move" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="118" Margin="850,50,-711.333,-389.667" Click="TestButtonMoveCursor"/>
-			<Frame x:Name="myFrame" Content="myFrame" HorizontalAlignment="Left" Height="500" Margin="341,100,-840.667,-762" VerticalAlignment="Top" Width="800" BorderBrush="Black" BorderThickness="1"/>
+			<Frame x:Name="myFrame" Content="myFrame" HorizontalAlignment="Left" Height="500" Margin="275,180,-774.5,-680" VerticalAlignment="Top" Width="800" BorderBrush="Black" BorderThickness="1"/>
 			<CheckBox x:Name="checkBoxHideButtons" Content=" " HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="24" Margin="1333,147,-1139,-147" Checked="checkBoxHideButtons_Checked"/>
 		</RelativePanel>
 

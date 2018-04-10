@@ -27,6 +27,7 @@ using Windows.Storage.Streams;
 using Windows.Storage.Pickers;
 using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
+using System.Collections;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x407 dokumentiert.
 
@@ -50,6 +51,9 @@ namespace EA3
         private List<int[]> rangeTime = new List<int[]>();
         private new List<int[]> rangeStrength = new List<int[]>();
 
+        private int key = -1;
+        Hashtable timetoSendHashTable = new Hashtable();
+        bool lastStep = false;
 
         // BLE VARS
         private Int16[] lengthSignal = new Int16[MAX_POINTS - 1];
@@ -854,8 +858,10 @@ namespace EA3
          * signalAndStrengthHexString[0] = Muster Hex Zeit String
          * signalAndStrengthHexString[1] = Muster Hex Staerke String
          */
-        public void playMuster(string[] signalAndStrengthHexString)
+        public void playMuster(string[] signalAndStrengthHexString, int key)
         {
+            lastStep = true;
+            this.key = key;
             createByteForMuster(signalAndStrengthHexString);
             // send values to tactile device
             try
@@ -914,7 +920,12 @@ namespace EA3
             }
 
             long endTime = Environment.TickCount;
-            Debug.WriteLine(endTime + " Status for " + ByteArrayToString(bytes) + ": " + status + ". Time: " + (endTime - startTime) + " ms");
+            long timeToSend = (endTime - startTime);
+            if (lastStep)
+            {
+                timetoSendHashTable.Add(key, timeToSend);
+            }
+            Debug.WriteLine(endTime + " Status for " + ByteArrayToString(bytes) + ": " + status + ". Time: " + timeToSend + " ms");
         }
 
         public string strengthToHexString(int strength, int modus)
@@ -999,16 +1010,6 @@ namespace EA3
             //setup.newSaveInFileinCSharp();
             //testWritingFile2222("");
             //testWritingFile222();
-            
-            string time     = "1032";
-            string strength = "7FFF";
-
-            string[] temp = new string[2];
-            temp[0] = time;
-            temp[1] = strength;
-
-            playMuster(temp);
-
 
             testButton.Content = "TestButton DONE!";
         }
@@ -1146,20 +1147,20 @@ namespace EA3
                     pos[1] = 100;
                 break;
                 case "InitSignalPage":
-                    pos[0] = 200;
-                    pos[1] = 200;
+                    pos[0] = 673;
+                    pos[1] = 360;
                 break;
                 case "AlgoSignalPage":
-                    pos[0] = 500;
-                    pos[1] = 500;
+                    pos[0] = 675;
+                    pos[1] = 275;
                 break;
-                case "EmotionPage":
-                    pos[0] = 700;
-                    pos[1] = 700;
+                case "EmotionPage": // wird in der methode selbst gespeichert
+                    pos[0] = 675;
+                    pos[1] = 275;
                 break;
                 case "ErkennungPage":
-                    pos[0] = 900;
-                    pos[1] = 900;
+                    pos[0] = 575;
+                    pos[1] = 380;
                 break;
                 default:
                     pos[0] = 1000;
@@ -1440,7 +1441,11 @@ namespace EA3
                 testButton_7.Visibility = Visibility.Visible;
                 testButton_21_Copy.Visibility = Visibility.Visible;
             }
+        }
 
+        public Hashtable getTimeToSend()
+        {
+            return this.timetoSendHashTable;
         }
     }
 }

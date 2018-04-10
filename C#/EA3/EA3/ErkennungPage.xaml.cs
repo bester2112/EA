@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -59,6 +60,9 @@ namespace EA3
 
         private int totalMuster;                        // speichert, wie viele Muster bisher abgespielt wurden.
 
+        int sendTime;                                   // Key, der für die Zeit benötigt wird, der asynchron in der MainPage gespeichert wird, dort wird die Zeit gespeichert, die gebötigt wurde um an das Gerät zu senden
+        private List<int> allKeysToSendToDevice;        // Keys für alle Muster
+
         public ErkennungPage()
         {
             this.InitializeComponent();
@@ -79,6 +83,14 @@ namespace EA3
         }
         private async void initialize()
         {
+            commitButton.Visibility = Visibility.Collapsed;
+            ButtonKurz.Visibility = Visibility.Collapsed;
+            ButtonMittel.Visibility = Visibility.Collapsed;
+            ButtonLang.Visibility = Visibility.Collapsed;
+            clearButton.Visibility = Visibility.Collapsed;
+            TextBlockFrage.Visibility = Visibility.Collapsed;
+            pressedButtonText.Text = "Bitte Warten, zur Errinnerung es gibt Süßigkeiten";
+
             // Erklärung darstellen
             var dialog = new MessageDialog("Im Folgenden wird für Sie eine Folge von Signalen abgespielt." + Environment.NewLine 
                 + "Sie sollen die Signale wie Sie die in der Reihenfolge erkannt haben angeben. " + Environment.NewLine
@@ -107,6 +119,9 @@ namespace EA3
             genOrStan = "MUHH";
             allGenORStandList = new List<String>();
 
+            sendTime = 0;
+            allKeysToSendToDevice = new List<int>();
+
             countReplays = 0;
             allReplays = new List<int>();
 
@@ -116,18 +131,6 @@ namespace EA3
             countButtonClicks = 0;
 
             musterTime = 0;
-
-
-            commitButton.Visibility = Visibility.Collapsed;
-            ButtonKurz.Visibility = Visibility.Collapsed;
-            ButtonMittel.Visibility = Visibility.Collapsed;
-            ButtonLang.Visibility = Visibility.Collapsed;
-            clearButton.Visibility = Visibility.Collapsed;
-            pressedButtonText.Text = "Bitte Warten ... ";
-            
-            // Cursor auf Startposition setzen 
-            int[] temp = rootPage.getMousePosition("ErkennungPage");
-            rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
             
             // DONE 1. erstelle 2 mal einen Pool 
             // DONE 2. ziehe in zufälliger Zeihenfolge ein Signal aus dem Pool 
@@ -149,6 +152,11 @@ namespace EA3
             ButtonMittel.Visibility = Visibility.Visible;
             ButtonLang.Visibility = Visibility.Visible;
             clearButton.Visibility = Visibility.Visible;
+            TextBlockFrage.Visibility = Visibility.Visible;
+
+            // Cursor auf Startposition setzen 
+            int[] temp = rootPage.getMousePosition("ErkennungPage");
+            rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
 
             // Starten der Zeit 
             this.startTime = Environment.TickCount;
@@ -269,13 +277,15 @@ namespace EA3
             // die beiden Strings werden jetzt in der rootPage umgewandelt
             // umwandeln in byte[] (Arrays)
             // Nach dem Umwandeln, ruft man die PlayMethode auf.
-            rootPage.playMuster(tmp);
+            rootPage.playMuster(tmp, sendTime);
+            sendTime++;
             replayStrings = tmp;
         }
 
         private void Replay(object sender, RoutedEventArgs e)
         {
-            rootPage.playMuster(replayStrings);
+            rootPage.playMuster(replayStrings, sendTime);
+            sendTime++;
             countReplays++;
         }
 
@@ -354,6 +364,10 @@ namespace EA3
             countButtonClicks = 0;
 
             playMuster();
+
+            // Cursor auf Startposition setzen 
+            int[] temp = rootPage.getMousePosition("ErkennungPage");
+            rootPage.setCursorPositionOnDefault(temp[0], temp[1]);
         }
 
         private async void playMuster()
@@ -387,7 +401,7 @@ namespace EA3
 
             if (totalMuster > 90)
             {
-                var dialog = new MessageDialog("Die Studie ist nach der folgenden Bewertung erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
+                var dialog = new MessageDialog("Die Studie ist erfolgreich beendet, bitte schließen Sie das Programm NICHT!");
                 await dialog.ShowAsync();
 
                 disableAllButtons();
@@ -399,6 +413,7 @@ namespace EA3
             // Variablen für die nächste Vibration speichern
             allGenORStandList.Add(genOrStan);
             allMusterList.Add(signalList);
+            allKeysToSendToDevice.Add(sendTime);
 
             this.startTime = Environment.TickCount;
             printOnScreen();
@@ -428,6 +443,8 @@ namespace EA3
             // Speicher Daten vom Muster
             allGenORStandList.Add(genOrStan);
             allMusterList.Add(signalList);
+            allKeysToSendToDevice.Add(sendTime);
+
             this.startTime = Environment.TickCount;
             printOnScreen();
         }
@@ -458,19 +475,30 @@ namespace EA3
                 string sallMusterString = "";
                 string pauseTimeTemp = "";
                 List<Signal> sTemp = allMusterList[i];
-                string tempComp = "";
+                string sAllMusterTimeString = "";
+                string tempAllMusterComp = "";
+                string tempPauseComp = "";
+                int musterTime = 0;
                 for (int j = 0; j < sTemp.Count; j++)
                 {
+                    int theTime = sTemp[j].getTime();
+                    if (j < (sTemp.Count - 1))
+                    {
+                        musterTime += theTime;
+                    }
                     if (j%2 == 0)
                     {
                         sallMusterString += string.Format("{0} ", sTemp[j].getType());
                         compromised += string.Format("{0},", sTemp[j].getType());
+                        sAllMusterTimeString += string.Format("  {0}.         :        {1}ms", (j + 1),
+                                                        sTemp[j].getTime()) + Environment.NewLine;
+                        tempAllMusterComp += string.Format("{0},", theTime);
                     }
                     else
                     {
                         pauseTimeTemp += string.Format("  {0}.         :        {1}ms", (j + 1),
                                                         sTemp[j].getTime()) + Environment.NewLine;
-                        tempComp += string.Format("{0},",sTemp[j].getTime());
+                        tempPauseComp += string.Format("{0},",theTime);
                     }
                 }
 
@@ -484,7 +512,7 @@ namespace EA3
 
                 string sallTimeString = "";
                 List<long> sTimeTemp = allTimeList[i];
-                str += string.Format(" Zeit benötigt : ") + Environment.NewLine;
+                sallTimeString += string.Format(" Zeit benötigt : ") + Environment.NewLine;
                 for (int j = 0; j < sTimeTemp.Count; j++)
                 {
                     sallTimeString += string.Format("  {0}.         :        {1}ms", (j + 1), sTimeTemp[j]) + Environment.NewLine;
@@ -496,10 +524,19 @@ namespace EA3
                 str += string.Format(" Muster erkannt :     {0}", sallSignalString) + Environment.NewLine;
                 str += string.Format("{0}", sallTimeString);
                 str += string.Format(" #Replays:            {0}", this.allReplays[i]) + Environment.NewLine;
+                // ohne der Zeit von der letzten Pause
+                str += string.Format(" Länge des Musters    {0}", musterTime) + Environment.NewLine;
+                str += string.Format(" Länge der Pause:" + Environment.NewLine + "{0}", pauseTimeTemp);
+                str += string.Format(" Länge der Signale:" + Environment.NewLine + "{0}", sAllMusterTimeString);
 
-                compromised += tempComp;
+                Hashtable timesToSends = rootPage.getTimeToSend();
+                str += string.Format(" Zeit zum übertragen: {0}ms", timesToSends[this.allKeysToSendToDevice[i]]) + Environment.NewLine;
 
-                str += string.Format("{0},{1}{2}", this.allGenORStandList[i], compromised, this.allReplays[i]) + Environment.NewLine;
+                compromised += musterTime + ",";
+                compromised += tempPauseComp;
+                compromised += tempAllMusterComp;
+
+                str += string.Format("{0},{1}{2},{3}", this.allGenORStandList[i], compromised, timesToSends[this.allKeysToSendToDevice[i]], this.allReplays[i]) + Environment.NewLine;
             }
             
             return str;
