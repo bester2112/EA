@@ -536,7 +536,7 @@ namespace EA3
                 compromised += tempPauseComp;
                 compromised += tempAllMusterComp;
 
-                str += string.Format("{0},{1}{2},{3}", this.allGenORStandList[i], compromised, timesToSends[this.allKeysToSendToDevice[i]], this.allReplays[i]) + Environment.NewLine;
+                str += string.Format("!{0},{1}{2},{3}", this.allGenORStandList[i], compromised, timesToSends[this.allKeysToSendToDevice[i]], this.allReplays[i]) + Environment.NewLine;
             }
             
             return str;

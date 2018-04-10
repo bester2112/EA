@@ -1271,7 +1271,7 @@ namespace EA3
                 temp += allAlgoPopulations[iX].createStringAlgoSignal();
             }
             temp += line();
-            algoData += temp;
+            algoData = temp;
             #endregion
             return res;
         }
