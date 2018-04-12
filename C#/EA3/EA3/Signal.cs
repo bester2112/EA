@@ -512,7 +512,7 @@ namespace EA3
             str += string.Format(" Beginn:                 {0}", this.begin) + Environment.NewLine;
             str += string.Format(" end:                    {0}", this.end) + Environment.NewLine;
             str += string.Format(" Replay:                 {0}", this.replayCountAlgoPage) + Environment.NewLine;
-            str += string.Format("#{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}{14}", this.time, this.type.ToString("F"), this.recognizeType.ToString("F"),
+            str += string.Format("#{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14}", this.time, this.type.ToString("F"), this.recognizeType.ToString("F"),
                 this.timeToRecognizeType, this.rating, this.timeToRecognizeRating, this.strength.ToString("F"), this.strengthBeforeChange.ToString("F"),
                 this.recognizeStrength.ToString("F"), this.timeToRecognizeStrength, this.iEins, this.iNull, this.begin, this.end, this.replayCountAlgoPage) + Environment.NewLine;
             return str;

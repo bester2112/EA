@@ -14,9 +14,9 @@ namespace EA3
         private static readonly int PAUSEEND = 100;
         private static readonly int PAUSE2 = 200;
 
-        private static readonly int KURZSTANDARD = 150;
-        private static readonly int MITTELSTANDARD = 300;
-        private static readonly int LANGSTANDARD = 600;
+        private static readonly int KURZSTANDARD = 200;
+        private static readonly int MITTELSTANDARD = 400;
+        private static readonly int LANGSTANDARD = 800;
 
         private static readonly SignalStrength KURZSTRENGTH = SignalStrength.STRONG;
         private static readonly SignalStrength MITTELSTRENGTH = SignalStrength.STRONG;

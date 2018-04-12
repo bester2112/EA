@@ -89,6 +89,7 @@ namespace EA3
             ButtonLang.Visibility = Visibility.Collapsed;
             clearButton.Visibility = Visibility.Collapsed;
             TextBlockFrage.Visibility = Visibility.Collapsed;
+            ButtonReplay.Visibility = Visibility.Collapsed;
             pressedButtonText.Text = "Bitte Warten, zur Errinnerung es gibt Süßigkeiten";
 
             // Erklärung darstellen
@@ -153,6 +154,7 @@ namespace EA3
             ButtonLang.Visibility = Visibility.Visible;
             clearButton.Visibility = Visibility.Visible;
             TextBlockFrage.Visibility = Visibility.Visible;
+            ButtonReplay.Visibility = Visibility.Visible;
 
             // Cursor auf Startposition setzen 
             int[] temp = rootPage.getMousePosition("ErkennungPage");
@@ -176,19 +178,38 @@ namespace EA3
                 //TODO DELETE HARD FIX NUR ZUM ZEIGEN  
                 // DIESER CODE WIRD NICHT AUSGEFÜHRT, IN DER EIGENTLICHEN STUDIE
                 int[] temp2 = new int[6];
+                /*
                 for (int i = 0; i < 6; i += 2)
                 {
                     temp2[i] = 100 * (i + 1);
                     temp2[i + 1] = 200 * (i + 1);
                 }
-                temp.Add(temp2);
+                temp.Add(temp2);*/
 
                 int[] temp3 = new int[6];
-                for (int i = 0; i < 6; i += 2)
+                /*for (int i = 0; i < 6; i += 2)
                 {
                     temp3[i] = 1;
                     temp3[i + 1] = 5;
                 }
+                temp.Add(temp3);
+                */
+
+                temp2[0] = 126;
+                temp2[1] = 136;
+                temp2[2] = 459;
+                temp2[3] = 519;
+                temp2[4] = 795;
+                temp2[5] = 850;
+
+                temp3[0] = 5;
+                temp3[1] = 5;
+                temp3[2] = 4;
+                temp3[3] = 5;
+                temp3[4] = 3;
+                temp3[5] = 5;
+
+                temp.Add(temp2);
                 temp.Add(temp3);
                 // ENDE TODO
             }
