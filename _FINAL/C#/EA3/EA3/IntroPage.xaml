@@ -1,0 +1,41 @@
+﻿<Page
+    x:Class="EA3.IntroPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:EA3"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" Height="500" Width="800">
+
+	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+		<StackPanel Margin="50,50,50,50">
+			<TextBlock x:Name="FirstLineText" Text="TextBlock"/>
+
+			<StackPanel Height="221" Margin="50,50,50,50">
+				<StackPanel Height="75" Margin="0,0,0,0">
+					<TextBlock x:Name="TextBlockAge" Text="Alter" Padding="50,10,0,0" Margin="0,0,0,0"/>
+					<TextBox x:Name="TextBoxAge" Margin="400,-26,80,0" KeyDown="TextBoxAge_KeyDown"/>
+					<!-- -26 -->
+				</StackPanel>
+				<StackPanel Height="75" Margin="0,0,0,0">
+					<TextBlock x:Name="TextBlockMan" Text="Männlich" Padding="330,0,0,0" Margin="0,0,0,0"/>
+					<TextBlock x:Name="TextBlockWoman" Text="Weiblich" Padding="430,0,0,0" Margin="0,-20,0,0"/>
+					<TextBlock x:Name="TextBlockNA" Text="N.A." Padding="546,0,0,0" Margin="0,-20,0,0"/>
+					<TextBlock x:Name="TextBlockSex" Text="Geschlecht" Padding="50,0,0,0" />
+					<RadioButton x:Name="RadioButtonMale" Width="50" Margin="350,-25,0,0"/>
+					<RadioButton x:Name="RadioButtonWoman" Width="50" Margin="450,-32,0,0"/>
+					<RadioButton x:Name="RadioButtonNA" Width="50" Margin="550,-32,0,0"/>
+				</StackPanel>
+				<StackPanel Height="75" Margin="0,0,0,0">
+					<TextBlock x:Name="TextBlockMusicYes" Text="Ja" Padding="453,0,0,0" Margin="0,0,0,0"/>
+					<TextBlock x:Name="TextBlockMusicNo" Text="Nein" Padding="543,0,0,0" Margin="0,-20,0,0"/>
+					<TextBlock x:Name="TextBlockMusic" Text="Empfinden Sie sich als musikalisch ?" Padding="50,0,0,0" Margin="0,0,0,0"/>
+					<RadioButton x:Name="RadioButtonMusicYes" Width="50" Margin="450,-25,0,0"/>
+					<RadioButton x:Name="RadioButtonMusicNo" Width="50" Margin="550,-32,0,0"/>
+				</StackPanel>
+				
+			</StackPanel>
+			<Button x:Name="ButtonConfirm" Content="Bestätigen" Margin="600,15,0,0" Click="Confirm" />
+		</StackPanel>
+	</Grid>
+</Page>
